@@ -14,7 +14,6 @@ const auth_service_1 = require("../services/auth-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    console.log("first", body);
     const user = yield (0, auth_service_1.createUser)(body);
     res
         .status(201)

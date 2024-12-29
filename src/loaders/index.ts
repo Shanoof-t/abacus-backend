@@ -1,4 +1,4 @@
-import { LoaderParams } from "../types/LoaderParams";
+import { LoaderParams } from "../types/loader-types";
 import databaseLoader from "./db";
 import expressLoader from "./express";
 import "colors";

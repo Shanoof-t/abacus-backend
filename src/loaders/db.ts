@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
+import env from "../config/env_variables";
 
 export default async () => {
-  const uri =
-    "mongodb+srv://shanoof:abacus@cluster0.3s16r.mongodb.net/abacus?retryWrites=true&w=majority&appName=Cluster0";
-  const conn = await mongoose.connect(uri);
+  const conn = await mongoose.connect(env.MONGO_URL);
   return conn.connection;
 };

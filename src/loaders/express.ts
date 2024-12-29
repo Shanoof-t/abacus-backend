@@ -2,7 +2,8 @@ import { Request } from "express";
 import globalErrorHanlder from "../utils/global-error-hanlder";
 import routes from "./routes";
 import cors from "cors";
-import { LoaderParams } from "../types/LoaderParams";
+import cookieParser from "cookie-parser";
+import { LoaderParams } from "../types/loader-types";
 export default async ({ app, express }: LoaderParams) => {
   app.use(express.json());
   app.use(
@@ -12,6 +13,7 @@ export default async ({ app, express }: LoaderParams) => {
       credentials: true,
     })
   );
+  app.use(cookieParser());
   routes({ app, express });
   app.use(globalErrorHanlder);
 };

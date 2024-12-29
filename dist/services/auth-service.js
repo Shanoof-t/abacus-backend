@@ -8,16 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const loaders_1 = __importDefault(require("./loaders"));
-const app = (0, express_1.default)();
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT);
+exports.createUser = void 0;
+const user_model_1 = require("../models/user-model");
+const createUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield user_model_1.User.create(user);
 });
-startServer();
+exports.createUser = createUser;

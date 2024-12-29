@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.7.2"}
+{"root":["./src/index.ts","./src/controllers/auth-controller.ts","./src/loaders/db.ts","./src/loaders/express.ts","./src/loaders/index.ts","./src/loaders/routes.ts","./src/models/user-model.ts","./src/routes/v1/auth-routes.ts","./src/services/auth-service.ts","./src/utils/error-handlers.ts","./src/utils/global-error-hanlder.ts","./src/utils/types/LoaderParams.ts"],"version":"5.7.2"}

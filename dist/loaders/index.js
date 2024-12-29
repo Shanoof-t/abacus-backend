@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const loaders_1 = __importDefault(require("./loaders"));
-const app = (0, express_1.default)();
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT);
+const db_1 = __importDefault(require("./db"));
+const express_1 = __importDefault(require("./express"));
+require("colors");
+exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, express }) {
+    var _b;
+    const db = yield (0, db_1.default)();
+    console.log(`monogodb connected:${db.host}`.cyan.underline);
+    console.log(`Connected to the database : ${(_b = db.db) === null || _b === void 0 ? void 0 : _b.databaseName}`.green.bold);
+    (0, express_1.default)({ app, express });
 });
-startServer();

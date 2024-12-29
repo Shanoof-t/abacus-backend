@@ -12,12 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const loaders_1 = __importDefault(require("./loaders"));
-const app = (0, express_1.default)();
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT);
+const mongoose_1 = __importDefault(require("mongoose"));
+exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
+    const uri = "mongodb+srv://shanoof:abacus@cluster0.3s16r.mongodb.net/abacus?retryWrites=true&w=majority&appName=Cluster0";
+    const conn = yield mongoose_1.default.connect(uri);
+    return conn.connection;
 });
-startServer();

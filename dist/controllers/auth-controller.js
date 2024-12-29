@@ -8,16 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const loaders_1 = __importDefault(require("./loaders"));
-const app = (0, express_1.default)();
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT);
-});
-startServer();
+exports.signUp = void 0;
+const auth_service_1 = require("../services/auth-service");
+const error_handlers_1 = require("../utils/error-handlers");
+exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { body } = req;
+    console.log("first", body);
+    const user = yield (0, auth_service_1.createUser)(body);
+    res
+        .status(201)
+        .json({ status: "success", message: "Sign Up is Successfull", data: user });
+}));

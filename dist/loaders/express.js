@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const global_error_hanlder_1 = __importDefault(require("../utils/global-error-hanlder"));
 const routes_1 = __importDefault(require("./routes"));
 const cors_1 = __importDefault(require("cors"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, express }) {
     app.use(express.json());
     app.use((0, cors_1.default)({
@@ -22,6 +23,7 @@ exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, expr
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true,
     }));
+    app.use((0, cookie_parser_1.default)());
     (0, routes_1.default)({ app, express });
     app.use(global_error_hanlder_1.default);
 });

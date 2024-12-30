@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
-import Joi from "joi";
+import { ZodSchema } from "zod";
 
-export default (schema: Joi.ObjectSchema): RequestHandler =>
+
+export default (schema: ZodSchema): RequestHandler =>
   function (req, res, next) {
-    const { error } = schema.validate(req.body);
+    const { error } = schema.safeParse(req.body);
     if (error) {
       next(error);
     } else {

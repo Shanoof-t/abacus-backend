@@ -12,9 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const env_variables_1 = __importDefault(require("../config/env_variables"));
-exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
-    const conn = yield mongoose_1.default.connect(env_variables_1.default.MONGO_URL);
-    return conn.connection;
-});
+const bcrypt_1 = __importDefault(require("bcrypt"));
+exports.default = {
+    hashPassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ password }) {
+        return yield bcrypt_1.default.hash(password, 10);
+    }),
+    VerifyPassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ password, existingPassword, }) {
+        return yield bcrypt_1.default.compare(password, existingPassword);
+    }),
+};

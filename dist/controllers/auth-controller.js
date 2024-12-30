@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signUp = void 0;
+exports.signIn = exports.signUp = void 0;
 const auth_service_1 = require("../services/auth-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -18,4 +18,20 @@ exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter
     res
         .status(201)
         .json({ status: "success", message: "Sign Up is Successfull", data: user });
+}));
+exports.signIn = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { body } = req;
+    const { accessToken, user: { _id, email }, } = yield (0, auth_service_1.authenticateUser)(body);
+    res.cookie("token", accessToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/",
+    });
+    res.status(200).json({
+        status: "success",
+        message: "Successfully logged In.",
+        data: { _id, email },
+    });
 }));

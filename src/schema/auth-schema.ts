@@ -1,18 +1,24 @@
-import Joi from "joi";
+import { z } from "zod";
 
-const signUp = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+const signUp = z.object({
+  email: z.string().email(),
+  password: z.string(),
 });
 
-const signIn = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+const signIn = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
+const verifyOTP = z.object({
+  userId: z.string(),
+  otp: z.string(),
 });
 
 const schema = {
   signUp,
   signIn,
+  verifyOTP,
 };
 
 export default schema;

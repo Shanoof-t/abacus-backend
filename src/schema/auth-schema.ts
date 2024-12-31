@@ -15,10 +15,15 @@ const verifyOTP = z.object({
   otp: z.string(),
 });
 
+const retryOTP = z.object({
+  userId: z.string(),
+});
+
 const schema = {
   signUp,
   signIn,
   verifyOTP,
+  retryOTP
 };
 
 export default schema;

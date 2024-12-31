@@ -3,6 +3,8 @@ import {
   authenticateUser,
   createOTP,
   createUser,
+  userOTPRetry,
+  verifyUserOTP,
 } from "../services/auth-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 
@@ -46,5 +48,18 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
 
 export const verifyOTP = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-  
+  await verifyUserOTP(body);
+  res.status(200).json({
+    status: "success",
+    message: "OTP vefication is success",
+  });
+});
+
+export const retryOTP = asyncErrorHandler(async (req, res) => {
+  const { body } = req;
+  await userOTPRetry(body);
+  res.status(200).json({
+    status: "success",
+    message: "Retry otp is success",
+  });
 });

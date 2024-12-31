@@ -16,4 +16,7 @@ export default {
   VerifyPassword: async ({ password, existingPassword }: VerifyPassword) => {
     return await bcrypt.compare(password, existingPassword);
   },
+  verifyOTP: async ({ otp, hashedOTP }: { otp: string; hashedOTP: string }) => {
+    return await bcrypt.compare(otp, hashedOTP);
+  },
 };

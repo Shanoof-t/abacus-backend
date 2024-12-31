@@ -11,3 +11,8 @@ export type CreateOTP = {
   email: string;
   hashedOTP?: string;
 };
+
+export type OtpBody = {
+  userId: string;
+  otp: string;
+};

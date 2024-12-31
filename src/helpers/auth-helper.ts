@@ -10,13 +10,13 @@ export default {
       specialChars: false,
     });
   },
-  createOneTimePassword: async ({ _id, hashedOTP, email }: CreateOTP) => {
+  createOneTimePassword: async ({ _id, hashedOTP }: CreateOTP) => {
     return await OneTimePassword.create({
       userId: _id,
-      email,
+    
       otp: hashedOTP,
       createdAt: Date.now(),
-      expiresAt: new Date(Date.now() + 60 * 1000),
+      expiresAt: Date.now() + 60 * 1000,
     });
   },
 };

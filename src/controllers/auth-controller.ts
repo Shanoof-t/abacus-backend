@@ -81,6 +81,14 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
   const { code } = req.body;
   const data = await googleOAuthCallback(code);
 
+  res.cookie("token", data.accessToken, {
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
+
   res.status(200).json({
     status: "success",
     message: "google authentication is Successfull",

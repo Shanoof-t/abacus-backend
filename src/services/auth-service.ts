@@ -7,10 +7,7 @@ import authHelper from "../helpers/auth-helper";
 import { mailOption, transporter } from "../config/nodemailer";
 import { OneTimePassword } from "../models/otp-verification-model";
 import { User } from "../models/user-model";
-
-import { OAuth2Client } from "google-auth-library";
-import env from "../config/env_variables";
-import { google } from "googleapis";
+import { googleOauth2Client } from "../config/google_oauth2";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -24,6 +21,10 @@ export const authenticateUser = async (loginData: SignIn) => {
   const { email, password } = loginData;
   const user = await userHelper.getUser({ email });
   if (!user) throw new CustomError("Your email is incorrect", 404);
+
+  if (!user.password)
+    throw new CustomError("Can't find the existing password", 500);
+
   const isPasswordCorrect = await securityHelper.VerifyPassword({
     password,
     existingPassword: user.password,
@@ -88,17 +89,9 @@ export const googleOAuthRequest = async () => {
     "https://www.googleapis.com/auth/userinfo.email",
     "openid",
   ];
-  const oauth2Client = new google.auth.OAuth2({
-    clientId: env.GOOGLE_CLIENT_ID,
-    clientSecret: env.GOOGLE_CLIENT_SECRET,
-    redirectUri: env.GOOGLE_REDIRECT_URL,
-  });
-
   // const state = crypto.randomBytes(32).toString("hex");
-
   // req.session.state = state;
-
-  return oauth2Client.generateAuthUrl({
+  return googleOauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
     prompt: "consent",
@@ -107,16 +100,26 @@ export const googleOAuthRequest = async () => {
   });
 };
 
-export const googleOAuthCallback = async (code:string) => {
-  const oauth2Client = new google.auth.OAuth2({
-    clientId: env.GOOGLE_CLIENT_ID,
-    clientSecret: env.GOOGLE_CLIENT_SECRET,
-    redirectUri: env.GOOGLE_REDIRECT_URL,
+export const googleOAuthCallback = async (code: string) => {
+  const response = await googleOauth2Client.getToken(code);
+  await googleOauth2Client.setCredentials(response.tokens);
+  const user = googleOauth2Client.credentials;
+  console.log("user token", user);
+  const { email, sub, picture } = await authHelper.getUserDataFromGoogle(
+    user.access_token
+  );
+  const userfromdb = await userHelper.getUser({ email: email });
+  if(userfromdb && email === userfromdb.email){
+    throw new CustomError(`You already signup with this ${email},please signin.`,400)
+  }
+  const userData = await User.create({
+    email: email,
+    googleId: sub,
+    picture: picture,
   });
-  const response = await oauth2Client.getToken(code);
-  await oauth2Client.setCredentials(response.tokens);
-  const user = oauth2Client.credentials;
-  const userInfo =  await authHelper.getUserDataFromGoogle(user.access_token);
-  
-  return userInfo
+
+  const payload = { sub: userData._id, email: userData.email };
+  const accessToken = tokenHelper.generateToken(payload);
+
+  return { accessToken, userData };
 };

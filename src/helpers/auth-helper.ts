@@ -13,7 +13,6 @@ export default {
   createOneTimePassword: async ({ _id, hashedOTP }: CreateOTP) => {
     return await OneTimePassword.create({
       userId: _id,
-    
       otp: hashedOTP,
       createdAt: Date.now(),
       expiresAt: Date.now() + 60 * 1000,

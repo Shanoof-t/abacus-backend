@@ -7,7 +7,9 @@ import authHelper from "../helpers/auth-helper";
 import { mailOption, transporter } from "../config/nodemailer";
 import { OneTimePassword } from "../models/otp-verification-model";
 import { User } from "../models/user-model";
-import { Types } from "mongoose";
+
+import { OAuth2Client } from "google-auth-library";
+import env from "../config/env_variables";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -34,21 +36,15 @@ export const authenticateUser = async (loginData: SignIn) => {
 
 export const createOTP = async ({ _id, email }: CreateOTP) => {
   const otp = authHelper.generateOTP();
-
   const hashedOTP = await securityHelper.hashOTP({ otp });
-
-  const OTP = await authHelper.createOneTimePassword({ _id, hashedOTP, email });
-
+  await authHelper.createOneTimePassword({ _id, hashedOTP, email });
   const mailOptions = mailOption({ email, otp });
-
   return await transporter.sendMail(mailOptions);
 };
 
 export const verifyUserOTP = async (body: OtpBody) => {
   const { otp, userId } = body;
-
   const userOTPRecord = await OneTimePassword.findOne({ userId });
-
   if (!userOTPRecord) {
     throw new CustomError(
       "Account record doesn't exist or has been verified already.Please sign up or sign in.",
@@ -77,21 +73,12 @@ export const verifyUserOTP = async (body: OtpBody) => {
   }
 };
 
-export const userOTPRetry = async (body: { userId: string }) => {
+export const userOTPReSend = async (body: { userId: string }) => {
   const { userId } = body;
-  // const userOTPRecord = await OneTimePassword.findOne({ userId });
-  // if (!userOTPRecord) {
-  //   throw new CustomError(
-  //     "Account record doesn't exist or has been verified already.Please sign up or sign in.",
-  //     400
-  //   );
-  // }
   const user = await userHelper.getUser({ _id: userId });
-
   if (!user) throw new CustomError("user not founded", 404);
-
   const { email, _id } = user;
-
   await createOTP({ email, _id });
-  
 };
+
+

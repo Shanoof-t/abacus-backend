@@ -74,7 +74,7 @@ export const googleAuth = asyncErrorHandler(async (req, res) => {
   const oauth2Client = new google.auth.OAuth2({
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    redirectUri: "http://localhost:3000",
+    redirectUri: "http://127.0.0.1:3000/oauth/google/callback",
   });
 
   // const state = crypto.randomBytes(32).toString("hex");
@@ -84,12 +84,13 @@ export const googleAuth = asyncErrorHandler(async (req, res) => {
   const authorizationUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
-    include_granted_scopes: true,
+    prompt:"consent"
+    // include_granted_scopes: true,
     // state: state,
   });
 
   console.log(authorizationUrl);
-  
+
   res.status(200).json({
     status: "success",
     message: "google auth request is successfull",
@@ -112,12 +113,14 @@ const getUserData = async (access_token: unknown) => {
 
 export const googleOAuth = asyncErrorHandler(async (req, res) => {
   const { code } = req.body;
-  console.log(code);
+  console.log("code ",code);
+  
   const oauth2Client = new google.auth.OAuth2({
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    redirectUri: "http://localhost:3000",
+    redirectUri: "http://127.0.0.1:3000/oauth/google/callback",
   });
+
   const response = await oauth2Client.getToken(code);
   const tokens = await oauth2Client.setCredentials(response.tokens);
 

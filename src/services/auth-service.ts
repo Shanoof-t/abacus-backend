@@ -10,6 +10,7 @@ import { User } from "../models/user-model";
 
 import { OAuth2Client } from "google-auth-library";
 import env from "../config/env_variables";
+import { google } from "googleapis";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -81,4 +82,41 @@ export const userOTPReSend = async (body: { userId: string }) => {
   await createOTP({ email, _id });
 };
 
+export const googleOAuthRequest = async () => {
+  const scopes = [
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "openid",
+  ];
+  const oauth2Client = new google.auth.OAuth2({
+    clientId: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    redirectUri: env.GOOGLE_REDIRECT_URL,
+  });
 
+  // const state = crypto.randomBytes(32).toString("hex");
+
+  // req.session.state = state;
+
+  return oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: scopes,
+    prompt: "consent",
+    // include_granted_scopes: true,
+    // state: state,
+  });
+};
+
+export const googleOAuthCallback = async (code:string) => {
+  const oauth2Client = new google.auth.OAuth2({
+    clientId: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    redirectUri: env.GOOGLE_REDIRECT_URL,
+  });
+  const response = await oauth2Client.getToken(code);
+  await oauth2Client.setCredentials(response.tokens);
+  const user = oauth2Client.credentials;
+  const userInfo =  await authHelper.getUserDataFromGoogle(user.access_token);
+  
+  return userInfo
+};

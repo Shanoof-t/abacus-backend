@@ -18,4 +18,10 @@ export default {
       expiresAt: Date.now() + 60 * 1000,
     });
   },
+  getUserDataFromGoogle: async (access_token: unknown) => {
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`
+    );
+    return await response.json();
+  },
 };

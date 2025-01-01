@@ -4,9 +4,8 @@ import {
   signUp,
   verifyOTP,
   resendOTP,
-  googleAuth,
-
   googleOAuth,
+  googleOAuthcallback,
 } from "../../controllers/auth-controller";
 import validator from "../../middlewares/validator-middleware";
 import schema from "../../schema/auth-schema";
@@ -18,8 +17,7 @@ authRouter.post("/sign-in", validator(schema.signIn), signIn);
 authRouter.post("/verify-otp", validator(schema.verifyOTP), verifyOTP);
 authRouter.post("/resend-otp", validator(schema.resendOTP), resendOTP);
 
-
-authRouter.get("/google-auth",googleAuth)
-authRouter.post("/oauth2-callback",googleOAuth)
+authRouter.get("/google-auth", googleOAuth);
+authRouter.post("/oauth2-callback", googleOAuthcallback);
 
 export default authRouter;

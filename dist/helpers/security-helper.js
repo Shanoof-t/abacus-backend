@@ -17,7 +17,13 @@ exports.default = {
     hashPassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ password }) {
         return yield bcrypt_1.default.hash(password, 10);
     }),
-    VerifyPassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ password, existingPassword, }) {
+    hashOTP: (_a) => __awaiter(void 0, [_a], void 0, function* ({ otp }) {
+        return yield bcrypt_1.default.hash(otp, 10);
+    }),
+    VerifyPassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ password, existingPassword }) {
         return yield bcrypt_1.default.compare(password, existingPassword);
+    }),
+    verifyOTP: (_a) => __awaiter(void 0, [_a], void 0, function* ({ otp, hashedOTP }) {
+        return yield bcrypt_1.default.compare(otp, hashedOTP);
     }),
 };

@@ -39,9 +39,14 @@ export const authenticateUser = async (loginData: SignIn) => {
 export const createOTP = async ({ _id, email }: CreateOTP) => {
   const otp = authHelper.generateOTP();
   const hashedOTP = await securityHelper.hashOTP({ otp });
-  await authHelper.createOneTimePassword({ _id, hashedOTP, email });
+  const otpInfo = await authHelper.createOneTimePassword({
+    _id,
+    hashedOTP,
+    email,
+  });
   const mailOptions = mailOption({ email, otp });
-  return await transporter.sendMail(mailOptions);
+  await transporter.sendMail(mailOptions);
+  return otpInfo;
 };
 
 export const verifyUserOTP = async (body: OtpBody) => {
@@ -104,18 +109,23 @@ export const googleOAuthCallback = async (code: string) => {
   const response = await googleOauth2Client.getToken(code);
   await googleOauth2Client.setCredentials(response.tokens);
   const user = googleOauth2Client.credentials;
-  console.log("user token", user);
   const { email, sub, picture } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
   const userfromdb = await userHelper.getUser({ email: email });
-  if(userfromdb && email === userfromdb.email){
-    throw new CustomError(`You already signup with this ${email},please signin.`,400)
+  if (userfromdb && email === userfromdb.email) {
+    throw new CustomError(
+      `You already signup with this ${email},please signin.`,
+      400
+    );
   }
+
   const userData = await User.create({
     email: email,
     googleId: sub,
     picture: picture,
+    isGoogle: true,
+    isVerified: true,
   });
 
   const payload = { sub: userData._id, email: userData.email };

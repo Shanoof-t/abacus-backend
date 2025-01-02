@@ -1,19 +1,25 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const joi_1 = __importDefault(require("joi"));
-const signUp = joi_1.default.object({
-    email: joi_1.default.string().email().required(),
-    password: joi_1.default.string().required(),
+const zod_1 = require("zod");
+const signUp = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string(),
 });
-const signIn = joi_1.default.object({
-    email: joi_1.default.string().email().required(),
-    password: joi_1.default.string().required(),
+const signIn = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string(),
+});
+const verifyOTP = zod_1.z.object({
+    userId: zod_1.z.string(),
+    otp: zod_1.z.string(),
+});
+const resendOTP = zod_1.z.object({
+    userId: zod_1.z.string(),
 });
 const schema = {
     signUp,
     signIn,
+    verifyOTP,
+    resendOTP,
 };
 exports.default = schema;

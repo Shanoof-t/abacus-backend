@@ -18,12 +18,27 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, express }) {
     app.use(express.json());
+    const allowedOrigins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ];
     app.use((0, cors_1.default)({
-        origin: "http://localhost:3000",
+        origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true,
     }));
     app.use((0, cookie_parser_1.default)());
+    // app.use(
+    //   session({
+    //     secret: "your_secure_secret_key",
+    //     resave: false,
+    //     saveUninitialized: false,
+    //   })
+    // );
+    // app.use((req, res, next) => {
+    //   req.session.state = req.session.state || "defaultState";
+    //   next();
+    // });
     (0, routes_1.default)({ app, express });
     app.use(global_error_hanlder_1.default);
 });

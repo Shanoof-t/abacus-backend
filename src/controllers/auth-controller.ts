@@ -10,12 +10,11 @@ import {
 } from "../services/auth-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 
-
 export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
   const { email, _id } = await createUser(body);
 
-  await createOTP({ email, _id });
+  const otpInfo = await createOTP({ email, _id });
 
   res.status(200).json({
     status: "pending",
@@ -23,6 +22,7 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
     data: {
       userId: _id,
       email: email,
+      otpInfo,
     },
   });
 });

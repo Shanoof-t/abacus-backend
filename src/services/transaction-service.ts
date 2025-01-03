@@ -1,7 +1,13 @@
+import { Types } from "mongoose";
 import { Transaction } from "../models/transaction-model";
 import { Body } from "../types/transaction-types";
 
-export const createTransaction = async (body: Body) => {
+interface User {
+  sub?: Types.ObjectId;
+  email?: string;
+}
+
+export const createTransaction = async (body: Body, user: User | undefined) => {
   const {
     date,
     account,
@@ -14,9 +20,9 @@ export const createTransaction = async (body: Body) => {
     notes,
   } = body;
 
-    // if(is_recurring){
-    //   const next_date = 
-    // }
+  // if(is_recurring){
+  //   const next_date =
+  // }
 
   const transaction = await Transaction.create({
     user_id: "fla;jf;",

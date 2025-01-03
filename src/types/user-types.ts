@@ -5,3 +5,4 @@ export type UserType = {
   password: string;
   _id?: Types.ObjectId | string;
 };
+

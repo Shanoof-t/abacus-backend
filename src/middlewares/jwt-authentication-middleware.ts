@@ -1,50 +1,41 @@
-import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
-import { Types } from "mongoose";
 import env from "../config/env_variables";
+import jwt from "jsonwebtoken";
+import { Types } from "mongoose";
+import CustomError from "../utils/Custom-error";
 
 const { ACCESS_TOKEN_SECRET } = env;
 
-type Decoded = { sub?: Types.ObjectId; email?: string };
-
-interface CustomRequest extends Request {
-  user?: Decoded;
+export interface User {
+  sub?: Types.ObjectId;
+  email?: string;
 }
 
-
-const verifyToken = (token: string, secret: string): Promise<Decoded> => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, secret, (err, decoded) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(decoded as Decoded);
-      }
-    });
-  });
-};
+export interface CustomeUser extends Request {
+  user?: User | undefined;
+}
 
 async function authenticateToken(
-  req: CustomRequest,
+  req: CustomeUser,
   res: Response,
   next: NextFunction
 ): Promise<any> {
   const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ status: "error", message: "Access denied" });
-  }
 
+  if (!token) {
+    const error = new CustomError("Access Denied", 400);
+    next(error);
+  }
   try {
-    const decoded = await verifyToken(token, ACCESS_TOKEN_SECRET);
-    if (!decoded) {
-      return res
-        .status(403)
-        .json({ status: "error", message: "Access denied" });
+    const user = (await jwt.verify(token, ACCESS_TOKEN_SECRET)) as User;
+    if (!user) {
+      const error = new CustomError("Access Denied", 400);
+      next(error);
     }
-    req.user = decoded;
+    req.user = user;
     next();
-  } catch (err) {
-    return res.status(403).json({ status: "error", message: "Access denied" });
+  } catch (error) {
+    next(error);
   }
 }
 

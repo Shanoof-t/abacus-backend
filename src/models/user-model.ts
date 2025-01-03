@@ -11,6 +11,7 @@ const signUpSchema = new mongoose.Schema({
   picture: { type: String },
   isGoogle: { type: Boolean, default: false },
   googleId: { type: String, unique: true },
+  accounts: { type: Array, default: [] },
 });
 
 export const User = mongoose.model("user", signUpSchema);

@@ -94,14 +94,11 @@ export const googleOAuthRequest = async () => {
     "https://www.googleapis.com/auth/userinfo.email",
     "openid",
   ];
-  // const state = crypto.randomBytes(32).toString("hex");
-  // req.session.state = state;
+
   return googleOauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
     prompt: "consent",
-    // include_granted_scopes: true,
-    // state: state,
   });
 };
 

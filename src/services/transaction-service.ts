@@ -25,7 +25,7 @@ export const createTransaction = async (body: Body, user: User | undefined) => {
   // }
 
   const transaction = await Transaction.create({
-    user_id: "fla;jf;",
+    user_id: user?.sub,
     date,
     account,
     amount,

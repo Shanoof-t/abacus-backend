@@ -11,12 +11,12 @@ export interface User {
   email?: string;
 }
 
-export interface CustomeUser extends Request {
+export interface CustomeRequest extends Request {
   user?: User | undefined;
 }
 
 async function authenticateToken(
-  req: CustomeUser,
+  req: CustomeRequest,
   res: Response,
   next: NextFunction
 ): Promise<any> {

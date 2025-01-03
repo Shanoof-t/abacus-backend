@@ -1,8 +1,11 @@
 import express from "express";
 import { addAccount } from "../../controllers/account-controller";
+import authenticateToken from "../../middlewares/jwt-authentication-middleware";
 
-const accountRouter = express.Router()
+const accountRouter = express.Router();
 
-accountRouter.post("/",addAccount)
+accountRouter.use(authenticateToken);
 
-export default accountRouter
+accountRouter.post("/", addAccount);
+
+export default accountRouter;

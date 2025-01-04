@@ -1,5 +1,8 @@
 import { CustomeRequest } from "../middlewares/jwt-authentication-middleware";
-import { createAccount } from "../services/account-service";
+import {
+  createAccount,
+  fetchAllAccountsByUserId,
+} from "../services/account-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 
 export const addAccount = asyncErrorHandler(
@@ -9,5 +12,15 @@ export const addAccount = asyncErrorHandler(
     res
       .status(201)
       .json({ status: "success", message: "Account created successfully" });
+  }
+);
+
+export const getAllAccounts = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { user } = req;
+    const accounts = await fetchAllAccountsByUserId(user);
+    res
+      .status(200)
+      .json({ status: "success", message: "Success", data: accounts });
   }
 );

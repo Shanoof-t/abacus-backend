@@ -95,3 +95,15 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
     data,
   });
 });
+
+export const logoutUser = asyncErrorHandler(async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
+  res
+    .status(200)
+    .json({ status: "success", message: "Logged out successfully" });
+});

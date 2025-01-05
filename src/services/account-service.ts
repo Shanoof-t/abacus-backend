@@ -1,6 +1,7 @@
 import { User as UserType } from "../middlewares/jwt-authentication-middleware";
 import { Account } from "../models/account-model";
 import CustomError from "../utils/Custom-error";
+import { ObjectId } from "mongodb";
 type CreateAccount = { account_name: string; account_balance: number };
 
 export const createAccount = async (
@@ -23,4 +24,11 @@ export const createAccount = async (
 
 export const fetchAllAccountsByUserId = async (user: UserType | undefined) => {
   return await Account.find({ user_id: user?.sub });
+};
+
+export const deleteAccounts = async (accountIds: string[]) => {
+  const ids = accountIds.map((accountId) => new ObjectId(accountId));
+  const deletedStatus = await Account.deleteMany({ _id: { $in: ids } });
+  console.log(deletedStatus);
+  return deletedStatus;
 };

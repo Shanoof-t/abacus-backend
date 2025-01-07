@@ -1,7 +1,10 @@
 import { CustomeRequest } from "../middlewares/jwt-authentication-middleware";
 import {
   createAccount,
+  deleteAccountById,
   deleteAccounts,
+  editAccountById,
+  fetchAccountById,
   fetchAllAccountsByUserId,
 } from "../services/account-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
@@ -28,8 +31,36 @@ export const getAllAccounts = asyncErrorHandler(
 
 export const accountBulkDelete = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-  const data = await deleteAccounts(body);
+  await deleteAccounts(body);
   res
     .status(200)
-    .json({ status: "success", message: "sanam kittieekkn", data });
+    .json({ status: "success", message: "Accounts delete successfull." });
+});
+
+export const deleteAccount = asyncErrorHandler(async (req, res) => {
+  const { id } = req.params;
+  await deleteAccountById(id);
+  res
+    .status(200)
+    .json({ status: "success", message: "Account deleted successfully." });
+});
+
+export const editAccount = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { body } = req;
+    const { id } = req.params;
+    const { user } = req;
+    await editAccountById({ body, id, user });
+    res
+      .status(200)
+      .json({ status: "success", message: "Account successfully edited." });
+  }
+);
+
+export const getAccount = asyncErrorHandler(async (req, res) => {
+  const { id } = req.params;
+  const data = await fetchAccountById(id);
+  res 
+    .status(200)
+    .json({ status: "success", message: "Account fetch successfull.", data });
 });

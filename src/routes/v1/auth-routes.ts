@@ -16,6 +16,7 @@ const authRouter = express.Router();
 authRouter.post("/sign-up", validator(schema.signUp), signUp);
 authRouter.post("/sign-in", validator(schema.signIn), signIn);
 authRouter.post("/logout",logoutUser)
+
 authRouter.post("/verify-otp", validator(schema.verifyOTP), verifyOTP);
 authRouter.post("/resend-otp", validator(schema.resendOTP), resendOTP);
 

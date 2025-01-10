@@ -18,7 +18,7 @@ export const createAccount = async (
 
   return await Account.create({
     user_id: user?.sub,
-    account_name,
+    account_name: account_name.replace(/\W/g, ""),
     account_balance,
   });
 };
@@ -47,10 +47,11 @@ export const editAccountById = async ({ body, id, user }: EditAccout) => {
     account_name: body.account_name,
   });
 
-  if(existingAccount) throw new CustomError(
-    `Already an account existin with this name ${body.account_name}`,
-    400
-  );
+  if (existingAccount)
+    throw new CustomError(
+      `Already an account existin with this name ${body.account_name}`,
+      400
+    );
 
   await Account.updateOne(
     { user_id: user?.sub, _id: id },

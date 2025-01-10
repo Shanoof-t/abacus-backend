@@ -18,7 +18,7 @@ export const createCategory = async (
 
   await Category.create({
     user_id: user?.sub,
-    category_name: body.category_name,
+    category_name: body.category_name.replace(/\W/g, ""),
   });
 };
 

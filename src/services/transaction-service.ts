@@ -5,6 +5,8 @@ import { z } from "zod";
 import schema from "../schema/transaction-schema";
 import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
+import { Budget } from "../models/budget-model";
+import budgetHelper from "../helpers/budget-helper";
 interface User {
   sub?: Types.ObjectId;
   email?: string;
@@ -44,6 +46,14 @@ export const createTransaction = async (
     // is_recurring,
     // recurring: { frequency },
   });
+
+  if (transaction.transaction_type === "expense") {
+    await budgetHelper.updateBudgetAfterTransaction({
+      user_id: user?.sub,
+      category_name,
+    });
+  }
+
   return transaction;
 };
 

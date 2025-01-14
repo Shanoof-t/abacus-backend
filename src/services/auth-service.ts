@@ -11,6 +11,7 @@ import { googleOauth2Client } from "../config/google_oauth2";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
+  
   const existingUser = await userHelper.getUser({ email });
   if (existingUser)
     throw new CustomError(`You already registered with this email`, 400);

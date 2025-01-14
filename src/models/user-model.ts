@@ -10,7 +10,7 @@ const signUpSchema = new mongoose.Schema({
   },
   picture: { type: String },
   isGoogle: { type: Boolean, default: false },
-  googleId: { type: String, unique: true },
+  googleId: { type: String, default: Date.now() + Math.random() },
 });
 
 export const User = mongoose.model("user", signUpSchema);

@@ -52,9 +52,19 @@ export const createTransaction = async (
       user_id: user?.sub,
       category_name,
     });
+
+    const updatedBudget = await budgetHelper.findOneBudgetWithCategory({
+      user_id: user?.sub,
+      category_name,
+    });
+
+    if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
+      const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
+      return { alertMessage, transaction };
+    }
   }
 
-  return transaction;
+  return { transaction };
 };
 
 export const fetchAllTransactions = async (user: User | undefined) => {

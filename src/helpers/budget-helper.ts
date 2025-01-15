@@ -21,7 +21,6 @@ export default {
     user_id,
     category_name,
   }: BudgetWithCategory) {
-    
     // find the transaction
     const transactions = await Transaction.find({
       user_id,

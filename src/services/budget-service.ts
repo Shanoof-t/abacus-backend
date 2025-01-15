@@ -10,7 +10,6 @@ type CreateBudget = z.infer<typeof schema.add>;
 type User = UserType | undefined;
 
 export const createBudget = async (body: CreateBudget, user: User) => {
-
   const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
     user_id: user?.sub,
     category_name: body.category_name,
@@ -22,6 +21,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
       400
     );
 
+    
   const budgetLimit = body.amount_limit;
 
   const transactions = await Transaction.find({
@@ -36,7 +36,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
   );
 
   const total_spent = Math.abs(totalSpentAmount);
-  
+
   const progress = (total_spent / Number(budgetLimit)) * 100;
 
   await Budget.create({

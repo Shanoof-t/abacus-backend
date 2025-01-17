@@ -11,7 +11,10 @@ export default {
       {
         $match: {
           user_id: user?.sub,
-          transaction_date: { $gte: body.from, $lte: body.to },
+          transaction_date: {
+            $gte: new Date(body.from),
+            $lte: new Date(body.to),
+          },
           transaction_type: "income",
         },
       },
@@ -22,14 +25,22 @@ export default {
         },
       },
     ]);
-    return income[0] && income[0].income;
+
+    if (income) {
+      return income[0] && income[0].income;
+    } else {
+      return 0;
+    }
   },
   getExpense: async (body: Body, user: User) => {
     const expense = await Transaction.aggregate([
       {
         $match: {
           user_id: user?.sub,
-          transaction_date: { $gte: body.from, $lte: body.to },
+          transaction_date: {
+            $gte: new Date(body.from),
+            $lte: new Date(body.to),
+          },
           transaction_type: "expense",
         },
       },
@@ -40,7 +51,11 @@ export default {
         },
       },
     ]);
-    return expense[0] && Math.abs(expense[0].expense);
+    if (expense) {
+      return expense[0] && Math.abs(expense[0].expense);
+    } else {
+      return 0;
+    }
   },
   getPastMonthIncome: async ({
     user,
@@ -55,7 +70,10 @@ export default {
       {
         $match: {
           user_id: user?.sub,
-          transaction_date: { $gte: previouseMonth, $lte: currentMonth },
+          transaction_date: {
+            $gte: new Date(previouseMonth),
+            $lte: new Date(currentMonth),
+          },
           transaction_type: "income",
         },
       },
@@ -66,7 +84,12 @@ export default {
         },
       },
     ]);
-    return pastMonthIncome[0] && pastMonthIncome[0].income;
+
+    if (pastMonthIncome.length > 0) {
+      return pastMonthIncome[0] && pastMonthIncome[0].income;
+    } else {
+      return 0;
+    }
   },
   getPastMonthExpense: async ({
     user,
@@ -81,7 +104,10 @@ export default {
       {
         $match: {
           user_id: user?.sub,
-          transaction_date: { $gte: previouseMonth, $lte: currentMonth },
+          transaction_date: {
+            $gte: new Date(previouseMonth),
+            $lte: currentMonth,
+          },
           transaction_type: "expense",
         },
       },
@@ -92,6 +118,11 @@ export default {
         },
       },
     ]);
-    return pastMonthExpense[0] && Math.abs(pastMonthExpense[0].expense);
+
+    if (pastMonthExpense.length > 0) {
+      return pastMonthExpense[0] && Math.abs(pastMonthExpense[0].expense);
+    } else {
+      return 0;
+    }
   },
 };

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
   user_id: { type: String, required: [true, "userId is required."] },
-  transaction_date: { type: String, required: true },
+  transaction_date: { type: Date, required: true },
   account_name: { type: String, required: true },
   category_name: { type: String, required: true },
   transaction_amount: { type: Number, required: true },

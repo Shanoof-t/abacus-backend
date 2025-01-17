@@ -5,6 +5,12 @@ import { schema } from "../schema/statistics-schema";
 
 type Body = z.infer<typeof schema.financialSummary>;
 type User = UserType | undefined;
+
+type MonthViseSummary = {
+  _id: string;
+  income: number;
+  expense: number;
+};
 export default {
   getIncome: async (body: Body, user: User) => {
     const income = await Transaction.aggregate([
@@ -124,5 +130,33 @@ export default {
     } else {
       return 0;
     }
+  },
+  getDayViseSummary: async (user: User): Promise<MonthViseSummary[]> => {
+    return await Transaction.aggregate([
+      { $match: { user_id: user?.sub } },
+      {
+        $group: {
+          _id: "$transaction_date",
+          income: {
+            $sum: {
+              $cond: {
+                if: { $eq: ["$transaction_type", "income"] },
+                then: "$transaction_amount",
+                else: 0,
+              },
+            },
+          },
+          expense: {
+            $sum: {
+              $cond: {
+                if: { $eq: ["$transaction_type", "expense"] },
+                then: "$transaction_amount",
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+    ]);
   },
 };

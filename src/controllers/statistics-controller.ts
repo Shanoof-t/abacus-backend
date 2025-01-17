@@ -20,9 +20,13 @@ export const financialSummary = asyncErrorHandler(
 export const serialFinincialSummary = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
     const { user } = req;
-    await fetchFinancialHistory(user);
+    const history = await fetchFinancialHistory(user);
     res
       .status(200)
-      .json({ status: "success", message: "history fetch success" });
+      .json({
+        status: "success",
+        message: "history fetch success",
+        data: history,
+      });
   }
 );

@@ -53,53 +53,14 @@ export const createSummary = async (user: User, body: CreateSummary) => {
 };
 
 export const fetchFinancialHistory = async (user: User) => {
-  // const transactions = await Transaction.find({ user_id: user?.sub });
-  // const result = transactions.map((transaction) => {
-  //   return {
-  //     date: format(transaction.transaction_date, "MM MMM"),
-  //     income:
-  //       transaction.transaction_type === "income"
-  //         ? transaction.transaction_amount
-  //         : 0,
-  //     expense:
-  //       transaction.transaction_type === "expense"
-  //         ? transaction.transaction_amount
-  //         : 0,
-  //   };
-  // });
+  const monthViseSummary = await statisticsHelper.getDayViseSummary(user);
 
-  const result = await Transaction.aggregate([
-    { $match: { user_id: user?.sub } },
-    {
-      $group: {
-        _id: {
-          $dateToString: {
-            format: "%m",
-            date: "$transaction_date",
-            timezone: "Asia/Kolkata",
-          },
-        },
-        income: {
-          $sum: {
-            $cond: {
-              if: { $eq: ["$transaction_type", "income"] },
-              then: "$transaction_amount",
-              else: 0,
-            },
-          },
-        },
-        expense: {
-          $sum: {
-            $cond: {
-              if: { $eq: ["$transaction_type", "expense"] },
-              then: "$transaction_amount",
-              else: 0,
-            },
-          },
-        },
-      },
-    },
-  ]);
-
-  // console.log(result);
+  const formatedSummary = monthViseSummary.map((month) => {
+    return {
+      ...month,
+      date: month._id,
+      expense: Math.abs(month.expense),
+    };
+  });
+  return formatedSummary;
 };

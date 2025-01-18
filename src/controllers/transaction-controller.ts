@@ -1,6 +1,7 @@
 import { Response } from "express";
 import {
   createTransaction,
+  createTransactions,
   deleteTransactionById,
   deleteTransactions,
   editTransactionById,
@@ -68,5 +69,15 @@ export const editTransaction = asyncErrorHandler(
     res
       .status(200)
       .json({ status: "success", message: "Transaction updated." });
+  }
+);
+
+export const createBulkTransactions = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { user, body } = req;
+    await createTransactions({ body, user });
+    res
+      .status(200)
+      .json({ status: "success", message: "transactions created successfully" });
   }
 );

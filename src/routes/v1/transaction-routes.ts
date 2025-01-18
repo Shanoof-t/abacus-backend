@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addTransaction,
+  createBulkTransactions,
   deleteBulkTransactions,
   deleteTransaction,
   editTransaction,
@@ -21,6 +22,7 @@ transactionRoute
   .get(getAllTransactions);
 
 transactionRoute.route("/bulk-delete").post(deleteBulkTransactions);
+transactionRoute.route("/bulk-create").post(createBulkTransactions);
 
 transactionRoute
   .route("/:id")

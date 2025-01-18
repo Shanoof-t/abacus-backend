@@ -112,3 +112,26 @@ export const editTransactionById = async (
     }
   );
 };
+
+type CreateTransactions = {
+  body: z.infer<typeof schema.add>[];
+  user: User | undefined;
+};
+
+export const createTransactions = async ({
+  body,
+  user,
+}: CreateTransactions) => {
+  const user_id = user?.sub;
+  const adjustedTransactions = body.map((transaction) => {
+    const transaction_type =
+      parseFloat(transaction.transaction_amount) > 0 ? "income" : "expense";
+    return {
+      ...transaction,
+      user_id,
+      transaction_type,
+      transaction_amount: parseFloat(transaction.transaction_amount),
+    };
+  });
+  await Transaction.insertMany(adjustedTransactions);
+};

@@ -1,18 +1,14 @@
 import { z } from "zod";
 import { User as UserType } from "../middlewares/jwt-authentication-middleware";
 import { schema } from "../schema/statistics-schema";
-import { Transaction } from "../models/transaction-model";
 import statisticsHelper from "../helpers/statistics-helper";
-import { format, subMonths } from "date-fns";
+import { subMonths } from "date-fns";
 
 type User = UserType | undefined;
 
 type CreateSummary = z.infer<typeof schema.financialSummary>;
 
 export const createSummary = async (user: User, body: CreateSummary) => {
-  // const toDate = new Date(body.to);
-  // const fromDate = new Date(body.to);
-
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
   const remaining = income - expense;
@@ -53,14 +49,19 @@ export const createSummary = async (user: User, body: CreateSummary) => {
 };
 
 export const fetchFinancialHistory = async (user: User) => {
-  const monthViseSummary = await statisticsHelper.getDayViseSummary(user);
+  const transactionSummary = await statisticsHelper.getTransactionSummary(user);
 
-  const formatedSummary = monthViseSummary.map((month) => {
+  const formatedTransactionSummary = transactionSummary.map((month) => {
     return {
       ...month,
       date: month._id,
       expense: Math.abs(month.expense),
     };
   });
-  return formatedSummary;
+
+  // const 
+  const data = {
+    transaction:formatedTransactionSummary
+  }
+  return data;
 };

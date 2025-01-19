@@ -7,6 +7,8 @@ import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
 import { Budget } from "../models/budget-model";
 import budgetHelper from "../helpers/budget-helper";
+import { Category } from "../models/category-model";
+import categoryHelper from "../helpers/category-helper";
 interface User {
   sub?: Types.ObjectId;
   email?: string;
@@ -46,6 +48,13 @@ export const createTransaction = async (
     // is_recurring,
     // recurring: { frequency },
   });
+
+  const amount = Math.abs(parseFloat(transaction_amount));
+  console.log("amount", amount);
+  await Category.updateOne(
+    { category_name },
+    { $inc: { category_amount: amount } }
+  );
 
   if (transaction.transaction_type === "expense") {
     await budgetHelper.updateBudgetAfterTransaction({
@@ -123,9 +132,11 @@ export const createTransactions = async ({
   user,
 }: CreateTransactions) => {
   const user_id = user?.sub;
+
   const adjustedTransactions = body.map((transaction) => {
     const transaction_type =
       parseFloat(transaction.transaction_amount) > 0 ? "income" : "expense";
+
     return {
       ...transaction,
       user_id,
@@ -133,5 +144,9 @@ export const createTransactions = async ({
       transaction_amount: parseFloat(transaction.transaction_amount),
     };
   });
+
+  // check category
+  await categoryHelper.createCategories({ transactions: body, user });
+
   await Transaction.insertMany(adjustedTransactions);
 };

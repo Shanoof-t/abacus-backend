@@ -131,7 +131,7 @@ export default {
       return 0;
     }
   },
-  getDayViseSummary: async (user: User): Promise<MonthViseSummary[]> => {
+  getTransactionSummary: async (user: User): Promise<MonthViseSummary[]> => {
     return await Transaction.aggregate([
       { $match: { user_id: user?.sub } },
       {

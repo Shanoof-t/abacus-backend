@@ -7,6 +7,11 @@ const categorySchema = new Schema({
     required: [true, "account name is required."],
     unique: true,
   },
+  category_amount: {
+    type: Number,
+    required: [true, "amount is required."],
+    default: 0,
+  },
 });
 
 export const Category = mongoose.model("category", categorySchema);

@@ -7,10 +7,6 @@ const budgetSchema = new mongoose.Schema({
     type: String,
     required: [true, "Budget name is required"],
   },
-  account_name: {
-    type: String,
-    required: [true, "Account name is required"],
-  },
   category_name: {
     type: String,
     required: [true, "Category name is required"],

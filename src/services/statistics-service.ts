@@ -3,6 +3,7 @@ import { User as UserType } from "../middlewares/jwt-authentication-middleware";
 import { schema } from "../schema/statistics-schema";
 import statisticsHelper from "../helpers/statistics-helper";
 import { subMonths } from "date-fns";
+import { Category } from "../models/category-model";
 
 type User = UserType | undefined;
 
@@ -58,10 +59,10 @@ export const fetchFinancialHistory = async (user: User) => {
       expense: Math.abs(month.expense),
     };
   });
-
-  // const 
+  const categories = await Category.find();
   const data = {
-    transaction:formatedTransactionSummary
-  }
+    transaction: formatedTransactionSummary,
+    categories,
+  };
   return data;
 };

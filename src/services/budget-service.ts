@@ -41,7 +41,6 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   await Budget.create({
     user_id: user?.sub,
-    account_name: body.account_name,
     budget_name: body.budget_name,
     budget_start_date: new Date(body.budget_start_date),
     budget_end_date: new Date(body.budget_end_date),

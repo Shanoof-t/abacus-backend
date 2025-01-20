@@ -55,7 +55,10 @@ export default {
     const total_spent = Math.abs(totalSpentAmount);
 
     // mesure the progress percentage
-    const progress = (total_spent / Number(exisingBudget?.amount_limit)) * 100;
+    const progress = Math.min(
+      (total_spent / Number(exisingBudget?.amount_limit)) * 100,
+      100
+    );
 
     // finally update with budget
     await Budget.updateOne(

@@ -20,7 +20,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
       "This category with a budget is already existing",
       400
     );
-    
+
   const budgetLimit = body.amount_limit;
 
   const transactions = await Transaction.find({
@@ -36,8 +36,9 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const total_spent = Math.abs(totalSpentAmount);
 
-  const progress = (total_spent / Number(budgetLimit)) * 100;
+  const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
 
+  console.log(progress)
   await Budget.create({
     user_id: user?.sub,
     budget_name: body.budget_name,

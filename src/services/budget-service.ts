@@ -20,7 +20,6 @@ export const createBudget = async (body: CreateBudget, user: User) => {
       "This category with a budget is already existing",
       400
     );
-
     
   const budgetLimit = body.amount_limit;
 

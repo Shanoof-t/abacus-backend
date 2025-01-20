@@ -17,13 +17,30 @@ export default {
       category_name,
     });
   },
+  // findOneBudgetWithDate: async function ({user_id,category_name}) {
+  //   return await Budget.findOne({
+  //     user_id,
+  //     category_name,
+  //   });
+  // },
   updateBudgetAfterTransaction: async function ({
     user_id,
     category_name,
   }: BudgetWithCategory) {
+    // find the existing budget
+    const exisingBudget = await this.findOneBudgetWithCategory({
+      user_id,
+      category_name,
+    });
+
     // find the transaction
+
     const transactions = await Transaction.find({
       user_id,
+      transaction_date: {
+        $lte: exisingBudget?.budget_end_date,
+        $gte: exisingBudget?.budget_start_date,
+      },
       category_name,
       transaction_type: "expense",
     });
@@ -36,12 +53,6 @@ export default {
 
     // convert to positive
     const total_spent = Math.abs(totalSpentAmount);
-
-    // find the existing budget
-    const exisingBudget = await this.findOneBudgetWithCategory({
-      user_id,
-      category_name,
-    });
 
     // mesure the progress percentage
     const progress = (total_spent / Number(exisingBudget?.amount_limit)) * 100;

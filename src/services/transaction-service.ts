@@ -49,13 +49,15 @@ export const createTransaction = async (
     // recurring: { frequency },
   });
 
+  // update category amount based on transaction
   const amount = Math.abs(parseFloat(transaction_amount));
-  console.log("amount", amount);
+
   await Category.updateOne(
     { category_name },
     { $inc: { category_amount: amount } }
   );
 
+  // update budget
   if (transaction.transaction_type === "expense") {
     await budgetHelper.updateBudgetAfterTransaction({
       user_id: user?.sub,
@@ -69,6 +71,15 @@ export const createTransaction = async (
 
     if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
       const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
+      return { alertMessage, transaction };
+    }
+    
+    if (
+      updatedBudget?.alert_threshold &&
+      updatedBudget?.progress &&
+      updatedBudget.progress >= updatedBudget.alert_threshold
+    ) {
+      const alertMessage = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}.`;
       return { alertMessage, transaction };
     }
   }

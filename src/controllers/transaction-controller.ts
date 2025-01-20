@@ -16,6 +16,7 @@ export const addTransaction = asyncErrorHandler(
     const { body, user } = req;
 
     const { alertMessage, transaction } = await createTransaction(body, user);
+    
     res.status(200).json({
       status: "success",
       message: "Transaction is successful.",

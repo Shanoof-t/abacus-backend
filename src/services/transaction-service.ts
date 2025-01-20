@@ -1,14 +1,15 @@
 import { Types } from "mongoose";
 import { Transaction } from "../models/transaction-model";
-import { Body } from "../types/transaction-types";
 import { z } from "zod";
 import schema from "../schema/transaction-schema";
 import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
-import { Budget } from "../models/budget-model";
 import budgetHelper from "../helpers/budget-helper";
 import { Category } from "../models/category-model";
 import categoryHelper from "../helpers/category-helper";
+import { addDays, addMonths, addWeeks, addYears, format } from "date-fns";
+
+import cron from "node-cron";
 interface User {
   sub?: Types.ObjectId;
   email?: string;
@@ -25,11 +26,9 @@ export const createTransaction = async (
     transaction_date,
     transaction_payee,
     transaction_note,
+    is_recurring,
+    recurring_frequency,
   } = body;
-
-  // if(is_recurring){
-  //   const next_date =
-  // }
 
   const transaction_type =
     parseFloat(transaction_amount) > 0 ? "income" : "expense";
@@ -43,11 +42,58 @@ export const createTransaction = async (
     transaction_payee,
     transaction_type,
     transaction_note,
-
-    // is_estimated: true,
-    // is_recurring,
-    // recurring: { frequency },
   });
+
+  if (is_recurring) {
+    const next_date = (function () {
+      switch (recurring_frequency) {
+        case "daily":
+          return addDays(transaction_date, 1);
+        case "weekly":
+          return addWeeks(transaction_date, 1);
+        case "monthly":
+          return addMonths(transaction_date, 1);
+        case "yearly":
+          return addYears(transaction_date, 1);
+        default:
+          return;
+      }
+    })();
+    transaction.is_estimated = true;
+    transaction.is_recurring = is_recurring;
+    transaction.recurring = { recurring_frequency, next_date };
+    await transaction.save();
+
+    if (next_date) {
+      const month = format(next_date, "M");
+      const day = format(next_date, "d");
+      const minute = format(next_date, "m");
+      const hour = format(next_date, "H");
+      const cronExpression = `${minute} ${hour} ${day} ${month} *`;
+      const scheduledTask = cron.schedule(cronExpression, scheduleNotification);
+      const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date.getFullYear()}`;
+      console.log(`Scheduled time (IST): ${scheduledTime}`);
+      async function scheduleNotification() {
+        // make notification
+        await transaction.updateOne(
+          { _id: transaction._id },
+          { $set: { is_estimated: false } }
+        );
+        
+        scheduledTask.stop();
+      }
+    }
+
+    // if (recurring_frequency === "daily") {
+    //   cron.schedule("* * * * *", task);
+    // } else if (recurring_frequency === "weekly") {
+    //   cron.schedule("* * * * *", task);
+    // } else if (recurring_frequency === "monthly") {
+    //   cron.schedule("* * * * *", task);
+    // } else if (recurring_frequency === "yearly") {
+    //   cron.schedule("* * * * *", task);
+    // }
+  }
 
   // update category amount based on transaction
   const amount = Math.abs(parseFloat(transaction_amount));
@@ -73,7 +119,7 @@ export const createTransaction = async (
       const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
       return { alertMessage, transaction };
     }
-    
+
     if (
       updatedBudget?.alert_threshold &&
       updatedBudget?.progress &&

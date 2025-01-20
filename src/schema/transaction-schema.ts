@@ -9,6 +9,8 @@ const add = z.object({
   transaction_payee: z.string().min(1, { message: "Payee name is required" }),
   transaction_amount: z.string({ message: "The amount is required." }),
   transaction_note: z.string().optional(),
+  is_recurring: z.boolean().optional(),
+  recurring_frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
 });
 
 const schema = {

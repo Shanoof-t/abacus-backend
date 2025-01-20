@@ -13,12 +13,12 @@ const transactionSchema = new mongoose.Schema({
   },
   transaction_payee: { type: String, required: [true, "payeee is required"] },
   transaction_note: { type: String },
-  // is_recurring: { type: Boolean },
-  // recurring: {
-  //   frequency: { type: String, enum: ["daily", "weekly", "monthly", "yearly"] },
-  //   next_date: { type: Date },
-  // },
-  // is_estimated: { type: Boolean, required: true, default: false },
+  is_recurring: { type: Boolean },
+  recurring: {
+    recurring_frequency: { type: String, enum: ["daily", "weekly", "monthly", "yearly"] },
+    next_date: { type: Date },
+  },
+  is_estimated: { type: Boolean, required: true, default: false },
 });
 
 export const Transaction = mongoose.model("transactions", transactionSchema);

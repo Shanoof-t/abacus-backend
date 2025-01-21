@@ -65,34 +65,25 @@ export const createTransaction = async (
     await transaction.save();
 
     if (next_date) {
+      // create expression elements
       const month = format(next_date, "M");
       const day = format(next_date, "d");
       const minute = format(next_date, "m");
       const hour = format(next_date, "H");
+
+      // schedule task
       const cronExpression = `${minute} ${hour} ${day} ${month} *`;
       const scheduledTask = cron.schedule(cronExpression, scheduleNotification);
+
       const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date.getFullYear()}`;
-      console.log(`Scheduled time (IST): ${scheduledTime}`);
+      console.log(`Scheduled time: ${scheduledTime}`);
+
+      // notification service
       async function scheduleNotification() {
-        // make notification
-        await transaction.updateOne(
-          { _id: transaction._id },
-          { $set: { is_estimated: false } }
-        );
         
         scheduledTask.stop();
       }
     }
-
-    // if (recurring_frequency === "daily") {
-    //   cron.schedule("* * * * *", task);
-    // } else if (recurring_frequency === "weekly") {
-    //   cron.schedule("* * * * *", task);
-    // } else if (recurring_frequency === "monthly") {
-    //   cron.schedule("* * * * *", task);
-    // } else if (recurring_frequency === "yearly") {
-    //   cron.schedule("* * * * *", task);
-    // }
   }
 
   // update category amount based on transaction

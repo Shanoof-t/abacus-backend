@@ -10,6 +10,7 @@ const notificationSchema = new Schema({
   },
   is_read: { type: Boolean, default: false },
   is_server_notification: { type: Boolean, default: false },
+  future_payload: { type: String },
 });
 
 export const Notification = model("notifications", notificationSchema);

@@ -44,31 +44,6 @@ export const createTransaction = async (
   });
 
   if (is_recurring) {
-    // // set next date
-    // const next_date = transactionHelper.calculateNextRecurringDate({
-    //   recurring_frequency,
-    //   transaction_date,
-    // });
-
-    // transaction.is_estimated = true;
-    // transaction.is_recurring = is_recurring;
-    // transaction.recurring = { recurring_frequency, next_date };
-    // await transaction.save();
-
-    // if (next_date) {
-    //   const cronExpression = transactionHelper.formatCornExpression({
-    //     next_date,
-    //   });
-    //   await transactionHelper.scheduleRecurringNotification({
-    //     category_name,
-    //     cronExpression,
-    //     recurring_frequency,
-    //     transaction_amount,
-    //     transaction_type,
-    //     user,
-    //   });
-    // }
-
     await transactionHelper.handleRecurring({
       category_name,
       is_recurring,

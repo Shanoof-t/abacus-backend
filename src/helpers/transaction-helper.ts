@@ -3,13 +3,14 @@ import cron from "node-cron";
 import { User } from "../middlewares/jwt-authentication-middleware";
 import { Notification } from "../models/notification-model";
 import budgetHelper from "./budget-helper";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 interface CalculateNextRecurringDate {
   recurring_frequency?: "daily" | "weekly" | "monthly" | "yearly";
   transaction_date?: string;
 }
 
 export interface TransactionType extends mongoose.Document {
+  _id: Types.ObjectId;
   user_id: string | undefined;
   transaction_date: string | Date;
   account_name: string;
@@ -28,11 +29,12 @@ export interface TransactionType extends mongoose.Document {
 
 interface ScheduleRecurringNotification {
   cronExpression?: string;
-  transaction_type: string;
-  transaction_amount: string;
-  category_name: string;
+  transaction_type?: string;
+  transaction_amount?: string;
+  category_name?: string;
   recurring_frequency?: "daily" | "weekly" | "monthly" | "yearly";
   user: User | undefined;
+  transaction_id?: Types.ObjectId;
 }
 
 type HandleBudgetUpdate = {
@@ -69,20 +71,26 @@ export default {
     }
   },
   // format corn expresstion
-  formatCornExpression: ({ next_date }: { next_date: Date }) => {
+  formatCornExpression: ({ next_date }: { next_date: Date | string }) => {
     // create expression elements
     const month = format(next_date, "M");
     const day = format(next_date, "d");
     const minute = format(next_date, "m");
     const hour = format(next_date, "H");
 
-    // schedule task
-    // const cronExpression = `${minute} ${hour} ${day} ${month} *`;
+    // format this one tomorrow
+    const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date}`;
 
-    const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date.getFullYear()}`;
-    console.log(`Scheduled time: ${scheduledTime}`);
+    // console.log(`Scheduled time: ${scheduledTime}`);
+    const currMin = format(new Date(), "m");
+    const currHou = format(new Date(), "H");
+    const parsed = Number(currMin) + 1;
+    const mock = `${parsed.toString()} ${currHou} 25 1 *`;
+    console.log("mock date", mock);
 
-    return `* * * * * *`;
+    return mock;
+    return "38 14 24 1 *";
+    return `${minute} ${hour} ${day} ${month} *`;
   },
   //   make recurring task
   scheduleRecurringNotification: async ({
@@ -92,24 +100,29 @@ export default {
     category_name,
     recurring_frequency,
     user,
+    transaction_id,
   }: ScheduleRecurringNotification) => {
     if (cronExpression) {
       const scheduledTask = cron.schedule(cronExpression, scheduleNotification);
+
       // notification service
       async function scheduleNotification() {
-        console.log("notificatin scheduler triggered");
-        const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${Math.abs(
-          parseFloat(transaction_amount)
-        )}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
-            It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
+        if (transaction_amount) {
+          console.log("notification scheduler triggered");
+          const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${Math.abs(
+            parseFloat(transaction_amount)
+          )}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
+              It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
 
-        await Notification.create({
-          user_id: user?.sub,
-          message,
-          is_server_notification: true,
-        });
+          await Notification.create({
+            user_id: user?.sub,
+            message,
+            is_server_notification: true,
+            future_payload: transaction_id,
+          });
 
-        // scheduledTask.stop();
+          scheduledTask.stop();
+        }
       }
     }
   },
@@ -176,6 +189,7 @@ export default {
         transaction_amount,
         transaction_type,
         user,
+        transaction_id: transaction._id,
       });
     }
   },

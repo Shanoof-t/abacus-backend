@@ -4,12 +4,13 @@ import { z } from "zod";
 import schema from "../schema/transaction-schema";
 import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
-import budgetHelper from "../helpers/budget-helper";
 import { Category } from "../models/category-model";
 import categoryHelper from "../helpers/category-helper";
-import { addDays, addMonths, addWeeks, addYears, format } from "date-fns";
 
-import cron from "node-cron";
+import transactionHelper, {
+  TransactionType,
+} from "../helpers/transaction-helper";
+
 interface User {
   sub?: Types.ObjectId;
   email?: string;
@@ -28,12 +29,10 @@ export const createTransaction = async (
     transaction_note,
     is_recurring,
     recurring_frequency,
+    transaction_type,
   } = body;
 
-  const transaction_type =
-    parseFloat(transaction_amount) > 0 ? "income" : "expense";
-
-  const transaction = await Transaction.create({
+  const transaction: TransactionType = await Transaction.create({
     user_id: user?.sub,
     transaction_date,
     account_name,
@@ -45,79 +44,60 @@ export const createTransaction = async (
   });
 
   if (is_recurring) {
-    const next_date = (function () {
-      switch (recurring_frequency) {
-        case "daily":
-          return addDays(transaction_date, 1);
-        case "weekly":
-          return addWeeks(transaction_date, 1);
-        case "monthly":
-          return addMonths(transaction_date, 1);
-        case "yearly":
-          return addYears(transaction_date, 1);
-        default:
-          return;
-      }
-    })();
-    transaction.is_estimated = true;
-    transaction.is_recurring = is_recurring;
-    transaction.recurring = { recurring_frequency, next_date };
-    await transaction.save();
+    // // set next date
+    // const next_date = transactionHelper.calculateNextRecurringDate({
+    //   recurring_frequency,
+    //   transaction_date,
+    // });
 
-    if (next_date) {
-      // create expression elements
-      const month = format(next_date, "M");
-      const day = format(next_date, "d");
-      const minute = format(next_date, "m");
-      const hour = format(next_date, "H");
+    // transaction.is_estimated = true;
+    // transaction.is_recurring = is_recurring;
+    // transaction.recurring = { recurring_frequency, next_date };
+    // await transaction.save();
 
-      // schedule task
-      const cronExpression = `${minute} ${hour} ${day} ${month} *`;
-      const scheduledTask = cron.schedule(cronExpression, scheduleNotification);
+    // if (next_date) {
+    //   const cronExpression = transactionHelper.formatCornExpression({
+    //     next_date,
+    //   });
+    //   await transactionHelper.scheduleRecurringNotification({
+    //     category_name,
+    //     cronExpression,
+    //     recurring_frequency,
+    //     transaction_amount,
+    //     transaction_type,
+    //     user,
+    //   });
+    // }
 
-      const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date.getFullYear()}`;
-      console.log(`Scheduled time: ${scheduledTime}`);
-
-      // notification service
-      async function scheduleNotification() {
-        
-        scheduledTask.stop();
-      }
-    }
+    await transactionHelper.handleRecurring({
+      category_name,
+      is_recurring,
+      transaction,
+      transaction_amount,
+      transaction_type,
+      user,
+      recurring_frequency,
+      transaction_date,
+    });
   }
 
   // update category amount based on transaction
-  const amount = Math.abs(parseFloat(transaction_amount));
 
   await Category.updateOne(
     { category_name },
-    { $inc: { category_amount: amount } }
+    { $inc: { category_amount: Math.abs(parseFloat(transaction_amount)) } }
   );
 
   // update budget
   if (transaction.transaction_type === "expense") {
-    await budgetHelper.updateBudgetAfterTransaction({
-      user_id: user?.sub,
+    const alert = await transactionHelper.handleBudgetUpdateAndCreateAlerts({
       category_name,
+      transaction_amount,
+      user,
     });
 
-    const updatedBudget = await budgetHelper.findOneBudgetWithCategory({
-      user_id: user?.sub,
-      category_name,
-    });
-
-    if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
-      const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
-      return { alertMessage, transaction };
-    }
-
-    if (
-      updatedBudget?.alert_threshold &&
-      updatedBudget?.progress &&
-      updatedBudget.progress >= updatedBudget.alert_threshold
-    ) {
-      const alertMessage = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}.`;
-      return { alertMessage, transaction };
+    if (alert) {
+      return { alert, transaction };
     }
   }
 

@@ -5,6 +5,7 @@ import { Budget } from "../models/budget-model";
 import { Transaction } from "../models/transaction-model";
 import CustomError from "../utils/Custom-error";
 import budgetHelper from "../helpers/budget-helper";
+import { User } from "../models/user-model";
 
 type CreateBudget = z.infer<typeof schema.add>;
 type User = UserType | undefined;
@@ -38,7 +39,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
 
-  console.log(progress)
+  console.log(progress);
   await Budget.create({
     user_id: user?.sub,
     budget_name: body.budget_name,
@@ -57,4 +58,19 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 export const fetchAllBudgets = async (user: User) => {
   const budgets = await Budget.find({ user_id: user?.sub });
   return budgets;
+};
+
+type BudgetByCategoryName = {
+  user: User;
+  name: string;
+};
+export const fetchBudgetByCategoryName = async ({
+  user,
+  name,
+}: BudgetByCategoryName) => {
+  const budget = await Budget.findOne({
+    user_id: user?.sub,
+    category_name: name,
+  });
+  return budget;
 };

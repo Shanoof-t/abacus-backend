@@ -15,13 +15,13 @@ export const addTransaction = asyncErrorHandler(
   async (req: CustomeRequest, res: Response) => {
     const { body, user } = req;
 
-    const { alertMessage, transaction } = await createTransaction(body, user);
-    
+    const { alert, transaction } = await createTransaction(body, user);
+
     res.status(200).json({
       status: "success",
       message: "Transaction is successful.",
       data: transaction,
-      alert: alertMessage,
+      alert,
     });
   }
 );
@@ -79,6 +79,9 @@ export const createBulkTransactions = asyncErrorHandler(
     await createTransactions({ body, user });
     res
       .status(200)
-      .json({ status: "success", message: "transactions created successfully" });
+      .json({
+        status: "success",
+        message: "transactions created successfully",
+      });
   }
 );

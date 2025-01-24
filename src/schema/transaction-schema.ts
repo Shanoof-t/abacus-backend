@@ -10,7 +10,12 @@ const add = z.object({
   transaction_amount: z.string({ message: "The amount is required." }),
   transaction_note: z.string().optional(),
   is_recurring: z.boolean().optional(),
-  recurring_frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+  recurring_frequency: z
+    .enum(["daily", "weekly", "monthly", "yearly"])
+    .optional(),
+  transaction_type: z
+    .string()
+    .min(1, { message: "Transaction type is required" }),
 });
 
 const schema = {

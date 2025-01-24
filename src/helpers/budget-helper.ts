@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 import { Budget } from "../models/budget-model";
-import { Transaction } from "../models/transaction-model";
 
 type BudgetWithCategory = {
   user_id?: Types.ObjectId;
   category_name: string;
+  transaction_amount?: string;
 };
 
 export default {
@@ -17,15 +17,10 @@ export default {
       category_name,
     });
   },
-  // findOneBudgetWithDate: async function ({user_id,category_name}) {
-  //   return await Budget.findOne({
-  //     user_id,
-  //     category_name,
-  //   });
-  // },
   updateBudgetAfterTransaction: async function ({
     user_id,
     category_name,
+    transaction_amount,
   }: BudgetWithCategory) {
     // find the existing budget
     const exisingBudget = await this.findOneBudgetWithCategory({
@@ -33,30 +28,14 @@ export default {
       category_name,
     });
 
-    // find the transaction
+    // total spent calculation
 
-    const transactions = await Transaction.find({
-      user_id,
-      transaction_date: {
-        $lte: exisingBudget?.budget_end_date,
-        $gte: exisingBudget?.budget_start_date,
-      },
-      category_name,
-      transaction_type: "expense",
-    });
-
-    // calculate total spented amount
-    const totalSpentAmount = transactions.reduce(
-      (acc, value) => acc + value.transaction_amount,
-      0
-    );
-
-    // convert to positive
-    const total_spent = Math.abs(totalSpentAmount);
+    const totalSpent = exisingBudget?.total_spent || 0;
+    const totalSpentAmount = totalSpent + Number(transaction_amount);
 
     // mesure the progress percentage
     const progress = Math.min(
-      (total_spent / Number(exisingBudget?.amount_limit)) * 100,
+      (totalSpentAmount / Number(exisingBudget?.amount_limit)) * 100,
       100
     );
 
@@ -66,7 +45,7 @@ export default {
         user_id,
         category_name,
       },
-      { $set: { total_spent, progress } }
+      { $set: { total_spent: totalSpentAmount, progress } }
     );
   },
 };

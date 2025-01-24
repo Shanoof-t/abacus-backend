@@ -41,6 +41,7 @@ const budgetSchema = new mongoose.Schema({
   total_spent: {
     type: Number,
     required: [true, "total spented amount is needed"],
+    default: 0,
   },
   progress: {
     type: Number,

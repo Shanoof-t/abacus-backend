@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const signUpSchema = new mongoose.Schema({
   email: { type: String, required: [true, "Email is required"], unique: true },
   password: { type: String },
+  user_name: { type: String },
   isVerified: {
     type: Boolean,
     required: [true, "Verification is required"],

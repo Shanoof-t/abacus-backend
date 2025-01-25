@@ -5,6 +5,7 @@ export type SignUp = {
   _id?: Types.ObjectId;
   email: string;
   password: string;
+  user_name: string;
 };
 export type CreateOTP = {
   _id: Types.ObjectId;

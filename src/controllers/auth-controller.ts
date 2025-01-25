@@ -12,7 +12,7 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 
 export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
-  const { email, _id } = await createUser(body);
+  const { email, _id, user_name } = await createUser(body);
 
   const otpInfo = await createOTP({ email, _id });
 
@@ -22,6 +22,7 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
     data: {
       userId: _id,
       email: email,
+      userName: user_name,
       otpInfo,
     },
   });
@@ -31,7 +32,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
   const {
     accessToken,
-    user: { _id, email },
+    user: { _id, email, user_name },
   } = await authenticateUser(body);
 
   res.cookie("token", accessToken, {
@@ -45,7 +46,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
   res.status(200).json({
     status: "success",
     message: "Successfully logged In.",
-    data: { _id, email },
+    data: { _id, email, user_name },
   });
 });
 

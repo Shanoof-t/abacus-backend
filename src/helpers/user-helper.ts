@@ -17,8 +17,8 @@ export default {
     }
   },
   addUser: async (user: UserType) => {
-    const { email, password } = user;
+    const { email, password, user_name } = user;
     const hashedPassword = await securityHelper.hashPassword({ password });
-    return await User.create({ email, password: hashedPassword });
+    return await User.create({ email, password: hashedPassword, user_name });
   },
 };

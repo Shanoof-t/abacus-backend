@@ -3,6 +3,7 @@ import { z } from "zod";
 const signUp = z.object({
   email: z.string().email(),
   password: z.string(),
+  user_name: z.string(),
 });
 
 const signIn = z.object({

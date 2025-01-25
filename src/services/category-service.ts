@@ -10,6 +10,7 @@ export const createCategory = async (
   user: UserType | undefined
 ) => {
   const existingCategory = await Category.findOne({
+    user_id: user?.sub,
     category_name: body.category_name,
   });
 

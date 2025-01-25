@@ -28,6 +28,7 @@ export default {
       category_name,
     });
 
+    
     // total spent calculation
 
     const totalSpent = exisingBudget?.total_spent || 0;

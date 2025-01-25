@@ -24,6 +24,7 @@ export const getAllCategories = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
     const { user } = req;
     const categories = await fetchAllCategoriesByUserId(user);
+
     res.status(200).json({
       status: "success",
       message: "Successfully fetched all categories.",

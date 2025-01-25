@@ -132,6 +132,13 @@ export default {
     transaction_amount,
     user,
   }: HandleBudgetUpdate) => {
+    const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
+      user_id: user?.sub,
+      category_name,
+    });
+    
+    if (!exisingBudget) return;
+
     await budgetHelper.updateBudgetAfterTransaction({
       user_id: user?.sub,
       category_name,

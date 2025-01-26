@@ -1,8 +1,9 @@
 import { z } from "zod";
 
 const financialSummary = z.object({
-  from: z.date({ message: "from date is required" }),
-  to: z.date({ message: "to date is required" }),
+  from: z.string({ message: "from date is required" }),
+  to: z.string({ message: "to date is required" }),
+  account: z.string().optional(),
 });
 
 export const schema = {

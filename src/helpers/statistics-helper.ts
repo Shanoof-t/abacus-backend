@@ -2,6 +2,8 @@ import { z } from "zod";
 import { User as UserType } from "../middlewares/jwt-authentication-middleware";
 import { Transaction } from "../models/transaction-model";
 import { schema } from "../schema/statistics-schema";
+import { Types } from "mongoose";
+import { Category } from "../models/category-model";
 
 type Body = z.infer<typeof schema.financialSummary>;
 type User = UserType | undefined;
@@ -11,18 +13,40 @@ type MonthViseSummary = {
   income: number;
   expense: number;
 };
+
+interface GetIncomeMatchStage {
+  user_id: Types.ObjectId | undefined;
+  transaction_date: {
+    $gte: Date;
+    $lte: Date;
+  };
+  transaction_type: string;
+  account_name?: string;
+}
+interface GetExpenseMatchStage extends GetIncomeMatchStage {}
+interface GetPastMonthIncomeMatchStage extends GetIncomeMatchStage {}
+interface GetPastMonthExpenseMatchStage extends GetPastMonthIncomeMatchStage {}
+interface GetTransactionHistoryMatchStage
+  extends Omit<GetPastMonthIncomeMatchStage, "transaction_type"> {}
+
 export default {
   getIncome: async (body: Body, user: User) => {
+    const matchStage: GetIncomeMatchStage = {
+      user_id: user?.sub,
+      transaction_date: {
+        $gte: new Date(body.from),
+        $lte: new Date(body.to),
+      },
+      transaction_type: "income",
+    };
+
+    if (body.account) {
+      matchStage.account_name = body.account;
+    }
+
     const income = await Transaction.aggregate([
       {
-        $match: {
-          user_id: user?.sub,
-          transaction_date: {
-            $gte: new Date(body.from),
-            $lte: new Date(body.to),
-          },
-          transaction_type: "income",
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -39,16 +63,21 @@ export default {
     }
   },
   getExpense: async (body: Body, user: User) => {
+    const matchStage: GetExpenseMatchStage = {
+      user_id: user?.sub,
+      transaction_date: {
+        $gte: new Date(body.from),
+        $lte: new Date(body.to),
+      },
+      transaction_type: "expense",
+    };
+
+    if (body.account) {
+      matchStage.account_name = body.account;
+    }
     const expense = await Transaction.aggregate([
       {
-        $match: {
-          user_id: user?.sub,
-          transaction_date: {
-            $gte: new Date(body.from),
-            $lte: new Date(body.to),
-          },
-          transaction_type: "expense",
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -67,21 +96,27 @@ export default {
     user,
     previouseMonth,
     currentMonth,
+    accountName,
   }: {
     user: User;
-    currentMonth: Date;
+    currentMonth: string;
     previouseMonth: string;
+    accountName?: string;
   }) => {
+    const matchStage: GetPastMonthIncomeMatchStage = {
+      user_id: user?.sub,
+      transaction_date: {
+        $gte: new Date(previouseMonth),
+        $lte: new Date(currentMonth),
+      },
+      transaction_type: "income",
+    };
+    if (accountName) {
+      matchStage.account_name = accountName;
+    }
     const pastMonthIncome = await Transaction.aggregate([
       {
-        $match: {
-          user_id: user?.sub,
-          transaction_date: {
-            $gte: new Date(previouseMonth),
-            $lte: new Date(currentMonth),
-          },
-          transaction_type: "income",
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -101,21 +136,29 @@ export default {
     user,
     previouseMonth,
     currentMonth,
+    accountName,
   }: {
     user: User;
-    currentMonth: Date;
+    currentMonth: string;
     previouseMonth: string;
+    accountName?: string;
   }) => {
+    const matchStage: GetPastMonthExpenseMatchStage = {
+      user_id: user?.sub,
+
+      transaction_date: {
+        $gte: new Date(previouseMonth),
+        $lte: new Date(currentMonth),
+      },
+      transaction_type: "expense",
+    };
+
+    if (accountName) {
+      matchStage.account_name = accountName;
+    }
     const pastMonthExpense = await Transaction.aggregate([
       {
-        $match: {
-          user_id: user?.sub,
-          transaction_date: {
-            $gte: new Date(previouseMonth),
-            $lte: currentMonth,
-          },
-          transaction_type: "expense",
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -131,9 +174,27 @@ export default {
       return 0;
     }
   },
-  getTransactionSummary: async (user: User): Promise<MonthViseSummary[]> => {
+  getTransactionSummary: async ({
+    user,
+    body,
+  }: {
+    user: User;
+    body: Body;
+  }): Promise<MonthViseSummary[]> => {
+    const matchStage: GetTransactionHistoryMatchStage = {
+      user_id: user?.sub,
+      transaction_date: {
+        $gte: new Date(body.from),
+        $lte: new Date(body.to),
+      },
+    };
+
+    if (body.account) {
+      matchStage.account_name = body.account;
+    }
+
     return await Transaction.aggregate([
-      { $match: { user_id: user?.sub } },
+      { $match: matchStage },
       {
         $group: {
           _id: "$transaction_date",
@@ -158,5 +219,8 @@ export default {
         },
       },
     ]);
+  },
+  getCategory: async ({ user }: { user: User }) => {
+    return await Category.find({ user_id: user?.sub });
   },
 };

@@ -10,22 +10,25 @@ type User = UserType | undefined;
 type CreateSummary = z.infer<typeof schema.financialSummary>;
 
 export const createSummary = async (user: User, body: CreateSummary) => {
+  
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
   const remaining = income - expense;
 
   const currentMonth = body.from;
   const previouseMonth = subMonths(currentMonth, 1).toISOString();
-
+  const accountName = body.account;
   const pastMonthIncome = await statisticsHelper.getPastMonthIncome({
     currentMonth,
     previouseMonth,
+    accountName,
     user,
   });
 
   const pastMonthExpense = await statisticsHelper.getPastMonthExpense({
     currentMonth,
     previouseMonth,
+    accountName,
     user,
   });
 
@@ -49,8 +52,17 @@ export const createSummary = async (user: User, body: CreateSummary) => {
   };
 };
 
-export const fetchFinancialHistory = async (user: User) => {
-  const transactionSummary = await statisticsHelper.getTransactionSummary(user);
+export const fetchFinancialHistory = async ({
+  user,
+  body,
+}: {
+  user: User;
+  body: CreateSummary;
+}) => {
+  const transactionSummary = await statisticsHelper.getTransactionSummary({
+    user,
+    body,
+  });
 
   const formatedTransactionSummary = transactionSummary.map((month) => {
     return {
@@ -59,7 +71,8 @@ export const fetchFinancialHistory = async (user: User) => {
       expense: Math.abs(month.expense),
     };
   });
-  const categories = await Category.find();
+  
+  const categories = await statisticsHelper.getCategory({user})
   const data = {
     transaction: formatedTransactionSummary,
     categories,

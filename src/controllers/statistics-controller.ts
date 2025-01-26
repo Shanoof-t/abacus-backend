@@ -8,6 +8,7 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 export const financialSummary = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
     const { user, body } = req;
+    console.log("body in summ", body);
     const stati = await createSummary(user, body);
     res.status(200).json({
       status: "success",
@@ -19,14 +20,13 @@ export const financialSummary = asyncErrorHandler(
 
 export const serialFinincialSummary = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
-    const { user } = req;
-    const history = await fetchFinancialHistory(user);
-    res
-      .status(200)
-      .json({
-        status: "success",
-        message: "history fetch success",
-        data: history,
-      });
+    const { user, body } = req;
+    console.log("body in serialFinancail", body);
+    const history = await fetchFinancialHistory({ user, body });
+    res.status(200).json({
+      status: "success",
+      message: "history fetch success",
+      data: history,
+    });
   }
 );

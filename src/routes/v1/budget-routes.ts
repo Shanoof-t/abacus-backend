@@ -1,6 +1,6 @@
 import express from "express";
 import authenticateToken from "../../middlewares/jwt-authentication-middleware";
-import { addBudget, getAllBudgets, getBudget } from "../../controllers/budget-controller";
+import { addBudget, deleteBudget, getAllBudgets, getBudget } from "../../controllers/budget-controller";
 import validator from "../../middlewares/validator-middleware";
 import schema from "../../schema/budget-schema";
 
@@ -13,7 +13,7 @@ budgetRouter
   .post(validator(schema.add), addBudget)
   .get(getAllBudgets);
 
-budgetRouter.route("/:name").get(getBudget);
+budgetRouter.route("/:name").get(getBudget).delete(deleteBudget)
 
 // budgetRouter.post("/bulk-delete", accountBulkDelete);
 

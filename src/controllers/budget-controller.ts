@@ -1,6 +1,7 @@
 import { CustomeRequest } from "../middlewares/jwt-authentication-middleware";
 import {
   createBudget,
+  deleteBudgetByName,
   fetchAllBudgets,
   fetchBudgetByCategoryName,
 } from "../services/budget-service";
@@ -17,7 +18,6 @@ export const addBudget = asyncErrorHandler(async (req: CustomeRequest, res) => {
 export const getAllBudgets = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
     const { user } = req;
-    console.log("getAllBudgets triggered");
     const budgets = await fetchAllBudgets(user);
     res.status(200).json({
       status: "success",
@@ -30,8 +30,22 @@ export const getAllBudgets = asyncErrorHandler(
 export const getBudget = asyncErrorHandler(async (req: CustomeRequest, res) => {
   const { user } = req;
   const { name } = req.params;
+
   const budget = await fetchBudgetByCategoryName({ user, name });
+  console.log(budget);
+
   res
     .status(200)
     .json({ status: "success", message: "successfully fetched", data: budget });
 });
+
+export const deleteBudget = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { user } = req;
+    const { name } = req.params;
+    await deleteBudgetByName({ user, name });
+    res
+      .status(200)
+      .json({ status: "success", message: "Successfully deleted budget" });
+  }
+);

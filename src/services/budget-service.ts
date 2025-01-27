@@ -72,5 +72,13 @@ export const fetchBudgetByCategoryName = async ({
     user_id: user?.sub,
     category_name: name,
   });
+  if (!budget) throw new CustomError("Can't find budget with this id", 400);
   return budget;
+};
+
+export const deleteBudgetByName = async ({
+  user,
+  name,
+}: BudgetByCategoryName) => {
+  await Budget.deleteOne({ user_id: user?.sub, category_name: name });
 };

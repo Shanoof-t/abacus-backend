@@ -10,7 +10,6 @@ type User = UserType | undefined;
 type CreateSummary = z.infer<typeof schema.financialSummary>;
 
 export const createSummary = async (user: User, body: CreateSummary) => {
-  
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
   const remaining = income - expense;
@@ -42,13 +41,16 @@ export const createSummary = async (user: User, body: CreateSummary) => {
       Math.abs(remaining)) *
     -100;
 
+  const clamp = (value: number) => Math.min(Math.max(value, 100), 100);
   return {
     income,
     expense,
     remaining,
-    pastMonthIncomePercentage: Math.round(pastMonthIncomePercentage),
-    pastMonthExpensePercentage: Math.round(pastMonthExpensePercentage),
-    pastMonthRemainingPercentage: Math.round(pastMonthRemainingPercentage),
+    pastMonthIncomePercentage: Math.round(clamp(pastMonthIncomePercentage)),
+    pastMonthExpensePercentage: Math.round(clamp(pastMonthExpensePercentage)),
+    pastMonthRemainingPercentage: Math.round(
+      clamp(pastMonthRemainingPercentage)
+    ),
   };
 };
 
@@ -71,8 +73,8 @@ export const fetchFinancialHistory = async ({
       expense: Math.abs(month.expense),
     };
   });
-  
-  const categories = await statisticsHelper.getCategory({user})
+
+  const categories = await statisticsHelper.getCategory({ user });
   const data = {
     transaction: formatedTransactionSummary,
     categories,

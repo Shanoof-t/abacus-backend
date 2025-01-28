@@ -50,7 +50,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
     notification_status: body.notification_status,
     alert_threshold: body.alert_threshold,
     total_spent,
-    progress,
+    progress: Math.round(Math.max(progress, 100)),
   });
   return budget;
 };
@@ -128,7 +128,7 @@ export const updateBudgetByName = async ({
     budget_end_date: new Date(body.budget_end_date),
     budget_note: body.budget_note,
     total_spent,
-    progress,
+    progress: Math.round(Math.max(progress, 100)),
   };
 
   await Budget.updateOne({ user_id: user?.sub, _id: id }, updatedData);

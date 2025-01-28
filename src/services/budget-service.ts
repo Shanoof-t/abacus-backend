@@ -39,7 +39,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
 
-  await Budget.create({
+  const budget = await Budget.create({
     user_id: user?.sub,
     budget_name: body.budget_name,
     budget_start_date: new Date(body.budget_start_date),
@@ -52,6 +52,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
     total_spent,
     progress,
   });
+  return budget;
 };
 
 export const fetchAllBudgets = async (user: User) => {
@@ -63,10 +64,7 @@ type BudgetByCategoryName = {
   user: User;
   id: string;
 };
-export const fetchBudgetByCategoryName = async ({
-  user,
-  id,
-}: BudgetByCategoryName) => {
+export const fetchBudgetById = async ({ user, id }: BudgetByCategoryName) => {
   const budget = await Budget.findOne({
     _id: id,
   });
@@ -136,4 +134,18 @@ export const updateBudgetByName = async ({
   await Budget.updateOne({ user_id: user?.sub, _id: id }, updatedData);
 
   return await Budget.findById(id);
+};
+
+export const fetchBudgetByCategoryName = async ({
+  user,
+  category,
+}: {
+  user: User;
+  category: string;
+}) => {
+  const budget = await budgetHelper.findOneBudgetWithCategory({
+    user_id: user?.sub,
+    category_name: category,
+  });
+  return budget;
 };

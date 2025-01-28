@@ -5,6 +5,7 @@ import {
   deleteBudget,
   getAllBudgets,
   getBudget,
+  getBudgetByCategory,
   updateBudget,
 } from "../../controllers/budget-controller";
 import validator from "../../middlewares/validator-middleware";
@@ -19,6 +20,8 @@ budgetRouter
   .post(validator(schema.add), addBudget)
   .get(getAllBudgets);
 
+budgetRouter.route("/category/:category").get(getBudgetByCategory);
+
 budgetRouter
   .route("/:id")
   .get(getBudget)
@@ -26,11 +29,5 @@ budgetRouter
   .post(updateBudget);
 
 // budgetRouter.post("/bulk-delete", accountBulkDelete);
-
-// budgetRouter
-//   .route("/:id")
-//   .delete(deleteAccount)
-//   .put(editAccount)
-//   .get(getAccount);
 
 export default budgetRouter;

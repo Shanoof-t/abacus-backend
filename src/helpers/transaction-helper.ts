@@ -79,17 +79,18 @@ export default {
     const hour = format(next_date, "H");
 
     // format this one tomorrow
-    const scheduledTime = `${hour}:${minute} on ${day}-${month}-${next_date}`;
+    const scheduledTime = `${hour}:${minute} on ${day}-${month}-${new Date(
+      next_date
+    ).getFullYear()}`;
+    console.log(`Scheduled time: ${scheduledTime}`);
 
-    // console.log(`Scheduled time: ${scheduledTime}`);
-    const currMin = format(new Date(), "m");
-    const currHou = format(new Date(), "H");
-    const parsed = Number(currMin) + 1;
-    const mock = `${parsed.toString()} ${currHou} 25 1 *`;
-    console.log("mock date", mock);
-
-    return mock;
-    return "38 14 24 1 *";
+    // const currMin = format(new Date(), "m");
+    // const currHou = format(new Date(), "H");
+    // const parsed = Number(currMin) + 1;
+    // const mock = `${parsed.toString()} ${currHou} 28 1 *`;
+    // console.log("mock date", mock);
+    // return mock;
+    // return "58 21 28 1 *";
     return `${minute} ${hour} ${day} ${month} *`;
   },
   //   make recurring task
@@ -109,14 +110,17 @@ export default {
       async function scheduleNotification() {
         if (transaction_amount) {
           console.log("notification scheduler triggered");
+
+          const title = "Recurring Transaction Scheduled";
+
           const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${Math.abs(
             parseFloat(transaction_amount)
           )}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
               It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
-
           await Notification.create({
             user_id: user?.sub,
             message,
+            title,
             is_server_notification: true,
             future_payload: transaction_id,
           });
@@ -136,7 +140,7 @@ export default {
       user_id: user?.sub,
       category_name,
     });
-    
+
     if (!exisingBudget) return;
 
     await budgetHelper.updateBudgetAfterTransaction({

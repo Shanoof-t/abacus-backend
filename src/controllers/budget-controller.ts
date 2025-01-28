@@ -4,6 +4,7 @@ import {
   deleteBudgetByName,
   fetchAllBudgets,
   fetchBudgetByCategoryName,
+  updateBudgetByName,
 } from "../services/budget-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 
@@ -29,10 +30,9 @@ export const getAllBudgets = asyncErrorHandler(
 
 export const getBudget = asyncErrorHandler(async (req: CustomeRequest, res) => {
   const { user } = req;
-  const { name } = req.params;
+  const { id } = req.params;
 
-  const budget = await fetchBudgetByCategoryName({ user, name });
-  console.log(budget);
+  const budget = await fetchBudgetByCategoryName({ user, id });
 
   res
     .status(200)
@@ -42,10 +42,26 @@ export const getBudget = asyncErrorHandler(async (req: CustomeRequest, res) => {
 export const deleteBudget = asyncErrorHandler(
   async (req: CustomeRequest, res) => {
     const { user } = req;
-    const { name } = req.params;
-    await deleteBudgetByName({ user, name });
+    const { id } = req.params;
+    await deleteBudgetByName({ user, id });
     res
       .status(200)
       .json({ status: "success", message: "Successfully deleted budget" });
+  }
+);
+
+export const updateBudget = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { user, body } = req;
+    const { id } = req.params;
+    console.log("body in controller", body);
+    const existingBudget = await updateBudgetByName({ body, user, id });
+    res
+      .status(200)
+      .json({
+        status: "success",
+        message: "Budget updated successfully",
+        data: existingBudget,
+      });
   }
 );

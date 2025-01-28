@@ -39,7 +39,6 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
 
-  console.log(progress);
   await Budget.create({
     user_id: user?.sub,
     budget_name: body.budget_name,
@@ -62,15 +61,14 @@ export const fetchAllBudgets = async (user: User) => {
 
 type BudgetByCategoryName = {
   user: User;
-  name: string;
+  id: string;
 };
 export const fetchBudgetByCategoryName = async ({
   user,
-  name,
+  id,
 }: BudgetByCategoryName) => {
   const budget = await Budget.findOne({
-    user_id: user?.sub,
-    category_name: name,
+    _id: id,
   });
   if (!budget) throw new CustomError("Can't find budget with this id", 400);
   return budget;
@@ -78,7 +76,64 @@ export const fetchBudgetByCategoryName = async ({
 
 export const deleteBudgetByName = async ({
   user,
-  name,
+  id,
 }: BudgetByCategoryName) => {
-  await Budget.deleteOne({ user_id: user?.sub, category_name: name });
+  await Budget.deleteOne({ _id: id });
+};
+
+export const updateBudgetByName = async ({
+  body,
+  user,
+  id,
+}: {
+  body: CreateBudget;
+  user: User;
+  id: string;
+}) => {
+  const currentBudget = await Budget.findById(id);
+
+  if (currentBudget?.category_name !== body.category_name) {
+    const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
+      user_id: user?.sub,
+      category_name: body.category_name,
+    });
+
+    if (exisingBudget)
+      throw new CustomError(
+        "This category with a budget is already existing",
+        400
+      );
+  }
+
+  const budgetLimit = body.amount_limit;
+
+  const transactions = await Transaction.find({
+    user_id: user?.sub,
+    category_name: body.category_name,
+    transaction_type: "expense",
+  });
+
+  const totalSpentAmount = transactions.reduce(
+    (acc, value) => acc + value.transaction_amount,
+    0
+  );
+
+  const total_spent = Math.abs(totalSpentAmount);
+
+  const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
+
+  const updatedData = {
+    budget_name: body.budget_name,
+    category_name: body.category_name,
+    amount_limit: Number(body.amount_limit),
+    budget_start_date: new Date(body.budget_start_date),
+    budget_end_date: new Date(body.budget_end_date),
+    budget_note: body.budget_note,
+    total_spent,
+    progress,
+  };
+
+  await Budget.updateOne({ user_id: user?.sub, _id: id }, updatedData);
+
+  return await Budget.findById(id);
 };

@@ -16,7 +16,7 @@ export const addCategory = asyncErrorHandler(
     await createCategory(body, user);
     res
       .status(201)
-      .json({ status: "success", message: "Category created successfully" });
+      .json({ status: "success", message: "Category created successfully." });
   }
 );
 

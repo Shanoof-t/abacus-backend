@@ -37,7 +37,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const total_spent = Math.abs(totalSpentAmount);
 
-  const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
+  const progress = Math.max((total_spent / Number(budgetLimit)) * 100, 100)
 
   const budget = await Budget.create({
     user_id: user?.sub,
@@ -50,7 +50,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
     notification_status: body.notification_status,
     alert_threshold: body.alert_threshold,
     total_spent,
-    progress: Math.round(Math.max(progress, 100)),
+    progress: Math.round(Math.min(Math.max(progress, 100), 0)),
   });
   return budget;
 };

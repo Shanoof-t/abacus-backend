@@ -4,13 +4,10 @@ import routes from "./routes";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { LoaderParams } from "../types/loader-types";
-import session from "express-session";
+
 export default async ({ app, express }: LoaderParams) => {
   app.use(express.json());
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000"
-  ];
+  const allowedOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
 
   app.use(
     cors<Request>({
@@ -22,9 +19,11 @@ export default async ({ app, express }: LoaderParams) => {
   app.use(cookieParser());
   // app.use(
   //   session({
-  //     secret: "your_secure_secret_key",
+  //     secret:
+  //       "v0HmmKJbHq21Ycq7i3PBlsP4G+lic+2PMwnwZrbnrP0CB/cf/mq2akZutY56+Mc2jn7TCVr8Nsw17SXmv41xow==",
   //     resave: false,
   //     saveUninitialized: false,
+  //     cookie: { secure: false },
   //   })
   // );
 
@@ -37,4 +36,3 @@ export default async ({ app, express }: LoaderParams) => {
 
   app.use(globalErrorHanlder);
 };
-

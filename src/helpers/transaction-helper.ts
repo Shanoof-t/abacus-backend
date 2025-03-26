@@ -84,12 +84,12 @@ export default {
     ).getFullYear()}`;
     console.log(`Scheduled time: ${scheduledTime}`);
 
-    // const currMin = format(new Date(), "m");
-    // const currHou = format(new Date(), "H");
-    // const parsed = Number(currMin) + 1;
-    // const mock = `${parsed.toString()} ${currHou} 28 1 *`;
-    // console.log("mock date", mock);
-    // return mock;
+    const currMin = format(new Date(), "m");
+    const currHou = format(new Date(), "H");
+    const parsed = Number(currMin) + 1;
+    const mock = `${parsed.toString()} ${currHou} 29 1 *`;
+    console.log("mock date", mock);
+    return mock;
     // return "58 21 28 1 *";
     return `${minute} ${hour} ${day} ${month} *`;
   },

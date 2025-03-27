@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createConsentUrl } from "../services/bank-service";
+import { createConsentUrl, getUserConsent } from "../services/bank-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 import { Request, Response } from "express";
 import env from "../config/env_variables";
@@ -10,13 +10,13 @@ export const createSetuConsent = asyncErrorHandler(
     const { response, accessToken, consentId, productId } =
       await createConsentUrl();
 
-    const Consent = {
-      accessToken,
-      consentId,
-      productId,
-    };
+    // const Consent = {
+    //   accessToken,
+    //   consentId,
+    //   productId,
+    // };
 
-    req.consent = Consent;
+    // req.consent = Consent;
 
     res.status(200).json({
       status: "success",
@@ -28,26 +28,14 @@ export const createSetuConsent = asyncErrorHandler(
 
 export const getConsent = asyncErrorHandler(async (req: Request, res) => {
   const { id } = req.params;
-  const consent = req.consent;
-  console.log("get consent id", id);
-  console.log("consent in req", consent);
-  
-  const accessToken = await tokenHelper.fetchSetuToken();
-  const config = {
-    method: "get",
-    url: `https://fiu-sandbox.setu.co/v2/consents/${id}`,
-    headers: {
-      "x-product-instance-id": env.SETU_PRODUCT_ID,
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
 
-  const response = await axios.request(config);
-  console.log("consent response", response);
-  
+  console.log("get consent id", id);
+
+  const data = await getUserConsent(id);
+
   res.status(200).json({
     status: "success",
     message: "consent get success",
-    data: response.data,
+    data,
   });
 });

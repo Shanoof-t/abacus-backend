@@ -1,22 +1,12 @@
-import axios from "axios";
 import { createConsentUrl, getUserConsent } from "../services/bank-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 import { Request, Response } from "express";
-import env from "../config/env_variables";
-import tokenHelper from "../helpers/token-helper";
 
 export const createSetuConsent = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { response, accessToken, consentId, productId } =
-      await createConsentUrl();
-
-    // const Consent = {
-    //   accessToken,
-    //   consentId,
-    //   productId,
-    // };
-
-    // req.consent = Consent;
+    const { mobileNo } = req.params;
+    const setuToken = req.setuToken as string;
+    const response = await createConsentUrl(mobileNo, setuToken);
 
     res.status(200).json({
       status: "success",
@@ -28,10 +18,9 @@ export const createSetuConsent = asyncErrorHandler(
 
 export const getConsent = asyncErrorHandler(async (req: Request, res) => {
   const { id } = req.params;
+  const setuToken = req.setuToken as string;
 
-  console.log("get consent id", id);
-
-  const data = await getUserConsent(id);
+  const data = await getUserConsent(id, setuToken);
 
   res.status(200).json({
     status: "success",

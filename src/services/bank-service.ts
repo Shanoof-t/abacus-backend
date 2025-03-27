@@ -9,7 +9,7 @@ export const createConsentUrl = async (
   return await setu.createConsentRequest({ token: setuToken, body });
 };
 
-export const getUserConsent = async (id: string, accessToken: string) => {
+export const fetchTransactionsByConsentId = async (id: string, accessToken: string) => {
   const response = await setu.getConsentById({ id, accessToken });
 
   if (response.status === "ACTIVE") {

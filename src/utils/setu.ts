@@ -19,10 +19,38 @@ export const fetchSetuToken = async () => {
 };
 
 export const createConsentData = (mobileNumber: string) => {
+  // const consentData = JSON.stringify({
+  //   consentDateRange: {
+  //     startDate: "1900-01-01T00:00:00Z",
+  //     endDate: new Date().toISOString(),
+  //   },
+  //   purpose: {
+  //     code: "101",
+  //     text: "To get transaction history for calculation",
+  //     refUri: "https://api.rebit.org.in/aa/purpose/101.xml",
+  //     category: {
+  //       type: "Wealth management service",
+  //     },
+  //   },
+  //   vua: `${mobileNumber}@onemoney`,
+  //   dataRange: {
+  //     from: "1900-01-01T00:00:00Z",
+  //     to: new Date().toISOString(),
+  //   },
+  //   consentMode: "STORE",
+  //   consentTypes: ["TRANSACTIONS"],
+  //   fetchType: "PERIODIC",
+  //   context: [],
+  //   redirectUrl: "http://localhost:3000/settings",
+  // });
+  const now = new Date();
+  const consentEndDate = new Date(now);
+  consentEndDate.setFullYear(now.getFullYear() + 1);
+
   const consentData = JSON.stringify({
     consentDuration: {
-      unit: "MONTH",
-      value: "24",
+      unit: "YEAR",
+      value: "1",
     },
     purpose: {
       code: "101",
@@ -34,11 +62,16 @@ export const createConsentData = (mobileNumber: string) => {
     },
     vua: `${mobileNumber}@onemoney`,
     dataRange: {
-      from: "2022-12-01T00:00:00Z",
-      to: "2023-08-12T00:00:00Z",
+      from: "1900-01-01T00:00:00Z",
+      to: consentEndDate.toISOString(),
     },
     consentMode: "STORE",
-    consentTypes: ["TRANSACTIONS"],
+    fetchType: "PERIODIC",
+    frequency: {
+      unit: "DAY",
+      value: "1",
+    },
+    consentTypes: ["TRANSACTIONS", "PROFILE", "SUMMARY"],
     context: [],
     redirectUrl: "http://localhost:3000/settings",
   });
@@ -89,16 +122,18 @@ export const getConsentById = async ({
 export const createSession = async ({
   consentId,
   accessToken,
+  dataRange,
 }: {
   consentId: string;
   accessToken: string;
+  dataRange: {
+    from: string;
+    to: string;
+  };
 }) => {
   const body = {
     consentId,
-    dataRange: {
-      from: "2022-12-01T00:00:00Z",
-      to: "2023-08-12T00:00:00Z",
-    },
+    dataRange,
     format: "json",
   };
 

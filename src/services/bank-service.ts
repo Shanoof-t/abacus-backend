@@ -1,7 +1,6 @@
 import * as setu from "../utils/setu";
 import CustomError from "../utils/Custom-error";
-import formatCronExpression from "../utils/format-cron-expression";
-import cron from "node-cron";
+
 import bankHelper from "../helpers/bank-helper";
 export const createConsentUrl = async (
   mobileNumber: string,
@@ -17,9 +16,20 @@ export const fetchTransactionsByConsentId = async (
 ) => {
   const consent = await setu.getConsentById({ id, accessToken });
 
+  if (!consent) throw new CustomError("Can't find consent", 400);
+  // may be i want to store this for future use
+  const dataRange = {
+    from: "1900-01-01T00:00:00Z",
+    to: new Date().toISOString(),
+  };
+
   switch (consent.status) {
     case "ACTIVE":
-      return await bankHelper.handleActiveConsent({ accessToken, consent });
+      return await bankHelper.handleActiveConsent({
+        accessToken,
+        consent,
+        dataRange,
+      });
 
     case "PENDING":
       return await bankHelper.handlePendingConsent({ accessToken, consent });

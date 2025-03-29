@@ -136,6 +136,7 @@ export const createSession = async ({
     dataRange,
     format: "json",
   };
+  console.log("body", body);
 
   const config = {
     method: "post",
@@ -149,6 +150,7 @@ export const createSession = async ({
 
   // create session
   const response = await axios.request(config);
+  console.log("session", response.data);
   return response.data;
 };
 
@@ -170,6 +172,7 @@ export async function pollSessionStatus({
     };
 
     const summary = await axios.request(sessionConfig);
+    console.log("summary", summary.data);
     if (
       summary.data.status === "PARTIAL" ||
       summary.data.status === "COMPLETED"

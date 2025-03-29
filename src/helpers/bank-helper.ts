@@ -6,24 +6,25 @@ export default {
   handleActiveConsent: async ({
     accessToken,
     consent,
+    dataRange,
   }: {
     accessToken: string;
     consent: any;
+    dataRange: { from: string; to: string };
   }) => {
+    console.log("handleActiveConsent triggered");
     /**
      * create session for fi
      */
-    const dataRange = {
-      from: "1900-01-01T00:00:00Z",
-      to: new Date().toISOString(),
-    };
-
+    console.log("accessToken",accessToken)
+    console.log("dataRange",dataRange)
+    console.log("consent",consent)
     const sessionRes = await setu.createSession({
       accessToken,
       consentId: consent.id,
       dataRange,
     });
-
+    console.log("sessionRes", sessionRes);
     /**
      * make get req for session, and wait for the req until it tores status as "COMPLETED" or "PARTIAL"
      */
@@ -32,8 +33,10 @@ export default {
       sessionId: sessionRes.id,
     });
 
-    if (!fi) throw new CustomError("Can't find completed session", 500);
+    // use switch pending section instead of polling
 
+    if (!fi) throw new CustomError("Can't find completed session", 500);
+    console.log("fi>>>>>", fi);
     switch (fi.status) {
       case "COMPLETED":
         return await setuSessionHelper.handleCompletedOrPartialSession({

@@ -18,10 +18,7 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, express }) {
     app.use(express.json());
-    const allowedOrigins = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ];
+    const allowedOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
     app.use((0, cors_1.default)({
         origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -30,9 +27,11 @@ exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, expr
     app.use((0, cookie_parser_1.default)());
     // app.use(
     //   session({
-    //     secret: "your_secure_secret_key",
+    //     secret:
+    //       "v0HmmKJbHq21Ycq7i3PBlsP4G+lic+2PMwnwZrbnrP0CB/cf/mq2akZutY56+Mc2jn7TCVr8Nsw17SXmv41xow==",
     //     resave: false,
     //     saveUninitialized: false,
+    //     cookie: { secure: false },
     //   })
     // );
     // app.use((req, res, next) => {

@@ -24,8 +24,8 @@ exports.default = {
         }
     }),
     addUser: (user) => __awaiter(void 0, void 0, void 0, function* () {
-        const { email, password } = user;
+        const { email, password, user_name } = user;
         const hashedPassword = yield security_helper_1.default.hashPassword({ password });
-        return yield user_model_1.User.create({ email, password: hashedPassword });
+        return yield user_model_1.User.create({ email, password: hashedPassword, user_name });
     }),
 };

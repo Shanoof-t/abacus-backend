@@ -12,14 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const loaders_1 = __importDefault(require("./loaders"));
-const app = (0, express_1.default)();
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => {
-        console.log(`Abacus Running On Port:${PORT} `);
+const setu_1 = require("../utils/setu");
+const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
+function authenticateSetuToken(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = yield (0, setu_1.fetchSetuToken)();
+            if (!token) {
+                const error = new Custom_error_1.default("Setu token is missing,Access Denied", 400);
+                next(error);
+            }
+            req.setuToken = token;
+            next();
+        }
+        catch (error) {
+            console.log("Error in authenticateSetuToken", error);
+            next(error);
+        }
     });
-});
-startServer();
+}
+exports.default = authenticateSetuToken;

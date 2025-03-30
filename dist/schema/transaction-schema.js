@@ -2,14 +2,21 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const zod_1 = require("zod");
 const add = zod_1.z.object({
-    date: zod_1.z.string().nonempty("date is required."),
-    account: zod_1.z.string().nonempty("account is required."),
-    category: zod_1.z.string().nonempty("category is required."),
-    payee: zod_1.z.string().nonempty("payee is required."),
-    amount: zod_1.z.number({ required_error: "amount is required." }),
-    notes: zod_1.z.string().optional(),
+    account_name: zod_1.z.string().min(1, { message: "Account name is required" }),
+    category_name: zod_1.z.string().min(1, { message: "Category name is required" }),
+    transaction_date: zod_1.z.string({
+        message: "Invalid transaction date.",
+    }),
+    transaction_payee: zod_1.z.string().min(1, { message: "Payee name is required" }),
+    transaction_amount: zod_1.z.string({ message: "The amount is required." }),
+    transaction_note: zod_1.z.string().optional(),
     is_recurring: zod_1.z.boolean().optional(),
-    freequency: zod_1.z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+    recurring_frequency: zod_1.z
+        .enum(["daily", "weekly", "monthly", "yearly"])
+        .optional(),
+    transaction_type: zod_1.z
+        .string()
+        .min(1, { message: "Transaction type is required" }),
 });
 const schema = {
     add,

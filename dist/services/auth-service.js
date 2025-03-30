@@ -107,14 +107,10 @@ const googleOAuthRequest = () => __awaiter(void 0, void 0, void 0, function* () 
         "https://www.googleapis.com/auth/userinfo.email",
         "openid",
     ];
-    // const state = crypto.randomBytes(32).toString("hex");
-    // req.session.state = state;
     return google_oauth2_1.googleOauth2Client.generateAuthUrl({
         access_type: "offline",
         scope: scopes,
         prompt: "consent",
-        // include_granted_scopes: true,
-        // state: state,
     });
 });
 exports.googleOAuthRequest = googleOAuthRequest;

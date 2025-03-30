@@ -15,6 +15,10 @@ const requiredEnvVar = [
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_REDIRECT_URL",
     "SESSION_SECRET",
+    "SETU_BASE_URL",
+    "SETU_PRODUCT_ID",
+    "SETU_CLIENT_ID",
+    "SETU_CLIENT_SECRET",
 ];
 requiredEnvVar.forEach((key) => {
     if (!process.env[key])
@@ -30,5 +34,9 @@ const env = {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URL: process.env.GOOGLE_REDIRECT_URL,
     SESSION_SECRET: process.env.SESSION_SECRET,
+    SETU_BASE_URL: process.env.SETU_BASE_URL,
+    SETU_PRODUCT_ID: process.env.SETU_PRODUCT_ID,
+    SETU_CLIENT_ID: process.env.SETU_CLIENT_ID,
+    SETU_CLIENT_SECRET: process.env.SETU_CLIENT_SECRET,
 };
 exports.default = env;

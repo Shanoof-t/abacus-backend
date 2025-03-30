@@ -8,6 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const signUpSchema = new mongoose_1.default.Schema({
     email: { type: String, required: [true, "Email is required"], unique: true },
     password: { type: String },
+    user_name: { type: String },
     isVerified: {
         type: Boolean,
         required: [true, "Verification is required"],
@@ -15,6 +16,6 @@ const signUpSchema = new mongoose_1.default.Schema({
     },
     picture: { type: String },
     isGoogle: { type: Boolean, default: false },
-    googleId: { type: String, unique: true },
+    googleId: { type: String, default: Date.now() + Math.random() },
 });
 exports.User = mongoose_1.default.model("user", signUpSchema);

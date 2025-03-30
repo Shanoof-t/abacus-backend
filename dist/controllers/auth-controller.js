@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleOAuthcallback = exports.googleOAuth = exports.resendOTP = exports.verifyOTP = exports.signIn = exports.signUp = void 0;
+exports.logoutUser = exports.googleOAuthcallback = exports.googleOAuth = exports.resendOTP = exports.verifyOTP = exports.signIn = exports.signUp = void 0;
 const auth_service_1 = require("../services/auth-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    const { email, _id } = yield (0, auth_service_1.createUser)(body);
+    const { email, _id, user_name } = yield (0, auth_service_1.createUser)(body);
     const otpInfo = yield (0, auth_service_1.createOTP)({ email, _id });
     res.status(200).json({
         status: "pending",
@@ -22,13 +22,14 @@ exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter
         data: {
             userId: _id,
             email: email,
+            userName: user_name,
             otpInfo,
         },
     });
 }));
 exports.signIn = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    const { accessToken, user: { _id, email }, } = yield (0, auth_service_1.authenticateUser)(body);
+    const { accessToken, user: { _id, email, user_name }, } = yield (0, auth_service_1.authenticateUser)(body);
     res.cookie("token", accessToken, {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
@@ -39,7 +40,7 @@ exports.signIn = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter
     res.status(200).json({
         status: "success",
         message: "Successfully logged In.",
-        data: { _id, email },
+        data: { _id, email, user_name },
     });
 }));
 exports.verifyOTP = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -81,4 +82,15 @@ exports.googleOAuthcallback = (0, error_handlers_1.asyncErrorHandler)((req, res)
         message: "google authentication is Successfull",
         data,
     });
+}));
+exports.logoutUser = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/",
+    });
+    res
+        .status(200)
+        .json({ status: "success", message: "Logged out successfully" });
 }));

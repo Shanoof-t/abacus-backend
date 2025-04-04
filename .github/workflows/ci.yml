@@ -1,0 +1,29 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login Dockerhub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+      - name: Build the docker image
+        run: docker build -t abacus .
+      
+      - name: Set docker hub tag name
+        run: docker tag abacus:latest shanoof/abacus:latest
+
+      - name: Push to docker hub
+        run: docker push shanoof/abacus:latest

@@ -17,5 +17,7 @@ jobs:
         run: sudo docker pull shanoof/abacus:latest
       - name: Delete old docker container
         run: sudo docker rm -f abacus-container || true
+      - name: Pointing to Abacus path
+        run: cd abacus-backend
       - name: Run docker container
-        run: sudo docker run -d -p 8080:8080 --name abacus-container shanoof/abacus:latest
+        run: sudo docker run -d --env.file .env -p 8080:8080 --name abacus-container shanoof/abacus:latest

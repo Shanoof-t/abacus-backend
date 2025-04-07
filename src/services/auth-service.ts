@@ -47,7 +47,6 @@ export const createOTP = async ({ _id, email }: CreateOTP) => {
   }); 
   const mailOptions = mailOption({ email, otp });
   await transporter.sendMail(mailOptions);
-  console.log("otp has been sended")
   return otpInfo;
 };
 

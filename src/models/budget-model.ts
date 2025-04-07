@@ -10,7 +10,6 @@ const budgetSchema = new mongoose.Schema({
   category_name: {
     type: String,
     required: [true, "Category name is required"],
-    unique: true,
   },
   amount_limit: {
     type: Number,

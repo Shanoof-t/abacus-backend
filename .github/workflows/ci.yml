@@ -21,9 +21,6 @@ jobs:
 
       - name: Build the docker image
         run: docker build -t shanoof/abacus:latest .
-      
-      # - name: Set docker hub tag name
-      #   run: docker tag abacus:latest shanoof/abacus:latest
-
+        
       - name: Push to docker hub
         run: docker push shanoof/abacus:latest

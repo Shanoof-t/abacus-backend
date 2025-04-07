@@ -19,7 +19,7 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, loaders_1.default)({ app, express: express_1.default });
     const PORT = process.env.PORT || 8080;
     app.listen(PORT, () => {
-        console.log(`Abacus Running On Port:${PORT} `);
+        console.log(`Abacus Running On Port:${PORT}`);
     });
 });
 startServer();

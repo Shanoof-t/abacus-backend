@@ -35,6 +35,7 @@ exports.signIn = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain: ".abacuss.online",
         path: "/",
     });
     res.status(200).json({
@@ -75,6 +76,7 @@ exports.googleOAuthcallback = (0, error_handlers_1.asyncErrorHandler)((req, res)
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain: ".abacuss.online",
         path: "/",
     });
     res.status(200).json({
@@ -88,6 +90,7 @@ exports.logoutUser = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awa
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain: ".abacuss.online",
         path: "/",
     });
     res

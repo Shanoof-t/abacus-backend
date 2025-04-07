@@ -40,6 +40,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    domain:".abacuss.online",
     path: "/",
   });
 

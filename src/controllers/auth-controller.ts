@@ -88,6 +88,7 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    domain:".abacuss.online",
     path: "/",
   });
 
@@ -103,6 +104,7 @@ export const logoutUser = asyncErrorHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    domain:".abacuss.online",
     path: "/",
   });
   res

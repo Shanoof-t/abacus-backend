@@ -20,12 +20,12 @@ import env from "./env_variables";
 // });
 
 export const transporter = nodemailer.createTransport({
-  host: env.BREVO_HOST,
-  port: Number(env.BREVO_PORT),
-  auth: {
-    user: env.BREVO_USER,
-    pass: env.BREVO_PASS,
-  },
+  // host: env.BREVO_HOST,
+  // port: Number(env.BREVO_PORT),
+  // auth: {
+  //   user: env.BREVO_USER,
+  //   pass: env.BREVO_PASS,
+  // },
 });
 
 export const mailOption = ({ email, otp }: { email: string; otp: string }) => {

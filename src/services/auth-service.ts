@@ -46,9 +46,10 @@ export const createOTP = async ({ _id, email }: CreateOTP) => {
     hashedOTP,
     email,
   });
-  
+
   await sendOTPMail({ otp, toEmail: email });
 
+  
   // const mailOptions = mailOption({ email, otp });
   // const response = await transporter.sendMail(mailOptions);
   return otpInfo;

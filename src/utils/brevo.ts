@@ -1,47 +1,19 @@
-import nodemailer from "nodemailer";
-import env from "./env_variables";
-// export const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   // secure: true,
-//   auth: {
-//     user: env.MAIL_EMAIL,
-//     pass: env.MAIL_PASS,
-//   },
-// });
+// @ts-ignore
+import SibApiV3Sdk from "sib-api-v3-sdk";
+import env from "../config/env_variables";
 
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.zoho.com",
-//   port: 465,
-//   secure: true,
-//   auth: {
-//     user: env.MAIL_EMAIL,
-//     pass: env.MAIL_PASS,
-//   },
-// });
+async function sendOTPMail({ otp, toEmail }: { otp: string; toEmail: string }) {
+  var defaultClient = SibApiV3Sdk.ApiClient.instance;
+  var apiKey = defaultClient.authentications["api-key"];
+  apiKey.apiKey = env.BREVO_PASS;
 
-export const transporter = nodemailer.createTransport({
-  host: env.BREVO_HOST,
-  port: Number(env.BREVO_PORT),
-  auth: {
-    user: env.BREVO_USER,
-    pass: env.BREVO_PASS,
-  },
-});
+  var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-export const mailOption = ({ email, otp }: { email: string; otp: string }) => {
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log("❌ Error:", error);
-    } else {
-      console.log("✅ Server is ready to take messages");
-    }
-  });
-
-  return {
-    from: env.MAIL_EMAIL,
-    to: email,
+  const sendSmtpEmail = {
+    to: [{ email: toEmail }],
+    sender: { name: "Abacus", email: "abacus@abacuss.online" },
     subject: "Verify Your Email Address to Access Your Account",
-    html: `
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 8px; padding: 20px; background-color: #f9f9f9;">
         <h2 style="color: #333; text-align: center;">Verify Your Email Address</h2>
         <p style="color: #555; line-height: 1.6; text-align: center;">
@@ -63,4 +35,9 @@ export const mailOption = ({ email, otp }: { email: string; otp: string }) => {
       </div>
     `,
   };
-};
+
+  const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+  console.log("response", response);
+}
+
+export default sendOTPMail;

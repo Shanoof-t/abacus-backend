@@ -8,10 +8,11 @@ import { mailOption, transporter } from "../config/nodemailer";
 import { OneTimePassword } from "../models/otp-verification-model";
 import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
+import sendOTPMail from "../utils/brevo";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
-  
+
   const existingUser = await userHelper.getUser({ email });
   if (existingUser)
     throw new CustomError(`You already registered with this email`, 400);
@@ -44,9 +45,10 @@ export const createOTP = async ({ _id, email }: CreateOTP) => {
     _id,
     hashedOTP,
     email,
-  }); 
-  const mailOptions = mailOption({ email, otp });
-  await transporter.sendMail(mailOptions);
+  });
+  await sendOTPMail({ otp, toEmail: email });
+  // const mailOptions = mailOption({ email, otp });
+  // const response = await transporter.sendMail(mailOptions);
   return otpInfo;
 };
 

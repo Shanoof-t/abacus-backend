@@ -15,6 +15,10 @@ const requiredEnvVar = [
   "SETU_PRODUCT_ID",
   "SETU_CLIENT_ID",
   "SETU_CLIENT_SECRET",
+  "BREVO_HOST",
+  "BREVO_PORT",
+  "BREVO_USER",
+  "BREVO_PASS"
 ];
 
 requiredEnvVar.forEach((key) => {
@@ -36,6 +40,10 @@ type Env = {
   SETU_PRODUCT_ID:string
   SETU_CLIENT_ID:string
   SETU_CLIENT_SECRET:string
+  BREVO_HOST:string
+  BREVO_PORT:string
+  BREVO_USER:string
+  BREVO_PASS:string
 };
 
 const env: Env = {
@@ -52,6 +60,10 @@ const env: Env = {
   SETU_PRODUCT_ID:process.env.SETU_PRODUCT_ID!,
   SETU_CLIENT_ID:process.env.SETU_CLIENT_ID!,
   SETU_CLIENT_SECRET:process.env.SETU_CLIENT_SECRET!,
+  BREVO_HOST:process.env.BREVO_HOST!,
+  BREVO_PORT:process.env.BREVO_PORT!,
+  BREVO_USER:process.env.BREVO_USER!,
+  BREVO_PASS:process.env.BREVO_PASS!
 };
 
 export default env;

@@ -18,14 +18,14 @@ export default async ({ app, express }: LoaderParams) => {
     "https://3.110.46.217:8080",
   ];
 
-  // app.use(
-  //   cors<Request>({
-  //     origin: allowedOrigins,
-  //     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  //     credentials: true,
-  //   })
-  // );
-  app.use(cors<Request>());
+  app.use(
+    cors<Request>({
+      origin: allowedOrigins,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      credentials: true,
+    })
+  );
+  
   app.use(cookieParser());
   // app.use(
   //   session({

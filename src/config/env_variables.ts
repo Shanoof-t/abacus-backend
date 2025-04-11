@@ -5,8 +5,6 @@ const requiredEnvVar = [
   "MONGO_URL",
   "ACCESS_TOKEN_SECRET",
   "REFRESH_TOKEN_SECRET",
-  "MAIL_EMAIL",
-  "MAIL_PASS",
   "GOOGLE_CLIENT_ID",
   "GOOGLE_CLIENT_SECRET",
   "GOOGLE_REDIRECT_URL",
@@ -15,10 +13,8 @@ const requiredEnvVar = [
   "SETU_PRODUCT_ID",
   "SETU_CLIENT_ID",
   "SETU_CLIENT_SECRET",
-  "BREVO_HOST",
-  "BREVO_PORT",
   "BREVO_USER",
-  "BREVO_PASS"
+  "BREVO_PASS",
 ];
 
 requiredEnvVar.forEach((key) => {

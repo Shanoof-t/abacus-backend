@@ -11,7 +11,7 @@ async function sendOTPMail({ otp, toEmail }: { otp: string; toEmail: string }) {
 
   const sendSmtpEmail = {
     to: [{ email: toEmail }],
-    sender: { name: "Abacus", email: "abacus@abacuss.online" },
+    sender: { name: "Abacus", email: env.BREVO_USER },
     subject: "Verify Your Email Address to Access Your Account",
     htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 8px; padding: 20px; background-color: #f9f9f9;">

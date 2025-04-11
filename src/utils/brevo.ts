@@ -23,9 +23,6 @@ async function sendOTPMail({
     subject: "Verify Your Email Address to Access Your Account",
     htmlContent: `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; padding: 30px; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-  <div style="text-align: center; margin-bottom: 25px;">
-    <img src="/api/placeholder/200/50" alt="Abacus Logo" style="max-width: 150px;" />
-  </div>
   <h2 style="color: #333333; text-align: center; font-weight: 600; margin-top: 0;">Email Verification Required</h2>
   <p style="color: #555555; line-height: 1.6; font-size: 15px;">
     Hello ${userName},
@@ -34,7 +31,7 @@ async function sendOTPMail({
     Thank you for creating an account with Abacus. To ensure the security of your account and complete the registration process, please verify your email address by entering the verification code below:
   </p>
   <div style="text-align: center; margin: 30px 0;">
-    <div style="font-size: 26px; font-weight: bold; color: #000000; padding: 15px; background-color: #f7fafc;  display: inline-block; letter-spacing: 3px;">${otp}</div>
+    <div style="font-size: 26px; font-weight: bold; color: #000000; padding: 15px;  display: inline-block; letter-spacing: 3px;">${otp}</div>
   </div>
   <p style="color: #555555; line-height: 1.6; font-size: 15px;">
     <strong>Important:</strong> This verification code expires in 1 minute for security purposes. If the code expires, you can request a new one within the application.

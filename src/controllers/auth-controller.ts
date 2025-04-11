@@ -14,7 +14,11 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
   const { email, _id, user_name } = await createUser(body);
 
-  const otpInfo = await createOTP({ email, _id });
+  const otpInfo = await createOTP({
+    email,
+    _id,
+    userName: user_name as string,
+  });
 
   res.status(200).json({
     status: "pending",
@@ -40,7 +44,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    domain:".abacuss.online",
+    domain: ".abacuss.online",
     path: "/",
   });
 
@@ -88,7 +92,7 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    domain:".abacuss.online",
+    domain: ".abacuss.online",
     path: "/",
   });
 
@@ -104,7 +108,7 @@ export const logoutUser = asyncErrorHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    domain:".abacuss.online",
+    domain: ".abacuss.online",
     path: "/",
   });
   res

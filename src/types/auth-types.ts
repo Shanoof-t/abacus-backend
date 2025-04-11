@@ -11,6 +11,7 @@ export type CreateOTP = {
   _id: Types.ObjectId;
   email: string;
   hashedOTP?: string;
+  userName?:string
 };
 
 export type OtpBody = {

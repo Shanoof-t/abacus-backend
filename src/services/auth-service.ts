@@ -9,6 +9,7 @@ import { OneTimePassword } from "../models/otp-verification-model";
 import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
+import { string } from "zod";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -38,7 +39,7 @@ export const authenticateUser = async (loginData: SignIn) => {
   return { accessToken, user };
 };
 
-export const createOTP = async ({ _id, email }: CreateOTP) => {
+export const createOTP = async ({ _id, email, userName }: CreateOTP) => {
   const otp = authHelper.generateOTP();
   const hashedOTP = await securityHelper.hashOTP({ otp });
   const otpInfo = await authHelper.createOneTimePassword({
@@ -47,11 +48,8 @@ export const createOTP = async ({ _id, email }: CreateOTP) => {
     email,
   });
 
-  await sendOTPMail({ otp, toEmail: email });
+  await sendOTPMail({ otp, toEmail: email, userName  });
 
-  
-  // const mailOptions = mailOption({ email, otp });
-  // const response = await transporter.sendMail(mailOptions);
   return otpInfo;
 };
 

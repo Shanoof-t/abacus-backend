@@ -114,7 +114,7 @@ export const googleOAuthCallback = async (code: string) => {
   const response = await googleOauth2Client.getToken(code);
   await googleOauth2Client.setCredentials(response.tokens);
   const user = googleOauth2Client.credentials;
-  const { email, sub, picture } = await authHelper.getUserDataFromGoogle(
+  const { email, sub, picture, name } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
   const userfromdb = await userHelper.getUser({ email: email });
@@ -134,7 +134,7 @@ export const googleOAuthCallback = async (code: string) => {
 
   if (!userfromdb) {
     const user = await User.create({
-      user_name: "",
+      user_name: name,
       email: email,
       googleId: sub,
       picture: picture,

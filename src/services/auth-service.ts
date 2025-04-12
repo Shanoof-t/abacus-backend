@@ -4,12 +4,10 @@ import { CreateOTP, OtpBody, SignIn, SignUp } from "../types/auth-types";
 import securityHelper from "../helpers/security-helper";
 import tokenHelper from "../helpers/token-helper";
 import authHelper from "../helpers/auth-helper";
-import { mailOption, transporter } from "../config/nodemailer";
 import { OneTimePassword } from "../models/otp-verification-model";
 import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
-import { string } from "zod";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -25,8 +23,14 @@ export const authenticateUser = async (loginData: SignIn) => {
   const user = await userHelper.getUser({ email });
   if (!user) throw new CustomError("Your email is incorrect", 404);
 
-  if (!user.password)
-    throw new CustomError("Can't find the existing password", 500);
+  if (!user.password && user.isGoogle) {
+    throw new CustomError(
+      "You are sign up with google,try google sign in.",
+      500
+    );
+  } else if (!user.password) {
+    throw new CustomError("Can't find the password,", 500);
+  }
 
   const isPasswordCorrect = await securityHelper.VerifyPassword({
     password,

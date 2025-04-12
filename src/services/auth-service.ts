@@ -126,12 +126,6 @@ export const googleOAuthCallback = async (code: string) => {
     );
   }
 
-  if (!userfromdb)
-    throw new CustomError(
-      `Can't find user with this email ${email},please signun.`,
-      404
-    );
-
   let userData = userfromdb;
 
   if (!userfromdb) {
@@ -144,6 +138,12 @@ export const googleOAuthCallback = async (code: string) => {
     });
     userData = user;
   }
+
+  if (!userData)
+    throw new CustomError(
+      `Can't find user with this email ${email},please signup.`,
+      404
+    );
 
   const payload = { sub: userData._id, email: userData.email };
   const accessToken = tokenHelper.generateToken(payload);

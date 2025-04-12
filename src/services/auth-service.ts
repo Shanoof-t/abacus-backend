@@ -134,6 +134,7 @@ export const googleOAuthCallback = async (code: string) => {
 
   if (!userfromdb) {
     const user = await User.create({
+      user_name: "",
       email: email,
       googleId: sub,
       picture: picture,

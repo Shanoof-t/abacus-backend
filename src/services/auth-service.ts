@@ -113,22 +113,37 @@ export const googleOAuthCallback = async (code: string) => {
   const { email, sub, picture } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
-  // const userfromdb = await userHelper.getUser({ email: email });
-  const userfromdb = await User.findOne({ email, isGoogle: false });
-  if (userfromdb && email === userfromdb.email) {
+  const userfromdb = await userHelper.getUser({ email: email });
+
+  if (
+    userfromdb &&
+    email === userfromdb.email &&
+    userfromdb.isGoogle === false
+  ) {
     throw new CustomError(
       `You already signup with this ${email},please signin.`,
       400
     );
   }
 
-  const userData = await User.create({
-    email: email,
-    googleId: sub,
-    picture: picture,
-    isGoogle: true,
-    isVerified: true,
-  });
+  if (!userfromdb)
+    throw new CustomError(
+      `Can't find user with this email ${email},please signun.`,
+      404
+    );
+
+  let userData = userfromdb;
+
+  if (!userfromdb) {
+    const user = await User.create({
+      email: email,
+      googleId: sub,
+      picture: picture,
+      isGoogle: true,
+      isVerified: true,
+    });
+    userData = user;
+  }
 
   const payload = { sub: userData._id, email: userData.email };
   const accessToken = tokenHelper.generateToken(payload);

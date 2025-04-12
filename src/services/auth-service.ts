@@ -48,7 +48,7 @@ export const createOTP = async ({ _id, email, userName }: CreateOTP) => {
     email,
   });
 
-  await sendOTPMail({ otp, toEmail: email, userName  });
+  await sendOTPMail({ otp, toEmail: email, userName });
 
   return otpInfo;
 };
@@ -113,7 +113,8 @@ export const googleOAuthCallback = async (code: string) => {
   const { email, sub, picture } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
-  const userfromdb = await userHelper.getUser({ email: email });
+  // const userfromdb = await userHelper.getUser({ email: email });
+  const userfromdb = await User.findOne({ email, isGoogle: false });
   if (userfromdb && email === userfromdb.email) {
     throw new CustomError(
       `You already signup with this ${email},please signin.`,

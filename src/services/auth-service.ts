@@ -64,7 +64,9 @@ export const createOTP = async ({ _id, email, userName }: CreateOTP) => {
 
 export const verifyUserOTP = async (body: OtpBody) => {
   const { otp, userId } = body;
-  const userOTPRecord = await OneTimePassword.findOne({ userId });
+  const userOTPRecord = await OneTimePassword.findOne({ userId }).sort({
+    expiresAt: -1,
+  });
   if (!userOTPRecord) {
     throw new CustomError(
       "Account record doesn't exist or has been verified already.Please sign up or sign in.",

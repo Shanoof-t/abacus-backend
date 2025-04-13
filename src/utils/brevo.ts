@@ -58,7 +58,6 @@ async function sendOTPMail({
   };
 
   const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-  console.log("response", response);
 }
 
 export default sendOTPMail;

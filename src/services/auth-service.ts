@@ -13,8 +13,13 @@ export const createUser = async (user: SignUp) => {
   const { email } = user;
 
   const existingUser = await userHelper.getUser({ email });
-  if (existingUser)
+  
+  if (existingUser && existingUser.isVerified === true) {
     throw new CustomError(`You already registered with this email`, 400);
+  } else if (existingUser) {
+    return existingUser;
+  }
+
   return await userHelper.addUser(user);
 };
 

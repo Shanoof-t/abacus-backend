@@ -12,7 +12,7 @@ import sendOTPMail from "../utils/brevo";
 export const createUser = async (user: SignUp) => {
   const { email } = user;
 
-  const existingUser = await userHelper.getUser({ email });
+  const existingUser = await User.findOne({ email });
 
   if (existingUser && existingUser.isVerified === true) {
     throw new CustomError(`You already registered with this email`, 400);

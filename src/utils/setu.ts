@@ -1,5 +1,7 @@
-import axios from "axios";
+import axios, { Axios, AxiosError } from "axios";
 import env from "../config/env_variables";
+import CustomError from "./Custom-error";
+import { User } from "../middlewares/jwt-authentication-middleware";
 
 export const fetchSetuToken = async () => {
   const tokenReqConfig = {
@@ -18,39 +20,14 @@ export const fetchSetuToken = async () => {
   return response.data.access_token;
 };
 
-export const createConsentData = (mobileNumber: string) => {
-  // const consentData = JSON.stringify({
-  //   consentDateRange: {
-  //     startDate: "1900-01-01T00:00:00Z",
-  //     endDate: new Date().toISOString(),
-  //   },
-  //   purpose: {
-  //     code: "101",
-  //     text: "To get transaction history for calculation",
-  //     refUri: "https://api.rebit.org.in/aa/purpose/101.xml",
-  //     category: {
-  //       type: "Wealth management service",
-  //     },
-  //   },
-  //   vua: `${mobileNumber}@onemoney`,
-  //   dataRange: {
-  //     from: "1900-01-01T00:00:00Z",
-  //     to: new Date().toISOString(),
-  //   },
-  //   consentMode: "STORE",
-  //   consentTypes: ["TRANSACTIONS"],
-  //   fetchType: "PERIODIC",
-  //   context: [],
-  //   redirectUrl: "http://localhost:3000/settings",
-  // });
-  const now = new Date();
-  const consentEndDate = new Date(now);
-  consentEndDate.setFullYear(now.getFullYear() + 1);
-
+export const createConsentData = (mobileNumber: string, user: User) => {
+  // const now = new Date();
+  // const consentEndDate = new Date(now);
+  // consentEndDate.setFullYear(now.getFullYear() + 1);
   const consentData = JSON.stringify({
     consentDuration: {
       unit: "YEAR",
-      value: "1",
+      value: "100",
     },
     purpose: {
       code: "101",
@@ -63,13 +40,13 @@ export const createConsentData = (mobileNumber: string) => {
     vua: `${mobileNumber}@onemoney`,
     dataRange: {
       from: "1900-01-01T00:00:00Z",
-      to: consentEndDate.toISOString(),
+      to: new Date().toISOString(),
     },
     consentMode: "STORE",
     fetchType: "PERIODIC",
     frequency: {
       unit: "DAY",
-      value: "1",
+      value: "10",
     },
     consentTypes: ["TRANSACTIONS", "PROFILE", "SUMMARY"],
     context: [],
@@ -95,8 +72,17 @@ export const createConsentRequest = async ({
     },
     data: body,
   };
-  const response = await axios.request(requestConfig);
-  return response.data;
+  console.log("redy to create consent>>>>>>>>>>>>>>>>>>");
+  try {
+    const response = await axios.request(requestConfig);
+    return response.data;
+  } catch (error) {
+    console.log("error in consent creation", error);
+    throw new CustomError(
+      "Something wrong happened,Please try again later.",
+      500
+    );
+  }
 };
 
 export const getConsentById = async ({
@@ -131,27 +117,39 @@ export const createSession = async ({
     to: string;
   };
 }) => {
-  const body = {
+  const body = JSON.stringify({
     consentId,
     dataRange,
     format: "json",
-  };
+  });
   console.log("body", body);
+
+  // headers: {
+  //   "x-product-instance-id": env.SETU_PRODUCT_ID,
+  //   Authorization: `Bearer ${accessToken}`,
+  // },
 
   const config = {
     method: "post",
     url: env.SETU_BASE_URL + "/sessions",
     headers: {
+      "Content-Type": "application/json",
       "x-product-instance-id": env.SETU_PRODUCT_ID,
       Authorization: `Bearer ${accessToken}`,
+      // "x-client-id": env.SETU_CLIENT_ID,
+      // "x-client-secret": env.SETU_CLIENT_SECRET,
     },
     data: body,
   };
 
   // create session
-  const response = await axios.request(config);
-  console.log("session", response.data);
-  return response.data;
+  try {
+    const response = await axios(config);
+    console.log("session", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.log("error in session creation:", error.response.data);
+  }
 };
 
 export async function pollSessionStatus({

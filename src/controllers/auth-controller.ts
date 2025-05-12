@@ -42,11 +42,18 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
   res.cookie("token", accessToken, {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: ".abacuss.online",
+    secure: false,
+    sameSite: "lax",
     path: "/",
   });
+  // res.cookie("token", accessToken, {
+  //   maxAge: 24 * 60 * 60 * 1000,
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: "none",
+  //   domain: ".abacuss.online",
+  //   path: "/",
+  // });
 
   res.status(200).json({
     status: "success",

@@ -1,16 +1,26 @@
 import http from "http";
 import { Server } from "socket.io";
-import { parse } from "cookie";
-import jwt from "jsonwebtoken";
-import env from "../config/env_variables";
-import { User } from "../middlewares/jwt-authentication-middleware";
+// import { parse } from "cookie";
+// import jwt from "jsonwebtoken";
+// import env from "../config/env_variables";
+// import { User } from "../middlewares/jwt-authentication-middleware";
 let io: Server;
 // let socket: Socket | null = null;
 
 function init(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: "https://www.abacuss.online",
+      origin: (origin, callback) => {
+        const allowedOrigins = [
+          "https://www.abacuss.online",
+          "https://abacuss.online",
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true,
     },
   });

@@ -1,5 +1,5 @@
 import http from "http";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { parse } from "cookie";
 import jwt from "jsonwebtoken";
 import env from "../config/env_variables";
@@ -10,7 +10,7 @@ let io: Server;
 function init(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: "https://abacuss.online",
       credentials: true,
     },
   });

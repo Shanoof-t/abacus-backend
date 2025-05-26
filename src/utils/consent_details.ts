@@ -20,7 +20,7 @@ const createConsentData = (mobileNumber: string) => {
     consentMode: "STORE",
     consentTypes: ["TRANSACTIONS"],
     context: [],
-    redirectUrl: "http://localhost:3000/settings",
+    redirectUrl: "https://abacuss.online/settings",
   });
   return consentData;
 };

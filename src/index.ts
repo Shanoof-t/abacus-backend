@@ -8,9 +8,10 @@ const server = createServer(app);
 const PORT = process.env.PORT || 8080;
 
 const startServer = async () => {
+  sockets.init(server);
+  
   await loaders({ app, express });
 
-  sockets.init(server);
 
   server.listen(PORT, () => {
     console.log(`Abacus Running On Port:${PORT}`);

@@ -8,6 +8,11 @@ const accountSchema = new Schema({
     unique: true,
   },
   account_balance: { type: Number, default: 0 },
+  account_source: {
+    type: String,
+    enum: ["manual", "bank_integration", "both"],
+    default: "manual",
+  },
 });
 
 export const Account = mongoose.model("account", accountSchema);

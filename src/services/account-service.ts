@@ -19,7 +19,7 @@ export const createAccount = async (
   return await Account.create({
     user_id: user?.sub,
     account_name: account_name.replace(/\W/g, ""),
-    account_balance,
+    account_balance: account_balance || 0,
   });
 };
 

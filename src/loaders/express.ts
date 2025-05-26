@@ -25,7 +25,7 @@ export default async ({ app, express }: LoaderParams) => {
       credentials: true,
     })
   );
-  
+
   app.use(cookieParser());
   // app.use(
   //   session({

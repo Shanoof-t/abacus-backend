@@ -6,11 +6,7 @@ const categorySchema = new Schema({
     type: String,
     required: [true, "category name is required."],
   },
-  category_amount: {
-    type: Number,
-    required: [true, "amount is required."],
-    default: 0,
-  },
+  isBankCategory: { type: Boolean, default: false },
 });
 
 export const Category = mongoose.model("category", categorySchema);

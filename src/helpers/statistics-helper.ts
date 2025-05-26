@@ -221,6 +221,34 @@ export default {
     ]);
   },
   getCategory: async ({ user }: { user: User }) => {
-    return await Category.find({ user_id: user?.sub });
+    const transactions = await Transaction.find({
+      user_id: user?.sub,
+      transaction_type: "expense",
+    });
+
+    const categoriesMap = new Map();
+
+    transactions.forEach(({ category_name, transaction_amount }, index) => {
+      if (categoriesMap.has(category_name)) {
+        const currentCategory = categoriesMap.get(category_name);
+        const updatedCategory = {
+          ...currentCategory,
+          category_amount:
+            currentCategory.category_amount + transaction_amount,
+        };
+        categoriesMap.set(category_name, updatedCategory);
+      } else {
+        const obj = {
+          _id: index,
+          category_name,
+          category_amount: transaction_amount,
+        };
+        categoriesMap.set(category_name, obj);
+      }
+    });
+
+
+    const categories = Array.from(categoriesMap.values());
+    return categories;
   },
 };

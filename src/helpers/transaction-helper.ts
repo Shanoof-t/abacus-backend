@@ -4,6 +4,8 @@ import { User } from "../middlewares/jwt-authentication-middleware";
 import { Notification } from "../models/notification-model";
 import budgetHelper from "./budget-helper";
 import mongoose, { Types } from "mongoose";
+import notificationEvents from "../sockets/events/notification.events";
+// import notificationEvents from "../sockets/events/notification.events";
 interface CalculateNextRecurringDate {
   recurring_frequency?: "daily" | "weekly" | "monthly" | "yearly";
   transaction_date?: string;
@@ -84,13 +86,7 @@ export default {
     ).getFullYear()}`;
     console.log(`Scheduled time: ${scheduledTime}`);
 
-    // const currMin = format(new Date(), "m");
-    // const currHou = format(new Date(), "H");
-    // const parsed = Number(currMin) + 1;
-    // const mock = `${parsed.toString()} ${currHou} 29 1 *`;
-    // console.log("mock date", mock);
-    // return mock;
-    // // return "58 21 28 1 *";
+    // return "47 20 19 5 *"; // this is only for testing
     return `${minute} ${hour} ${day} ${month} *`;
   },
   //   make recurring task
@@ -117,12 +113,17 @@ export default {
             parseFloat(transaction_amount)
           )}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
               It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
-          await Notification.create({
+          const notification = await Notification.create({
             user_id: user?.sub,
             message,
             title,
             is_server_notification: true,
             future_payload: transaction_id,
+          });
+
+          notificationEvents.sendRecurringNotification({
+            userId: user?.sub?.toString()!,
+            notification,
           });
 
           scheduledTask.stop();

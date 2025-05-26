@@ -1,31 +1,11 @@
 import nodemailer from "nodemailer";
 import env from "./env_variables";
-// export const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   // secure: true,
-//   auth: {
-//     user: env.MAIL_EMAIL,
-//     pass: env.MAIL_PASS,
-//   },
-// });
-
-// export const transporter = nodemailer.createTransport({
-//   host: "smtp.zoho.com",
-//   port: 465,
-//   secure: true,
-//   auth: {
-//     user: env.MAIL_EMAIL,
-//     pass: env.MAIL_PASS,
-//   },
-// });
-
 export const transporter = nodemailer.createTransport({
-  // host: env.BREVO_HOST,
-  // port: Number(env.BREVO_PORT),
-  // auth: {
-  //   user: env.BREVO_USER,
-  //   pass: env.BREVO_PASS,
-  // },
+  service: "gmail",
+  auth: {
+    user: env.MAIL_EMAIL,
+    pass: env.MAIL_PASS,
+  },
 });
 
 export const mailOption = ({ email, otp }: { email: string; otp: string }) => {

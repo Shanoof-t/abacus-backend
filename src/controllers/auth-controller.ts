@@ -39,21 +39,24 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
     user: { _id, email, user_name },
   } = await authenticateUser(body);
 
-  res.cookie("token", accessToken, {
-    maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    path: "/",
-  });
-  // res.cookie("token", accessToken, {
-  //   maxAge: 24 * 60 * 60 * 1000,
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "none",
-  //   domain: ".abacuss.online",
-  //   path: "/",
-  // });
+  if (process.env.NODE_ENV === "development") {
+    res.cookie("token", accessToken, {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+  } else {
+    res.cookie("token", accessToken, {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".abacuss.online",
+      path: "/",
+    });
+  }
 
   res.status(200).json({
     status: "success",
@@ -111,13 +114,23 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
 });
 
 export const logoutUser = asyncErrorHandler(async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: ".abacuss.online",
-    path: "/",
-  });
+  if (process.env.NODE_ENV === "development") {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+  } else {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".abacuss.online",
+      path: "/",
+    });
+  }
+
   res
     .status(200)
     .json({ status: "success", message: "Logged out successfully" });

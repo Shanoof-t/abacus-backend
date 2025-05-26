@@ -23,6 +23,7 @@ export const serialFinincialSummary = asyncErrorHandler(
     const { user, body } = req;
 
     const history = await fetchFinancialHistory({ user, body });
+    
     res.status(200).json({
       status: "success",
       message: "history fetch success",

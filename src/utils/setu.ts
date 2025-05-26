@@ -46,7 +46,7 @@ export const createConsentData = (mobileNumber: string) => {
     },
     consentTypes: ["TRANSACTIONS", "PROFILE", "SUMMARY"],
     context: [],
-    redirectUrl: "http://localhost:3000/settings",
+    redirectUrl: `${env.FRONT_END_URL}/settings`,
   });
   return consentData;
 };

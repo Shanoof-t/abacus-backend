@@ -22,6 +22,7 @@ export const transactionSchema = new mongoose.Schema({
     next_date: { type: Date },
   },
   is_estimated: { type: Boolean, required: true, default: false },
+  isBankTransaction: { type: Boolean, default: false },
 });
 
 export const Transaction = mongoose.model("transactions", transactionSchema);

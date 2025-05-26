@@ -4,12 +4,12 @@ import { z } from "zod";
 import schema from "../schema/transaction-schema";
 import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
-import { Category } from "../models/category-model";
 import categoryHelper from "../helpers/category-helper";
-
 import transactionHelper, {
   TransactionType,
 } from "../helpers/transaction-helper";
+import { Account } from "../models/account-model";
+import accountHelper from "../helpers/account-helper";
 
 interface User {
   sub?: Types.ObjectId;
@@ -56,12 +56,12 @@ export const createTransaction = async (
     });
   }
 
-  // update category amount based on transaction
-
-  await Category.updateOne(
-    { category_name },
-    { $inc: { category_amount: Math.abs(parseFloat(transaction_amount)) } }
-  );
+  await accountHelper.updateAccountBalance({
+    account_name,
+    transaction_amount: Number(transaction_amount),
+    transaction_type,
+    user,
+  });
 
   // update budget
   if (transaction.transaction_type === "expense") {
@@ -146,6 +146,13 @@ export const createTransactions = async ({
       transaction_type,
       transaction_amount: parseFloat(transaction.transaction_amount),
     };
+  });
+
+  // also create the account
+
+  await accountHelper.createAccounts({
+    transactions: body,
+    user,
   });
 
   // check category

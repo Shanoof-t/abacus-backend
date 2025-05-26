@@ -6,6 +6,7 @@ const consentSchema = new mongoose.Schema({
     user_id: { type: String, required: true },
     user_email: { type: String, required: true },
   },
+  connectedAccounts: { type: Array, default: [] },
   isApproved: {
     type: Boolean,
     required: true,

@@ -15,6 +15,9 @@ const requiredEnvVar = [
   "SETU_CLIENT_SECRET",
   "BREVO_USER",
   "BREVO_PASS",
+  "FRONT_END_URL",
+  "MAIL_EMAIL",
+  "MAIL_PASS"
 ];
 
 requiredEnvVar.forEach((key) => {
@@ -40,6 +43,7 @@ type Env = {
   BREVO_PORT:string
   BREVO_USER:string
   BREVO_PASS:string
+  FRONT_END_URL:string
 };
 
 const env: Env = {
@@ -59,7 +63,8 @@ const env: Env = {
   BREVO_HOST:process.env.BREVO_HOST!,
   BREVO_PORT:process.env.BREVO_PORT!,
   BREVO_USER:process.env.BREVO_USER!,
-  BREVO_PASS:process.env.BREVO_PASS!
+  BREVO_PASS:process.env.BREVO_PASS!,
+  FRONT_END_URL:process.env.FRONT_END_URL!,
 };
 
 export default env;

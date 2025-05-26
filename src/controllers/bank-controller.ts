@@ -4,6 +4,8 @@ import {
 } from "../middlewares/jwt-authentication-middleware";
 import {
   createConsentUrl,
+  disConnectBankAccountByConsentId,
+  getConsentByUserId,
   storeBankTransactions,
   updateUserConsent,
 } from "../services/bank-service";
@@ -27,7 +29,7 @@ export const createSetuConsent = asyncErrorHandler(
 
 export const setuNotifications = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-
+  console.log("bank notification:", body);
   switch (body.type) {
     case "CONSENT_STATUS_UPDATE":
       await updateUserConsent(body);
@@ -46,3 +48,25 @@ export const setuNotifications = asyncErrorHandler(async (req, res) => {
     .status(200)
     .json({ status: "success", message: "got notification successfully" });
 });
+
+export const getUserConsent = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { user } = req;
+    const data = await getConsentByUserId(user);
+
+    res
+      .status(200)
+      .json({ status: "success", message: "consent fetch successfull", data });
+  }
+);
+
+export const disConnectBankAccount = asyncErrorHandler(
+  async (req: CustomeRequest, res) => {
+    const { consentId } = req.params;
+    const { user } = req;
+    await disConnectBankAccountByConsentId(consentId, user);
+    res
+      .status(203)
+      .json({ status: "success", message: "Successfully disconnected" });
+  }
+);

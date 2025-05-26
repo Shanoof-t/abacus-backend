@@ -27,6 +27,7 @@ export default async ({ app, express }: LoaderParams) => {
   );
 
   app.use(cookieParser());
+
   // app.use(
   //   session({
   //     secret:

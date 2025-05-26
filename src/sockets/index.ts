@@ -10,7 +10,7 @@ let io: Server;
 function init(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: "https://abacuss.online",
+      origin: "https://www.abacuss.online",
       credentials: true,
     },
   });

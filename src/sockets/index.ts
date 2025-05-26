@@ -48,17 +48,7 @@ function getIO(): Server {
   return io;
 }
 
-// function getSocket() {
-// if (!socket) {
-//   console.log(
-//     "Can't find socket check it on socket config.Maybe not initialized"
-//   );
-// }
-// return socket;
-// }
-
 export default {
   init,
   getIO,
-  // getSocket,
 };

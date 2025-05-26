@@ -22,9 +22,9 @@ function init(server: http.Server) {
     const token = parse(socket.handshake.headers.cookie as string)
       .token as string;
     const user =  jwt.verify(token, ACCESS_TOKEN_SECRET) as User;
-    if(user){
+    // if(user){
 
-    }
+    // }
     socket.on("register", ({ userId }) => {
       socket.join(userId);
       console.log(`User ${userId} joined room`);

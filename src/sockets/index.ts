@@ -18,10 +18,10 @@ function init(server: http.Server) {
   io.on("connection", async (socket) => {
     // here i want to authenticate with auth field
     console.log("socket connected:", socket.id);
-    const { ACCESS_TOKEN_SECRET } = env;
-    const token = parse(socket.handshake.headers.cookie as string)
-      .token as string;
-    const user =  jwt.verify(token, ACCESS_TOKEN_SECRET) as User;
+    // const { ACCESS_TOKEN_SECRET } = env;
+    // const token = parse(socket.handshake.headers.cookie as string)
+    //   .token as string;
+    // const user =  jwt.verify(token, ACCESS_TOKEN_SECRET) as User;
     // if(user){
 
     // }

@@ -1,7 +1,7 @@
 import formatCronExpression from "../utils/format-cron-expression";
 import * as setu from "../utils/setu";
 import cron from "node-cron";
-import bankHelper from "./bank-helper";
+// import bankHelper from "./bank-helper";
 
 interface IHandleCompleted {
   fi: any;
@@ -34,11 +34,11 @@ export default {
         from: from.toISOString(),
         to: now.toISOString(),
       };
-      await bankHelper.handleActiveConsent({
-        accessToken,
-        consent,
-        dataRange: nextDataRange,
-      });
+      // await bankHelper.handleActiveConsent({
+      //   accessToken,
+      //   consent,
+      //   dataRange: nextDataRange,
+      // });
     }
 
     // async function scheduleNextSession() {

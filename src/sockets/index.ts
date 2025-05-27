@@ -1,39 +1,33 @@
 import http from "http";
 import { Server } from "socket.io";
-// import { parse } from "cookie";
-// import jwt from "jsonwebtoken";
-// import env from "../config/env_variables";
-// import { User } from "../middlewares/jwt-authentication-middleware";
+
 let io: Server;
-// let socket: Socket | null = null;
 
 function init(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: "https://abacuss.online",
+      origin: (origin, callback) => {
+        const allowedOrigins = [
+          "https://abacuss.online",
+          "https://www.abacuss.online",
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     },
   });
 
   io.on("connection", async (socket) => {
-    // here i want to authenticate with auth field
-    console.log("socket connected:", socket.id);
-    // const { ACCESS_TOKEN_SECRET } = env;
-    // const token = parse(socket.handshake.headers.cookie as string)
-    //   .token as string;
-    // const user =  jwt.verify(token, ACCESS_TOKEN_SECRET) as User;
-    // if(user){
-
-    // }
     socket.on("register", ({ userId }) => {
       socket.join(userId);
-      console.log(`User ${userId} joined room`);
     });
 
-    socket.on("disconnect", () => {
-      console.log("socket disconnected:", socket.id);
-    });
+    socket.on("disconnect", () => {});
   });
 
   return io;

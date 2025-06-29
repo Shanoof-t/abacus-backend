@@ -42,6 +42,7 @@ export const authenticateUser = async (loginData: SignIn) => {
     password,
     existingPassword: user.password,
   });
+  
   if (!isPasswordCorrect)
     throw new CustomError("Check your password again", 401);
   const payload = { sub: user._id, email: user.email };

@@ -1,19 +1,22 @@
-import express, { Application } from "express";
-import { createServer } from "http";
-import loaders from "./loaders";
-import sockets from "./sockets";
+import "colors";
+import BootServer from "./infrastructure/config/bootstrap";
+import Database from "./infrastructure/database";
+import mongoose from "mongoose";
+import Express from "./infrastructure/express";
+import Socket from "./infrastructure/socket";
 
-const app: Application = express();
-const server = createServer(app);
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT!;
+
+const database = new Database(mongoose);
+const framework = new Express();
+const socket = new Socket();
+const server = new BootServer(database, framework, socket);
 
 const startServer = async () => {
-  await loaders({ app, express });
+  await server.start(PORT);
 
-  sockets.init(server);
-
-  server.listen(PORT, () => {
-    console.log(`Abacus Running On Port:${PORT}`);
+  process.on("SIGTERM", async () => {
+    await server.stop();
   });
 };
 

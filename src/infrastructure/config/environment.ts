@@ -46,7 +46,7 @@ type Env = {
   FRONT_END_URL:string
 };
 
-const env: Env = {
+const environment: Env = {
   MONGO_URL: process.env.MONGO_URL!,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET!,
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET!,
@@ -67,4 +67,4 @@ const env: Env = {
   FRONT_END_URL:process.env.FRONT_END_URL!,
 };
 
-export default env;
+export default environment;

@@ -1,5 +1,5 @@
 import userHelper from "../helpers/user-helper";
-import CustomError from "../utils/Custom-error";
+import CustomError from "../../../shared/utils/Custom-error"; 
 import { CreateOTP, OtpBody, SignIn, SignUp } from "../types/auth-types";
 import securityHelper from "../helpers/security-helper";
 import tokenHelper from "../helpers/token-helper";

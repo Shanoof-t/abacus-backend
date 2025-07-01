@@ -1,7 +1,7 @@
 import { createServer, Server } from "http";
 import IFramework from "../../shared/types/IFramework";
 import express, { Request } from "express";
-import routes from "../express/routes/index";
+import routes from "../../interface/http/routes"; 
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import globalErrorHanlder from "../../shared/utils/global-error-hanlder"; 
@@ -35,7 +35,7 @@ export default class Express implements IFramework {
 
     app.use(cookieParser());
 
-    // routes({ app });
+    routes({ app });
 
     app.use(globalErrorHanlder);
 

@@ -1,8 +1,9 @@
+import "reflect-metadata"
 import "colors";
 import BootServer from "./infrastructure/config/bootstrap";
 import Database from "./infrastructure/database";
 import mongoose from "mongoose";
-import Express from "./infrastructure/express";
+import Express from "./infrastructure/webserver/server.express";
 import Socket from "./infrastructure/socket";
 
 const PORT = process.env.PORT!;

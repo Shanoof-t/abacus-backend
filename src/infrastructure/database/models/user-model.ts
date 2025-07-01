@@ -14,4 +14,4 @@ const signUpSchema = new mongoose.Schema({
   googleId: { type: String, default: Date.now() + Math.random() },
 });
 
-export const User = mongoose.model("user", signUpSchema);
+export const UserModel = mongoose.model("user", signUpSchema);

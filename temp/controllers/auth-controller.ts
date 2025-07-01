@@ -8,7 +8,7 @@ import {
   userOTPReSend,
   verifyUserOTP,
 } from "../services/auth-service";
-import { asyncErrorHandler } from "../utils/error-handlers";
+import { asyncErrorHandler } from "../../../shared/utils/error-handlers"; 
 
 export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;

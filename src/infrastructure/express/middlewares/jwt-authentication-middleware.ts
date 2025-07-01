@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import env from "../config/env_variables";
+import environment from "../../config/environment"; 
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
-import CustomError from "../utils/Custom-error";
+import CustomError from "../../../shared/utils/Custom-error"; 
 
-const { ACCESS_TOKEN_SECRET } = env;
+const { ACCESS_TOKEN_SECRET } = environment;
 
 export interface User {
   sub?: Types.ObjectId;

@@ -1,6 +1,6 @@
 import { Mongoose } from "mongoose";
 import environment from "../config/environment";
-import IDatabase from "../../shared/types/IDatabase";
+import IDatabase from "../../shared/types/IDatabase"; 
 
 export default class Database implements IDatabase {
   private database: Mongoose;

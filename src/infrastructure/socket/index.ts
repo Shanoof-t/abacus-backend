@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { ISocket } from "../../shared/types/ISocket";
+import { ISocket } from "../../shared/types/ISocket"; 
 
 export default class Socket implements ISocket {
   private io: Server | null = null;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { fetchSetuToken } from "../utils/setu";
-import CustomError from "../utils/Custom-error";
+import { fetchSetuToken } from "../../../shared/utils/setu"; 
+import CustomError from "../../../shared/utils/Custom-error"; 
 
 declare global {
   namespace Express {

@@ -1,4 +1,4 @@
-import IDatabase from "../../shared/types/IDatabase";
+import IDatabase from "../../shared/types/IDatabase"; 
 import IFramework from "../../shared/types/IFramework";
 import { ISocket } from "../../shared/types/ISocket";
 
@@ -20,7 +20,7 @@ export default class BootServer {
     this.socket.connect();
 
     server.listen(PORT, () => {
-      console.log(`Abacus Running On Port:${PORT}`);
+      console.log(`Abacus Running On Port: ${PORT}`);
     });
   }
 

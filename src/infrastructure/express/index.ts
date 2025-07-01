@@ -1,13 +1,13 @@
 import { createServer, Server } from "http";
 import IFramework from "../../shared/types/IFramework";
 import express, { Request } from "express";
-import routes from "../express/routes";
+import routes from "../express/routes/index";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import globalErrorHanlder from "../../utils/global-error-hanlder";
+import globalErrorHanlder from "../../shared/utils/global-error-hanlder"; 
 
 export default class Express implements IFramework {
-  private framework = express
+  private framework = express;
 
   init(): Server {
     const app = this.framework();
@@ -35,7 +35,7 @@ export default class Express implements IFramework {
 
     app.use(cookieParser());
 
-    routes({ app, express: this.framework });
+    // routes({ app });
 
     app.use(globalErrorHanlder);
 

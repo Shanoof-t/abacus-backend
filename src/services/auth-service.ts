@@ -100,11 +100,11 @@ export const verifyUserOTP = async (body: OtpBody) => {
       400
     );
   } else {
-    const { expiresAt, otp: hashedOTP } = userOTPRecord;
-    if (!expiresAt) {
+    const { expires_at, otp: hashedOTP } = userOTPRecord;
+    if (!expires_at) {
       throw new CustomError("expiresAt is not defined", 500);
     }
-    const expires = new Date(expiresAt.getTime());
+    const expires = new Date(expires_at.getTime());
     const now = new Date();
     if (expires < now) {
       await otpRepository.deleteOne(userId);
@@ -126,11 +126,13 @@ export const verifyUserOTP = async (body: OtpBody) => {
 
 export const userOTPReSend = async (body: { userId: string }) => {
   const { userId } = body;
-  
-  const user = await userHelper.getUser({ _id: userId });
+
+  const user = await userRepository.findOneWithId(userId, false);
+
   if (!user) throw new CustomError("user not founded", 404);
-  const { email, _id } = user;
-  await createOTP({ email, id: _id.toString() });
+
+  const { email, id } = user;
+  await createOTP({ email, id });
 };
 
 export const googleOAuthRequest = async () => {
@@ -154,7 +156,8 @@ export const googleOAuthCallback = async (code: string) => {
   const { email, sub, picture, name } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
-  const userfromdb = await userHelper.getUser({ email: email });
+  
+  const userfromdb = await userRepository.findOneWithEmail(email);
 
   if (
     userfromdb &&
@@ -170,13 +173,14 @@ export const googleOAuthCallback = async (code: string) => {
   let userData = userfromdb;
 
   if (!userfromdb) {
-    const user = await User.create({
+    const user = await userRepository.addUser({
       user_name: name,
       email: email,
       googleId: sub,
       picture: picture,
       isGoogle: true,
       isVerified: true,
+      password: "",
     });
     userData = user;
   }
@@ -187,7 +191,7 @@ export const googleOAuthCallback = async (code: string) => {
       404
     );
 
-  const payload = { sub: userData._id, email: userData.email };
+  const payload = { sub: userData.id, email: userData.email };
   const accessToken = tokenHelper.generateToken(payload);
 
   return { accessToken, userData };

@@ -10,11 +10,11 @@ const create = async (data: CreateOTP) => {
   return res.rows[0];
 };
 
-const findOne = async (userId: string) => {
+const findOne = async (userId: string) => {  
   const queryText =
-    "SELECT * FROM one_time_password(user_id) VALUES ($1) ORDER BY expires_at=DESC";
+    "SELECT * FROM one_time_password WHERE user_id=$1 ORDER BY expires_at DESC";
   const params = [userId];
-  const res = await query(queryText, params);
+  const res = await query(queryText, params);  
   return res.rows[0];
 };
 

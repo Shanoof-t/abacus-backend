@@ -18,15 +18,37 @@ const findOneWithEmail = async (email: string, isVerified = true) => {
 };
 
 const addUser = async (input: UserType) => {
-  const { email, password, user_name } = input;
-  const queryText =
-    "INSERT INTO users (email,user_name,password) VALUES ($1,$2,$3) returning *";
-  const params = [email, user_name, password];
+  const {
+    email,
+    password,
+    user_name,
+    googleId,
+    isGoogle,
+    isVerified,
+    picture,
+  } = input;
+  
+  const queryText = `
+  INSERT INTO users (email, user_name, password, google_id, is_google, is_verified, picture)
+  VALUES ($1, $2, $3, $4, $5, $6, $7)
+  RETURNING *
+`;
+
+  const params = [
+    email,
+    user_name,
+    password,
+    googleId ?? null,
+    isGoogle ?? false,
+    isVerified ?? false,
+    picture ?? null,
+  ];
+
   const res = await query(queryText, params);
   return res.rows[0];
 };
 
-const update = async (userId:string) => {
+const update = async (userId: string) => {
   const queryText = "UPDATE users SET is_verified=true WHERE id=$1 returning *";
   const params = [userId];
   const res = await query(queryText, params);

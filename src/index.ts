@@ -1,3 +1,4 @@
+import "colors"
 import express, { Application } from "express";
 import { createServer } from "http";
 import loaders from "./loaders";
@@ -13,7 +14,7 @@ const startServer = async () => {
   sockets.init(server);
 
   server.listen(PORT, () => {
-    console.log(`Abacus Running On Port:${PORT}`);
+    console.log(`Abacus Running On Port:${PORT}`.green);
   });
 };
 

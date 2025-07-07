@@ -17,7 +17,7 @@ const requiredEnvVar = [
   "BREVO_PASS",
   "FRONT_END_URL",
   "MAIL_EMAIL",
-  "MAIL_PASS"
+  "MAIL_PASS",
 ];
 
 requiredEnvVar.forEach((key) => {
@@ -26,7 +26,12 @@ requiredEnvVar.forEach((key) => {
 });
 
 type Env = {
-  MONGO_URL: string;
+  DB_HOST: string;
+  DB_USER: string;
+  DB_PASSWORD: string;
+  DB_PORT: number;
+  DB_NAME: string;
+  DB_URL:string;
   ACCESS_TOKEN_SECRET: string;
   REFRESH_TOKEN_SECRET: string;
   MAIL_EMAIL: string;
@@ -35,19 +40,24 @@ type Env = {
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REDIRECT_URL: string;
   SESSION_SECRET: string;
-  SETU_BASE_URL:string
-  SETU_PRODUCT_ID:string
-  SETU_CLIENT_ID:string
-  SETU_CLIENT_SECRET:string
-  BREVO_HOST:string
-  BREVO_PORT:string
-  BREVO_USER:string
-  BREVO_PASS:string
-  FRONT_END_URL:string
+  SETU_BASE_URL: string;
+  SETU_PRODUCT_ID: string;
+  SETU_CLIENT_ID: string;
+  SETU_CLIENT_SECRET: string;
+  BREVO_HOST: string;
+  BREVO_PORT: string;
+  BREVO_USER: string;
+  BREVO_PASS: string;
+  FRONT_END_URL: string;
 };
 
 const env: Env = {
-  MONGO_URL: process.env.MONGO_URL!,
+  DB_URL: process.env.DB_URL!,
+  DB_HOST: process.env.DB_HOST!,
+  DB_USER: process.env.DB_USER!,
+  DB_PASSWORD: process.env.DB_PASSWORD!,
+  DB_PORT: Number(process.env.DB_PORT!),
+  DB_NAME: process.env.DB_NAME!,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET!,
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET!,
   MAIL_EMAIL: process.env.MAIL_EMAIL!,
@@ -56,15 +66,15 @@ const env: Env = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
   GOOGLE_REDIRECT_URL: process.env.GOOGLE_REDIRECT_URL!,
   SESSION_SECRET: process.env.SESSION_SECRET!,
-  SETU_BASE_URL:process.env.SETU_BASE_URL!,
-  SETU_PRODUCT_ID:process.env.SETU_PRODUCT_ID!,
-  SETU_CLIENT_ID:process.env.SETU_CLIENT_ID!,
-  SETU_CLIENT_SECRET:process.env.SETU_CLIENT_SECRET!,
-  BREVO_HOST:process.env.BREVO_HOST!,
-  BREVO_PORT:process.env.BREVO_PORT!,
-  BREVO_USER:process.env.BREVO_USER!,
-  BREVO_PASS:process.env.BREVO_PASS!,
-  FRONT_END_URL:process.env.FRONT_END_URL!,
+  SETU_BASE_URL: process.env.SETU_BASE_URL!,
+  SETU_PRODUCT_ID: process.env.SETU_PRODUCT_ID!,
+  SETU_CLIENT_ID: process.env.SETU_CLIENT_ID!,
+  SETU_CLIENT_SECRET: process.env.SETU_CLIENT_SECRET!,
+  BREVO_HOST: process.env.BREVO_HOST!,
+  BREVO_PORT: process.env.BREVO_PORT!,
+  BREVO_USER: process.env.BREVO_USER!,
+  BREVO_PASS: process.env.BREVO_PASS!,
+  FRONT_END_URL: process.env.FRONT_END_URL!,
 };
 
 export default env;

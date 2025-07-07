@@ -9,11 +9,12 @@ import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
 import { mailOption, transporter } from "../config/nodemailer";
+import userRepository from "../repositories/user-repository";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await userRepository.findOneWithEmail(email);
 
   if (existingUser && existingUser.isVerified === true) {
     throw new CustomError(`You already registered with this email`, 400);
@@ -21,7 +22,15 @@ export const createUser = async (user: SignUp) => {
     return existingUser;
   }
 
-  return await userHelper.addUser(user);
+  const password = await securityHelper.hashPassword({
+    password: user.password,
+  });
+
+  return await userRepository.addUser({
+    email: user.email,
+    user_name: user.user_name,
+    password,
+  });
 };
 
 export const authenticateUser = async (loginData: SignIn) => {
@@ -42,7 +51,7 @@ export const authenticateUser = async (loginData: SignIn) => {
     password,
     existingPassword: user.password,
   });
-  
+
   if (!isPasswordCorrect)
     throw new CustomError("Check your password again", 401);
   const payload = { sub: user._id, email: user.email };
@@ -50,13 +59,19 @@ export const authenticateUser = async (loginData: SignIn) => {
   return { accessToken, user };
 };
 
-export const createOTP = async ({ _id, email, userName }: CreateOTP) => {
+export const createOTP = async ({ id, email, userName }: CreateOTP) => {
   const otp = authHelper.generateOTP();
   const hashedOTP = await securityHelper.hashOTP({ otp });
+
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + 60 * 1000);
+
   const otpInfo = await authHelper.createOneTimePassword({
-    _id,
+    id,
     hashedOTP,
     email,
+    createdAt,
+    expiresAt,
   });
 
   if (process.env.NODE_ENV === "development") {
@@ -108,7 +123,7 @@ export const userOTPReSend = async (body: { userId: string }) => {
   const user = await userHelper.getUser({ _id: userId });
   if (!user) throw new CustomError("user not founded", 404);
   const { email, _id } = user;
-  await createOTP({ email, _id });
+  await createOTP({ email, id: _id.toString() });
 };
 
 export const googleOAuthRequest = async () => {

@@ -12,11 +12,11 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 
 export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
-  const { email, _id, user_name } = await createUser(body);
+  const { email, id, user_name } = await createUser(body);
 
   const otpInfo = await createOTP({
     email,
-    _id,
+    id,
     userName: user_name as string,
   });
 
@@ -24,7 +24,7 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
     status: "pending",
     message: "Verification otp email send",
     data: {
-      userId: _id,
+      userId: id,
       email: email,
       userName: user_name,
       otpInfo,

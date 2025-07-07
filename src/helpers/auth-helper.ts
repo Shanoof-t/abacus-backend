@@ -1,6 +1,7 @@
 import otpGenerator from "otp-generator";
 import { OneTimePassword } from "../models/otp-verification-model";
 import { CreateOTP } from "../types/auth-types";
+import { createOTP } from "../repositories/otp-repository";
 export default {
   generateOTP: () => {
     return otpGenerator.generate(6, {
@@ -10,13 +11,8 @@ export default {
       specialChars: false,
     });
   },
-  createOneTimePassword: async ({ _id, hashedOTP }: CreateOTP) => {
-    return await OneTimePassword.create({
-      userId: _id,
-      otp: hashedOTP,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 60 * 1000,
-    });
+  createOneTimePassword: async (data: CreateOTP) => {
+    return await createOTP(data);
   },
   getUserDataFromGoogle: async (access_token: unknown) => {
     const response = await fetch(

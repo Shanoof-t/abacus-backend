@@ -8,10 +8,12 @@ export type SignUp = {
   user_name: string;
 };
 export type CreateOTP = {
-  _id: Types.ObjectId;
+  id: string
   email: string;
   hashedOTP?: string;
-  userName?:string
+  userName?: string;
+  createdAt?: Date;
+  expiresAt?: Date;
 };
 
 export type OtpBody = {

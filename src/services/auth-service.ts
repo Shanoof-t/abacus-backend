@@ -1,11 +1,8 @@
-import userHelper from "../helpers/user-helper";
 import CustomError from "../utils/Custom-error";
 import { CreateOTP, OtpBody, SignIn, SignUp } from "../types/auth-types";
 import securityHelper from "../helpers/security-helper";
 import tokenHelper from "../helpers/token-helper";
 import authHelper from "../helpers/auth-helper";
-import { OneTimePassword } from "../models/otp-verification-model";
-import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
 import { mailOption, transporter } from "../config/nodemailer";

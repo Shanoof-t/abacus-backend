@@ -5,7 +5,6 @@ import { Budget } from "../models/budget-model";
 import { Transaction } from "../models/transaction-model";
 import CustomError from "../utils/Custom-error";
 import budgetHelper from "../helpers/budget-helper";
-import { User } from "../models/user-model";
 
 type CreateBudget = z.infer<typeof schema.add>;
 type User = UserType | undefined;

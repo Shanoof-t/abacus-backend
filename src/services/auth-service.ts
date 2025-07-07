@@ -10,6 +10,7 @@ import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
 import { mailOption, transporter } from "../config/nodemailer";
 import userRepository from "../repositories/user-repository";
+import otpRepository from "../repositories/otp-repository";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;
@@ -35,10 +36,11 @@ export const createUser = async (user: SignUp) => {
 
 export const authenticateUser = async (loginData: SignIn) => {
   const { email, password } = loginData;
-  const user = await userHelper.getUser({ email });
+  const user = await userRepository.findOneWithEmail(email);
+
   if (!user) throw new CustomError("Your email is incorrect", 404);
 
-  if (!user.password && user.isGoogle) {
+  if (!user.password && user.is_google) {
     throw new CustomError(
       "You are sign up with google,try google sign in.",
       500
@@ -54,7 +56,7 @@ export const authenticateUser = async (loginData: SignIn) => {
 
   if (!isPasswordCorrect)
     throw new CustomError("Check your password again", 401);
-  const payload = { sub: user._id, email: user.email };
+  const payload = { sub: user.id, email: user.email };
   const accessToken = tokenHelper.generateToken(payload);
   return { accessToken, user };
 };
@@ -87,9 +89,11 @@ export const createOTP = async ({ id, email, userName }: CreateOTP) => {
 
 export const verifyUserOTP = async (body: OtpBody) => {
   const { otp, userId } = body;
-  const userOTPRecord = await OneTimePassword.findOne({ userId }).sort({
-    expiresAt: -1,
-  });
+  // const userOTPRecord = await OneTimePassword.findOne({ userId }).sort({
+  //   expiresAt: -1,
+  // });
+
+  const userOTPRecord = await otpRepository.findOne(userId);
   if (!userOTPRecord) {
     throw new CustomError(
       "Account record doesn't exist or has been verified already.Please sign up or sign in.",
@@ -100,8 +104,10 @@ export const verifyUserOTP = async (body: OtpBody) => {
     if (!expiresAt) {
       throw new CustomError("expiresAt is not defined", 500);
     }
-    if (expiresAt.getTime() < Date.now()) {
-      await OneTimePassword.deleteOne({ userId });
+    const expires = new Date(expiresAt.getTime());
+    const now = new Date();
+    if (expires < now) {
+      await otpRepository.deleteOne(userId);
       throw new CustomError("OTP has expired.Please try again.", 400);
     } else {
       if (!hashedOTP) {
@@ -111,8 +117,8 @@ export const verifyUserOTP = async (body: OtpBody) => {
       if (!validOTP) {
         throw new CustomError("Invalid OTP.Please check again.", 400);
       } else {
-        await User.updateOne({ _id: userId }, { isVerified: true });
-        await OneTimePassword.deleteOne({ userId });
+        await userRepository.update(userId);
+        await otpRepository.deleteOne(userId);
       }
     }
   }
@@ -120,6 +126,7 @@ export const verifyUserOTP = async (body: OtpBody) => {
 
 export const userOTPReSend = async (body: { userId: string }) => {
   const { userId } = body;
+  
   const user = await userHelper.getUser({ _id: userId });
   if (!user) throw new CustomError("user not founded", 404);
   const { email, _id } = user;

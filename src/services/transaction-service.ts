@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { Transaction } from "../models/transaction-model";
+// import { Transaction } from "../models/transaction-model";
 import { z } from "zod";
 import schema from "../schema/transaction-schema";
 import { ObjectId } from "mongodb";
@@ -8,18 +8,22 @@ import categoryHelper from "../helpers/category-helper";
 import transactionHelper, {
   TransactionType,
 } from "../helpers/transaction-helper";
-import { Account } from "../models/account-model";
 import accountHelper from "../helpers/account-helper";
+import transactionRepository from "../repositories/transaction-repository";
 
 interface User {
-  sub?: Types.ObjectId;
-  email?: string;
+  sub: string;
+  email: string;
 }
 
 export const createTransaction = async (
   body: z.infer<typeof schema.add>,
   user: User | undefined
 ) => {
+  if (!user) {
+    throw new CustomError("user is not exist,", 400);
+  }
+
   const {
     account_name,
     category_name,
@@ -32,8 +36,8 @@ export const createTransaction = async (
     transaction_type,
   } = body;
 
-  const transaction: TransactionType = await Transaction.create({
-    user_id: user?.sub,
+  const transaction = await transactionRepository.create({
+    user_id: user.sub,
     transaction_date,
     account_name,
     transaction_amount: parseFloat(transaction_amount),
@@ -42,6 +46,17 @@ export const createTransaction = async (
     transaction_type,
     transaction_note,
   });
+
+  // const transaction: TransactionType = await Transaction.create({
+  //   user_id: user?.sub,
+  //   transaction_date,
+  //   account_name,
+  //   transaction_amount: parseFloat(transaction_amount),
+  //   category_name,
+  //   transaction_payee,
+  //   transaction_type,
+  //   transaction_note,
+  // });
 
   if (is_recurring) {
     await transactionHelper.handleRecurring({

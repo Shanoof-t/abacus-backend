@@ -49,7 +49,7 @@ async function createTables() {
       }
     }
     logUpdate.clear();
-    console.log(fileNames.join(",").green + " created".green);
+    console.log(fileNames.join(", ").green + " created".green);
   } catch (error: any) {
     console.log(`error in table migration: ${error.message}`.red);
   }

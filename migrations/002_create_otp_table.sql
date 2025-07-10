@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS one_time_password;
+
 CREATE TABLE
     IF NOT EXISTS one_time_password (
         id SERIAL NOT NULL UNIQUE PRIMARY KEY,

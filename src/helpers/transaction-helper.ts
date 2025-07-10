@@ -11,7 +11,7 @@ interface CalculateNextRecurringDate {
   transaction_date?: string;
 }
 
-export interface TransactionType extends mongoose.Document {
+export interface TransactionType{
   _id: Types.ObjectId;
   user_id: string | undefined;
   transaction_date: string | Date;

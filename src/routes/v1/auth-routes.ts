@@ -20,7 +20,7 @@ authRouter.post("/logout",logoutUser)
 authRouter.post("/verify-otp", validator(schema.verifyOTP), verifyOTP);
 authRouter.post("/resend-otp", validator(schema.resendOTP), resendOTP);
 
-authRouter.get("/google-auth", googleOAuth);
-authRouter.post("/oauth2-callback", googleOAuthcallback);
+authRouter.get("/google", googleOAuth);
+authRouter.post("/google/callback", googleOAuthcallback);
 
 export default authRouter;

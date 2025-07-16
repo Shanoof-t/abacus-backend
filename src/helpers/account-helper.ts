@@ -1,4 +1,3 @@
-import { z } from "zod";
 import CustomError from "../utils/Custom-error";
 import schema from "../schema/transaction-schema";
 import {
@@ -46,30 +45,6 @@ async function updateAccountBalance({
   };
 
   await accountRepository.updateOneById(data);
-
-  // await Account.updateOne(
-  //   { user_id: user?.sub, account_name },
-  //   {
-  //     $set: {
-  //       account_balance: balance,
-  //       account_source:
-  //         currentAccount.account_source === "bank_integration"
-  //           ? "both"
-  //           : accountSource,
-  //     },
-  //   }
-  // );
-
-  // if (currentAccount.account_source === "bank_integration") {
-  //   await Account.updateOne(
-  //     { user_id: user?.sub, account_name },
-  //     {
-  //       $set: {
-  //         account_source: "both",
-  //       },
-  //     }
-  //   );
-  // }
 }
 
 async function createAccounts({

@@ -7,15 +7,21 @@ export type SignUp = {
   password: string;
   user_name: string;
 };
-export type CreateOTP = {
-  id: string
+export interface IOtp {
+  id?: string;
   email: string;
-  hashedOTP?: string;
-  userName?: string;
-  createdAt?: Date;
-  expiresAt?: Date;
-};
+  user_id?: string;
+  otp?: string;
+  created_at?: Date;
+  expires_at?: Date;
+}
 
+export interface ICreateOtp {
+  user_id?: string;
+  email: string;
+  id?: string;
+  user_name?: string;
+}
 export type OtpBody = {
   userId: string;
   otp: string;

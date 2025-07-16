@@ -18,7 +18,7 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const otpInfo = await createOTP({
     email,
     id,
-    userName: user_name as string,
+    user_name,
   });
 
   res.status(200).json({
@@ -37,7 +37,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
   const {
     accessToken,
-    user: { _id, email, user_name },
+    user: { id, email, user_name },
   } = await authenticateUser(body);
 
   if (process.env.NODE_ENV === "development") {
@@ -62,7 +62,7 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
   res.status(200).json({
     status: "success",
     message: "Successfully logged In.",
-    data: { _id, email, user_name },
+    data: { id, email, user_name },
   });
 });
 

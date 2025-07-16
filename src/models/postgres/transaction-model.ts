@@ -95,7 +95,7 @@ const updateOneById = async (
   return res.rows[0];
 };
 
-const insertMany = async (transactions: ITransaction[]) => {
+const insertMany = async (transactions: ITransaction[]): Promise<ITransaction[]> => {
   const placeHolders = transactions
     .map((_, index) => {
       let start = index * 8 + 1;

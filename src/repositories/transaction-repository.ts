@@ -30,7 +30,7 @@ const updateOneById = async (
   return await model.updateOneById(transaction, transactionId);
 };
 
-const insertMany = async (transactions: ITransaction[]) => {
+const insertMany = async (transactions: ITransaction[]): Promise<ITransaction[]> => {
   return await model.insertMany(transactions);
 };
 

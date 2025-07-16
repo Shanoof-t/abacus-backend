@@ -1,5 +1,5 @@
 import otpGenerator from "otp-generator";
-import { CreateOTP } from "../types/auth-types";
+import { IOtp } from "../types/auth-types";
 import otpRepository from "../repositories/otp-repository";
 
 export default {
@@ -11,7 +11,7 @@ export default {
       specialChars: false,
     });
   },
-  createOneTimePassword: async (data: CreateOTP) => {
+  createOneTimePassword: async (data: IOtp) => {
     return await otpRepository.create(data);
   },
   getUserDataFromGoogle: async (access_token: unknown) => {

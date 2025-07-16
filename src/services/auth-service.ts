@@ -1,5 +1,5 @@
 import CustomError from "../utils/Custom-error";
-import { CreateOTP, OtpBody, SignIn, SignUp } from "../types/auth-types";
+import { ICreateOtp, IOtp, OtpBody, SignIn, SignUp } from "../types";
 import securityHelper from "../helpers/security-helper";
 import tokenHelper from "../helpers/token-helper";
 import authHelper from "../helpers/auth-helper";
@@ -14,7 +14,7 @@ export const createUser = async (user: SignUp) => {
 
   const existingUser = await userRepository.findOneWithEmail(email);
 
-  if (existingUser && existingUser.isVerified === true) {
+  if (existingUser && existingUser.is_verified === true) {
     throw new CustomError(`You already registered with this email`, 400);
   } else if (existingUser) {
     return existingUser;
@@ -58,7 +58,12 @@ export const authenticateUser = async (loginData: SignIn) => {
   return { accessToken, user };
 };
 
-export const createOTP = async ({ id, email, userName }: CreateOTP) => {
+export const createOTP = async ({
+  id,
+  email,
+  user_name,
+  user_id,
+}: ICreateOtp) => {
   const otp = authHelper.generateOTP();
   const hashedOTP = await securityHelper.hashOTP({ otp });
 
@@ -67,10 +72,11 @@ export const createOTP = async ({ id, email, userName }: CreateOTP) => {
 
   const otpInfo = await authHelper.createOneTimePassword({
     id,
-    hashedOTP,
+    otp: hashedOTP,
     email,
-    createdAt,
-    expiresAt,
+    user_id,
+    created_at: createdAt,
+    expires_at: expiresAt,
   });
 
   if (process.env.NODE_ENV === "development") {
@@ -78,7 +84,7 @@ export const createOTP = async ({ id, email, userName }: CreateOTP) => {
     const result = await transporter.sendMail(option);
     console.log("✅ Email sent:", result.response);
   } else {
-    await sendOTPMail({ otp, toEmail: email, userName });
+    await sendOTPMail({ otp, toEmail: email, userName: user_name });
   }
 
   return otpInfo;
@@ -86,9 +92,6 @@ export const createOTP = async ({ id, email, userName }: CreateOTP) => {
 
 export const verifyUserOTP = async (body: OtpBody) => {
   const { otp, userId } = body;
-  // const userOTPRecord = await OneTimePassword.findOne({ userId }).sort({
-  //   expiresAt: -1,
-  // });
 
   const userOTPRecord = await otpRepository.findOne(userId);
   if (!userOTPRecord) {
@@ -128,8 +131,8 @@ export const userOTPReSend = async (body: { userId: string }) => {
 
   if (!user) throw new CustomError("user not founded", 404);
 
-  const { email, id } = user;
-  await createOTP({ email, id });
+  const { email, id, user_name } = user;
+  await createOTP({ email, id, user_id: id, user_name });
 };
 
 export const googleOAuthRequest = async () => {
@@ -153,13 +156,13 @@ export const googleOAuthCallback = async (code: string) => {
   const { email, sub, picture, name } = await authHelper.getUserDataFromGoogle(
     user.access_token
   );
-  
+
   const userfromdb = await userRepository.findOneWithEmail(email);
 
   if (
     userfromdb &&
     email === userfromdb.email &&
-    userfromdb.isGoogle === false
+    userfromdb.is_google === false
   ) {
     throw new CustomError(
       `You already signup with this ${email},please signin.`,
@@ -173,10 +176,10 @@ export const googleOAuthCallback = async (code: string) => {
     const user = await userRepository.addUser({
       user_name: name,
       email: email,
-      googleId: sub,
+      google_id: sub,
       picture: picture,
-      isGoogle: true,
-      isVerified: true,
+      is_google: true,
+      is_verified: true,
       password: "",
     });
     userData = user;

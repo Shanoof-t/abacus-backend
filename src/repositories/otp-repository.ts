@@ -1,17 +1,17 @@
 import otpModel from "../models/postgres/otp-model";
-import { CreateOTP } from "../types/auth-types";
+import { IOtp } from "../types";
 
 const model = otpModel;
 
-const create = async (data: CreateOTP) => {
+const create = async (data: IOtp): Promise<IOtp> => {
   return await model.create(data);
 };
 
-const findOne = async (userId: string) => {
+const findOne = async (userId: string): Promise<IOtp> => {
   return await model.findOne(userId);
 };
 
-const deleteOne = async (userId: string) => {
+const deleteOne = async (userId: string): Promise<IOtp> => {
   return await model.deleteOne(userId);
 };
 

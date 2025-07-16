@@ -1,4 +1,3 @@
-import { CustomeRequest } from "../middlewares/jwt-authentication-middleware";
 import {
   createCategory,
   deleteCategories,
@@ -9,29 +8,25 @@ import {
 } from "../services/category-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
 
-export const addCategory = asyncErrorHandler(
-  async (req: CustomeRequest, res) => {
-    const { body, user } = req;
+export const addCategory = asyncErrorHandler(async (req, res) => {
+  const { body, user } = req;
 
-    await createCategory(body, user);
-    res
-      .status(201)
-      .json({ status: "success", message: "Category created successfully" });
-  }
-);
+  await createCategory(body, user);
+  res
+    .status(201)
+    .json({ status: "success", message: "Category created successfully" });
+});
 
-export const getAllCategories = asyncErrorHandler(
-  async (req: CustomeRequest, res) => {
-    const { user } = req;
-    const categories = await fetchAllCategoriesByUserId(user);
+export const getAllCategories = asyncErrorHandler(async (req, res) => {
+  const { user } = req;
+  const categories = await fetchAllCategoriesByUserId(user);
 
-    res.status(200).json({
-      status: "success",
-      message: "Successfully fetched all categories.",
-      data: categories,
-    });
-  }
-);
+  res.status(200).json({
+    status: "success",
+    message: "Successfully fetched all categories.",
+    data: categories,
+  });
+});
 
 export const categoryBulkDelete = asyncErrorHandler(async (req, res) => {
   const { body } = req;

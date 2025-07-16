@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { User } from "../middlewares/jwt-authentication-middleware";
-import { Account } from "../models/account-model";
+import { Account } from "../models/mongodb/account-model";
 import CustomError from "../utils/Custom-error";
 import schema from "../schema/transaction-schema";
+import { User } from "../types";
 
 type UpdateAccountBalance = {
   transaction_amount: number;

@@ -1,42 +1,54 @@
-import { query } from "../loaders/db";
+import transactionModel from "../models/postgres/transaction-model";
+import { ITransaction } from "../types/transaction-types";
 
-interface ITransaction {
-  user_id: string;
-  transaction_date: string;
-  account_name: string;
-  transaction_amount: number;
-  category_name: string;
-  transaction_payee: string;
-  transaction_type: string;
-  transaction_note?: string;
-}
+const model = transactionModel;
 
 const create = async (transaction: ITransaction): Promise<ITransaction> => {
-  const {
-    account_name,
-    category_name,
-    transaction_amount,
-    transaction_date,
-    transaction_payee,
-    transaction_type,
-    user_id,
-    transaction_note,
-  } = transaction;
-
-  const queryText =
-    "INSERT INTO transactions(user_id,transaction_date,account_name,transaction_amount,category_name,transaction_payee,transaction_type,transaction_note) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)";
-  const params = [
-    user_id,
-    transaction_date,
-    account_name,
-    transaction_amount,
-    category_name,
-    transaction_payee,
-    transaction_type,
-    transaction_note,
-  ];
-  const res = await query(queryText, params);
-  return res.rows[0];
+  return await model.create(transaction);
 };
 
-export default { create };
+const findById = async (userId: string): Promise<ITransaction[]> => {
+  return await model.findById(userId);
+};
+
+const findOneById = async (transactionId: string): Promise<ITransaction> => {
+  return await model.findOneById(transactionId);
+};
+
+const deleteOneById = async (userId: string): Promise<ITransaction> => {
+  return await model.deleteOneById(userId);
+};
+
+const deleteMany = async (userIds: string[]): Promise<ITransaction[]> => {
+  return await model.deleteMany(userIds);
+};
+
+const updateOneById = async (
+  transactionId: string,
+  transaction: ITransaction
+): Promise<ITransaction> => {
+  return await model.updateOneById(transaction, transactionId);
+};
+
+const insertMany = async (transactions: ITransaction[]) => {
+  return await model.insertMany(transactions);
+};
+
+const findByCategoryAndType = async (details: {
+  user_id: string;
+  category_name: string;
+  transaction_type: "expense" | "income";
+}): Promise<ITransaction[]> => {
+  return await model.findByCategoryAndType(details);
+};
+
+export default {
+  create,
+  findById,
+  deleteMany,
+  deleteOneById,
+  findOneById,
+  updateOneById,
+  insertMany,
+  findByCategoryAndType,
+};

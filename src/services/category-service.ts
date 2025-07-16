@@ -1,14 +1,11 @@
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
-import { Category } from "../models/category-model";
+import { Category } from "../models/mongodb/category-model";
+import { User } from "../types";
 import CustomError from "../utils/Custom-error";
 import { ObjectId } from "mongodb";
 
 type CreateCategory = { category_name: string };
 
-export const createCategory = async (
-  body: CreateCategory,
-  user: UserType | undefined
-) => {
+export const createCategory = async (body: CreateCategory, user?: User) => {
   const existingCategory = await Category.findOne({
     user_id: user?.sub,
     category_name: body.category_name,
@@ -23,9 +20,7 @@ export const createCategory = async (
   });
 };
 
-export const fetchAllCategoriesByUserId = async (
-  user: UserType | undefined
-) => {
+export const fetchAllCategoriesByUserId = async (user?: User) => {
   return await Category.find({ user_id: user?.sub });
 };
 

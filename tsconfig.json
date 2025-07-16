@@ -13,5 +13,6 @@
     "strictFunctionTypes": true,
     "skipLibCheck": true
   },
-  "include": ["src", "src/types/express.d.ts"]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules"]
 }

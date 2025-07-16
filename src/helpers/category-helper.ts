@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { Category } from "../models/category-model";
+import { Category } from "../models/mongodb/category-model";
 import schema from "../schema/transaction-schema";
-import { User } from "../middlewares/jwt-authentication-middleware";
+import { User } from "../types";
 
 type createCategories = {
   transactions: z.infer<typeof schema.add>[];

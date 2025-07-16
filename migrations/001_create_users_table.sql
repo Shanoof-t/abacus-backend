@@ -10,6 +10,6 @@ CREATE TABLE
         picture TEXT,
         is_google BOOLEAN NOT NULL DEFAULT false,
         google_id TEXT,
-        created_at TIMESTAMP DEFAULT NOW (),
-        updated_at TIMESTAMP DEFAULT NOW ()
+        created_at TIMESTAMPTZ DEFAULT NOW (),
+        updated_at TIMESTAMPTZ DEFAULT NOW ()
     )

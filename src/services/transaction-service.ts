@@ -1,24 +1,15 @@
-import { Types } from "mongoose";
-// import { Transaction } from "../models/transaction-model";
 import { z } from "zod";
 import schema from "../schema/transaction-schema";
-import { ObjectId } from "mongodb";
 import CustomError from "../utils/Custom-error";
 import categoryHelper from "../helpers/category-helper";
-import transactionHelper, {
-  TransactionType,
-} from "../helpers/transaction-helper";
+import transactionHelper from "../helpers/transaction-helper";
 import accountHelper from "../helpers/account-helper";
 import transactionRepository from "../repositories/transaction-repository";
-
-interface User {
-  sub: string;
-  email: string;
-}
+import { ITransaction, User } from "../types";
 
 export const createTransaction = async (
   body: z.infer<typeof schema.add>,
-  user: User | undefined
+  user?: User
 ) => {
   if (!user) {
     throw new CustomError("user is not exist,", 400);
@@ -36,47 +27,59 @@ export const createTransaction = async (
     transaction_type,
   } = body;
 
-  const transaction = await transactionRepository.create({
-    user_id: user.sub,
-    transaction_date,
-    account_name,
-    transaction_amount: parseFloat(transaction_amount),
-    category_name,
-    transaction_payee,
-    transaction_type,
-    transaction_note,
-  });
+  console.log("body:", body);
 
-  // const transaction: TransactionType = await Transaction.create({
-  //   user_id: user?.sub,
-  //   transaction_date,
-  //   account_name,
-  //   transaction_amount: parseFloat(transaction_amount),
-  //   category_name,
-  //   transaction_payee,
-  //   transaction_type,
-  //   transaction_note,
-  // });
+  let transaction;
 
   if (is_recurring) {
-    await transactionHelper.handleRecurring({
-      category_name,
-      is_recurring,
-      transaction,
-      transaction_amount,
-      transaction_type,
-      user,
+    console.log("inside is_recurring");
+    const next_date = transactionHelper.calculateNextRecurringDate({
       recurring_frequency,
       transaction_date,
     });
+    console.log("nect_date:", next_date);
+    transaction = await transactionRepository.create({
+      user_id: user.sub,
+      transaction_date,
+      account_name,
+      transaction_amount,
+      category_name,
+      transaction_payee,
+      transaction_type,
+      transaction_note,
+      is_bank_transaction: false,
+      is_estimated: true,
+      is_recurring,
+      next_date,
+      recurring_frequency,
+    });
+
+    await transactionHelper.handleRecurring({
+      transaction,
+      user,
+    });
+  } else {
+    transaction = await transactionRepository.create({
+      user_id: user.sub,
+      transaction_date,
+      account_name,
+      transaction_amount,
+      category_name,
+      transaction_payee,
+      transaction_type,
+      transaction_note,
+      is_bank_transaction: false,
+      is_estimated: true,
+      is_recurring,
+    });
   }
 
-  await accountHelper.updateAccountBalance({
-    account_name,
-    transaction_amount: Number(transaction_amount),
-    transaction_type,
-    user,
-  });
+  // await accountHelper.updateAccountBalance({
+  //   account_name,
+  //   transaction_amount: Number(transaction_amount),
+  //   transaction_type,
+  //   user,
+  // });
 
   // update budget
   if (transaction.transaction_type === "expense") {
@@ -94,50 +97,55 @@ export const createTransaction = async (
   return { transaction };
 };
 
-export const fetchAllTransactions = async (user: User | undefined) => {
-  const transactions = await Transaction.find({ user_id: user?.sub });
+export const fetchAllTransactions = async (user?: User) => {
+  if (!user) throw new CustomError("user is not exist,", 400);
+
+  const transactions = await transactionRepository.findById(user.sub);
   return transactions;
 };
 
 export const deleteTransactions = async (body: string[]) => {
-  const ids = body.map((id) => new ObjectId(id));
-  await Transaction.deleteMany({ _id: { $in: ids } });
+  const transactions = await transactionRepository.deleteMany(body);
+  return transactions;
 };
 
 export const deleteTransactionById = async (id: string) => {
-  const deletedResult = await Transaction.deleteOne({ _id: id });
-  if (deletedResult.deletedCount === 0)
-    throw new CustomError("Can't delete transaction,", 400);
+  const transaction = await transactionRepository.deleteOneById(id);
+  if (!transaction) throw new CustomError("Can't delete transaction.", 400);
+  return transaction
 };
 
 export const fetchTransactionById = async (id: string) => {
-  const transaction = await Transaction.findOne({ _id: id });
+  const transaction = await transactionRepository.findOneById(id);
   if (!transaction) throw new CustomError("Can't find transaction.", 400);
   return transaction;
 };
 
 export const editTransactionById = async (
   body: z.infer<typeof schema.add>,
-  user: User | undefined,
-  id: string
+  id: string,
+  user?: User
 ) => {
-  const transaction_type =
-    parseFloat(body.transaction_amount) > 0 ? "income" : "expense";
+  if (!user) throw new CustomError("user is not exist,", 400);
 
-  await Transaction.updateOne(
-    { _id: id },
-    {
-      $set: {
-        account_name: body.account_name,
-        category_name: body.category_name,
-        transaction_amount: parseFloat(body.transaction_amount),
-        transaction_date: body.transaction_date,
-        transaction_payee: body.transaction_payee,
-        transaction_note: body.transaction_note,
-        transaction_type,
-      },
-    }
+  const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
+
+  const updatedTransaction: ITransaction = {
+    account_name: body.account_name,
+    category_name: body.category_name,
+    transaction_amount: body.transaction_amount,
+    transaction_date: body.transaction_date,
+    transaction_payee: body.transaction_payee,
+    transaction_type,
+    user_id: user.sub,
+  };
+
+  const transaction = await transactionRepository.updateOneById(
+    id,
+    updatedTransaction
   );
+
+  return transaction;
 };
 
 type CreateTransactions = {
@@ -149,29 +157,34 @@ export const createTransactions = async ({
   body,
   user,
 }: CreateTransactions) => {
-  const user_id = user?.sub;
+  if (!user) throw new CustomError("user is not exist,", 400);
 
-  const adjustedTransactions = body.map((transaction) => {
+  const user_id = user.sub;
+
+  const adjustedTransactions: ITransaction[] = body.map((transaction) => {
     const transaction_type =
-      parseFloat(transaction.transaction_amount) > 0 ? "income" : "expense";
+      transaction.transaction_amount > 0 ? "income" : "expense";
 
     return {
       ...transaction,
       user_id,
       transaction_type,
-      transaction_amount: parseFloat(transaction.transaction_amount),
+      transaction_amount: transaction.transaction_amount,
     };
   });
 
   // also create the account
 
-  await accountHelper.createAccounts({
-    transactions: body,
-    user,
-  });
+  // await accountHelper.createAccounts({
+  //   transactions: body,
+  //   user,
+  // });
 
-  // check category
-  await categoryHelper.createCategories({ transactions: body, user });
+  // // check category
+  // await categoryHelper.createCategories({ transactions: body, user });
 
-  await Transaction.insertMany(adjustedTransactions);
+  const transactions = await transactionRepository.insertMany(
+    adjustedTransactions
+  );
+  return transactions;
 };

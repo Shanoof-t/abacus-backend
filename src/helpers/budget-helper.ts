@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import { Budget } from "../models/budget-model";
+import { Budget } from "../models/mongodb/budget-model";
 
 type BudgetWithCategory = {
-  user_id?: Types.ObjectId;
+  user_id?: string;
   category_name: string;
   transaction_amount?: string;
 };

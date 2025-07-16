@@ -1,11 +1,11 @@
 import { format } from "date-fns";
 import transactionHelper from "../helpers/transaction-helper";
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
-import { Notification } from "../models/notification-model";
-import { Transaction } from "../models/transaction-model";
+import { Notification } from "../models/mongodb/notification-model";
+import { Transaction } from "../models/mongodb/transaction-model";
 import CustomError from "../utils/Custom-error";
+import { User } from "../types";
 
-type User = UserType | undefined;
+
 export const fetchNotificatios = async ({ user }: { user: User }) => {
   const notifications = await Notification.find({ user_id: user?.sub });
   return notifications;

@@ -1,23 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import env from "../config/env_variables";
 import jwt from "jsonwebtoken";
-import { Types } from "mongoose";
 import CustomError from "../utils/Custom-error";
 
 const { ACCESS_TOKEN_SECRET } = env;
 
-export interface User {
-  sub?: Types.ObjectId;
-  email?: string;
-}
-
-
-export interface CustomeRequest extends Request {
-  user?: User | undefined;
-}
-
 async function authenticateToken(
-  req: CustomeRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> {
@@ -28,7 +17,10 @@ async function authenticateToken(
     next(error);
   }
   try {
-    const user = (await jwt.verify(token, ACCESS_TOKEN_SECRET)) as User;
+    const user = jwt.verify(token, ACCESS_TOKEN_SECRET) as {
+      sub: string;
+      email: string;
+    };
     if (!user) {
       const error = new CustomError("Access Denied", 400);
       next(error);

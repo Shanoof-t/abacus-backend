@@ -1,15 +1,16 @@
 import { z } from "zod";
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
 import { schema } from "../schema/statistics-schema";
 import statisticsHelper from "../helpers/statistics-helper";
 import { subMonths } from "date-fns";
-import { Category } from "../models/category-model";
-
-type User = UserType | undefined;
+import { Category } from "../models/mongodb/category-model";
+import { User } from "../types";
+import CustomError from "../utils/Custom-error";
 
 type CreateSummary = z.infer<typeof schema.financialSummary>;
 
-export const createSummary = async (user: User, body: CreateSummary) => {
+export const createSummary = async (body: CreateSummary, user?: User) => {
+  if (!user) throw new CustomError("user is not exist,", 400);
+
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
   const remaining = income - expense;
@@ -58,9 +59,11 @@ export const fetchFinancialHistory = async ({
   user,
   body,
 }: {
-  user: User;
+  user?: User;
   body: CreateSummary;
 }) => {
+  if (!user) throw new CustomError("user is not exist,", 400);
+
   const transactionSummary = await statisticsHelper.getTransactionSummary({
     user,
     body,

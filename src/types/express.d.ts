@@ -1,13 +1,11 @@
-import "express";
+import { User } from "./index";
 
 declare global {
   namespace Express {
     interface Request {
-      consent: {
-        accessToken: string;
-        consentId: string;
-        productId: string;
-      };
+      user?: User;
     }
   }
 }
+
+export {};

@@ -1,13 +1,13 @@
 import * as setu from "../utils/setu";
 import CustomError from "../utils/Custom-error";
 import { User } from "../middlewares/jwt-authentication-middleware";
-import { Consent } from "../models/consent-model";
-import { Transaction } from "../models/transaction-model";
+import { Consent } from "../models/mongodb/consent-model";
+import { Transaction } from "../models/mongodb/transaction-model";
 import categoryHelper from "../helpers/category-helper";
 import mongoose from "mongoose";
 import bankEvents from "../sockets/events/bank.events";
-import { Category } from "../models/category-model";
-import { Account } from "../models/account-model";
+import { Category } from "../models/mongodb/category-model";
+import { Account } from "../models/mongodb/account-model";
 import accountHelper from "../helpers/account-helper";
 
 export const createConsentUrl = async (

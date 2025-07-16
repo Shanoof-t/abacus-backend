@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
-import { Transaction } from "../models/transaction-model";
+// import { Transaction } from "../models/mongodb/transaction-model";
 import { schema } from "../schema/statistics-schema";
 import { Types } from "mongoose";
-import { Category } from "../models/category-model";
+import { Category } from "../models/mongodb/category-model";
+import { User } from "../types";
 
 type Body = z.infer<typeof schema.financialSummary>;
-type User = UserType | undefined;
+
 
 type MonthViseSummary = {
   _id: string;
@@ -15,7 +15,7 @@ type MonthViseSummary = {
 };
 
 interface GetIncomeMatchStage {
-  user_id: Types.ObjectId | undefined;
+  user_id: string;
   transaction_date: {
     $gte: Date;
     $lte: Date;
@@ -31,8 +31,9 @@ interface GetTransactionHistoryMatchStage
 
 export default {
   getIncome: async (body: Body, user: User) => {
+
     const matchStage: GetIncomeMatchStage = {
-      user_id: user?.sub,
+      user_id: user.sub,
       transaction_date: {
         $gte: new Date(body.from),
         $lte: new Date(body.to),

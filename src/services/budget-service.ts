@@ -1,15 +1,18 @@
 import { z } from "zod";
 import schema from "../schema/budget-schema";
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
-import { Budget } from "../models/budget-model";
-import { Transaction } from "../models/transaction-model";
+
+import { Budget } from "../models/mongodb/budget-model";
+// import { Transaction } from "../models/mongodb/transaction-model";
 import CustomError from "../utils/Custom-error";
 import budgetHelper from "../helpers/budget-helper";
+import { User } from "../types";
+import transactionRepository from "../repositories/transaction-repository";
 
 type CreateBudget = z.infer<typeof schema.add>;
-type User = UserType | undefined;
 
-export const createBudget = async (body: CreateBudget, user: User) => {
+export const createBudget = async (body: CreateBudget, user?: User) => {
+  if (!user) throw new CustomError("User is existing.", 404);
+
   const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
     user_id: user?.sub,
     category_name: body.category_name,
@@ -23,8 +26,8 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const budgetLimit = body.amount_limit;
 
-  const transactions = await Transaction.find({
-    user_id: user?.sub,
+  const transactions = await transactionRepository.findByCategoryAndType({
+    user_id: user.sub,
     category_name: body.category_name,
     transaction_type: "expense",
   });
@@ -36,7 +39,7 @@ export const createBudget = async (body: CreateBudget, user: User) => {
 
   const total_spent = Math.abs(totalSpentAmount);
 
-  const progress = Math.max((total_spent / Number(budgetLimit)) * 100, 100)
+  const progress = Math.max((total_spent / Number(budgetLimit)) * 100, 100);
 
   const budget = await Budget.create({
     user_id: user?.sub,
@@ -54,13 +57,13 @@ export const createBudget = async (body: CreateBudget, user: User) => {
   return budget;
 };
 
-export const fetchAllBudgets = async (user: User) => {
+export const fetchAllBudgets = async (user?: User) => {
   const budgets = await Budget.find({ user_id: user?.sub });
   return budgets;
 };
 
 type BudgetByCategoryName = {
-  user: User;
+  user?: User;
   id: string;
 };
 export const fetchBudgetById = async ({ user, id }: BudgetByCategoryName) => {
@@ -84,9 +87,11 @@ export const updateBudgetByName = async ({
   id,
 }: {
   body: CreateBudget;
-  user: User;
+  user?: User;
   id: string;
 }) => {
+  if (!user) throw new CustomError("User is existing.", 404);
+
   const currentBudget = await Budget.findById(id);
 
   if (currentBudget?.category_name !== body.category_name) {
@@ -104,8 +109,8 @@ export const updateBudgetByName = async ({
 
   const budgetLimit = body.amount_limit;
 
-  const transactions = await Transaction.find({
-    user_id: user?.sub,
+  const transactions = await transactionRepository.findByCategoryAndType({
+    user_id: user.sub,
     category_name: body.category_name,
     transaction_type: "expense",
   });
@@ -139,7 +144,7 @@ export const fetchBudgetByCategoryName = async ({
   user,
   category,
 }: {
-  user: User;
+  user?: User;
   category: string;
 }) => {
   const budget = await budgetHelper.findOneBudgetWithCategory({

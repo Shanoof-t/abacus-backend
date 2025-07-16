@@ -1,29 +1,18 @@
-import { query } from "../loaders/db";
+import otpModel from "../models/postgres/otp-model";
 import { CreateOTP } from "../types/auth-types";
 
+const model = otpModel;
+
 const create = async (data: CreateOTP) => {
-  const { id, hashedOTP, createdAt, expiresAt } = data;
-  const queryText =
-    "INSERT INTO one_time_password(user_id,otp,created_at,expires_at) VALUES ($1,$2,$3,$4) RETURNING *";
-  const params = [id, hashedOTP, createdAt, expiresAt];
-  const res = await query(queryText, params);
-  return res.rows[0];
+  return await model.create(data);
 };
 
-const findOne = async (userId: string) => {  
-  const queryText =
-    "SELECT * FROM one_time_password WHERE user_id=$1 ORDER BY expires_at DESC";
-  const params = [userId];
-  const res = await query(queryText, params);  
-  return res.rows[0];
+const findOne = async (userId: string) => {
+  return await model.findOne(userId);
 };
 
 const deleteOne = async (userId: string) => {
-  const queryText =
-    "DELETE FROM one_time_password WHERE user_id=$1 RETURNING *";
-  const params = [userId];
-  const res = await query(queryText, params);
-  return res.rows[0];
+  return await model.deleteOne(userId);
 };
 
 export default { create, findOne, deleteOne };

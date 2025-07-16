@@ -1,14 +1,11 @@
-import { User as UserType } from "../middlewares/jwt-authentication-middleware";
-import { Account } from "../models/account-model";
+import { User } from "../types/user-types";
+import { Account } from "../models/mongodb/account-model";
 import CustomError from "../utils/Custom-error";
 import { ObjectId } from "mongodb";
 
 type CreateAccount = { account_name: string; account_balance: number };
 
-export const createAccount = async (
-  data: CreateAccount,
-  user: UserType | undefined
-) => {
+export const createAccount = async (data: CreateAccount, user?: User) => {
   const { account_name, account_balance } = data;
 
   const existingAccount = await Account.findOne({ account_name: account_name });
@@ -23,7 +20,7 @@ export const createAccount = async (
   });
 };
 
-export const fetchAllAccountsByUserId = async (user: UserType | undefined) => {
+export const fetchAllAccountsByUserId = async (user?: User) => {
   return await Account.find({ user_id: user?.sub });
 };
 
@@ -39,7 +36,7 @@ export const deleteAccountById = async (id: string) => {
 type EditAccout = {
   body: CreateAccount;
   id: string;
-  user: UserType | undefined;
+  user?: User;
 };
 
 export const editAccountById = async ({ body, id, user }: EditAccout) => {

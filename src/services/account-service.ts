@@ -1,66 +1,92 @@
 import { User } from "../types/user-types";
-import { Account } from "../models/mongodb/account-model";
 import CustomError from "../utils/Custom-error";
-import { ObjectId } from "mongodb";
+import { IAccount, IEditAccount } from "../types";
+import accountRepository from "../repositories/account-repository";
 
-type CreateAccount = { account_name: string; account_balance: number };
-
-export const createAccount = async (data: CreateAccount, user?: User) => {
+export const createAccount = async (data: IAccount, user?: User) => {
   const { account_name, account_balance } = data;
 
-  const existingAccount = await Account.findOne({ account_name: account_name });
+  if (!user) throw new CustomError("user is not exist,", 400);
+
+  const existingAccount = await accountRepository.findOneByName({
+    account_name,
+    user_id: user?.sub,
+  });
 
   if (existingAccount)
     throw new CustomError("This name with account is already created.", 400);
 
-  return await Account.create({
+  const accData: IAccount = {
+    account_balance,
+    account_name,
     user_id: user?.sub,
-    account_name: account_name.replace(/\W/g, ""),
-    account_balance: account_balance || 0,
-  });
+  };
+  return await accountRepository.create(accData);
 };
 
 export const fetchAllAccountsByUserId = async (user?: User) => {
-  return await Account.find({ user_id: user?.sub });
+  if (!user) throw new CustomError("User not exist.", 404);
+  return await accountRepository.findByUserId(user?.sub);
 };
 
 export const deleteAccounts = async (accountIds: string[]) => {
-  const ids = accountIds.map((accountId) => new ObjectId(accountId));
-  await Account.deleteMany({ _id: { $in: ids } });
+  return await accountRepository.deleteMany(accountIds);
 };
 
 export const deleteAccountById = async (id: string) => {
-  await Account.deleteOne({ _id: id });
-};
-
-type EditAccout = {
-  body: CreateAccount;
-  id: string;
-  user?: User;
-};
-
-export const editAccountById = async ({ body, id, user }: EditAccout) => {
-  const existingAccount = await Account.findOne({
-    account_name: body.account_name,
-  });
-
-  if (existingAccount)
+  const existingAccount = await accountRepository.findOneById(id);
+  if (!existingAccount)
     throw new CustomError(
-      `Already an account existin with this name ${body.account_name}`,
-      400
+      "The account you are trying to delete does not exist.",
+      404
     );
 
-  await Account.updateOne(
-    { user_id: user?.sub, _id: id },
-    {
-      $set: {
-        account_name: body.account_name,
-        account_balance: body.account_balance,
-      },
-    }
-  );
+  return await accountRepository.deleteOneById(id);
+};
+
+export const editAccountById = async ({ body, id, user }: IEditAccount) => {
+  const { account_name, account_balance } = body;
+
+  if (!user) throw new CustomError("user is not exist,", 400);
+
+  const existingAccountWithId = await accountRepository.findOneById(id);
+
+  if (!existingAccountWithId)
+    throw new CustomError(
+      "The account you are trying to edit does not exist.",
+      404
+    );
+
+  if (existingAccountWithId.account_name !== account_name) {
+    const existingAccount = await accountRepository.findOneByName({
+      account_name,
+      user_id: user?.sub,
+    });
+
+    if (existingAccount)
+      throw new CustomError(
+        `An account with the name "${account_name}" already exists.`,
+        409
+      );
+  }
+
+  const data: IAccount = {
+    id,
+    account_balance,
+    account_name,
+    user_id: user?.sub,
+  };
+
+  return await accountRepository.updateOneById(data);
 };
 
 export const fetchAccountById = async (id: string) => {
-  return await Account.findOne({ _id: id });
+  const account = await accountRepository.findOneById(id);
+
+  if (!account)
+    throw new CustomError(
+      "The account you are trying to get does not exist.",
+      404
+    );
+  return account;
 };

@@ -10,10 +10,12 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 
 export const addAccount = asyncErrorHandler(async (req, res) => {
   const { body, user } = req;
-  await createAccount(body, user);
-  res
-    .status(201)
-    .json({ status: "success", message: "Account created successfully" });
+  const account = await createAccount(body, user);
+  res.status(201).json({
+    status: "success",
+    message: "Account created successfully",
+    data: account,
+  });
 });
 
 export const getAllAccounts = asyncErrorHandler(async (req, res) => {
@@ -26,28 +28,36 @@ export const getAllAccounts = asyncErrorHandler(async (req, res) => {
 
 export const accountBulkDelete = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-  await deleteAccounts(body);
+  const accounts = await deleteAccounts(body);
   res
     .status(200)
-    .json({ status: "success", message: "Accounts delete successfull." });
+    .json({
+      status: "success",
+      message: "Accounts delete successfull.",
+      data: accounts,
+    });
 });
 
 export const deleteAccount = asyncErrorHandler(async (req, res) => {
   const { id } = req.params;
-  await deleteAccountById(id);
-  res
-    .status(200)
-    .json({ status: "success", message: "Account deleted successfully." });
+  const account = await deleteAccountById(id);
+  res.status(200).json({
+    status: "success",
+    message: "Account deleted successfully.",
+    data: account,
+  });
 });
 
 export const editAccount = asyncErrorHandler(async (req, res) => {
   const { body } = req;
   const { id } = req.params;
   const { user } = req;
-  await editAccountById({ body, id, user });
-  res
-    .status(200)
-    .json({ status: "success", message: "Account successfully edited." });
+  const account = await editAccountById({ body, id, user });
+  res.status(200).json({
+    status: "success",
+    message: "Account successfully edited.",
+    data: account,
+  });
 });
 
 export const getAccount = asyncErrorHandler(async (req, res) => {

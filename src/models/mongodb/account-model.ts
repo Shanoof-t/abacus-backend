@@ -15,4 +15,4 @@ const accountSchema = new Schema({
   },
 });
 
-export const Account = mongoose.model("account", accountSchema);
+// export const Account = mongoose.model("account", accountSchema);

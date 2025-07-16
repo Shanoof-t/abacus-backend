@@ -9,6 +9,7 @@ import {
   verifyUserOTP,
 } from "../services/auth-service";
 import { asyncErrorHandler } from "../utils/error-handlers";
+import env from "../config/env_variables";
 
 export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
   const { body } = req;
@@ -85,32 +86,35 @@ export const resendOTP = asyncErrorHandler(async (req, res) => {
 
 export const googleOAuth = asyncErrorHandler(async (req, res) => {
   const authorizationUrl = await googleOAuthRequest();
-
-  res.status(200).json({
-    status: "success",
-    message: "google auth request is successfull",
-    data: { redirectUrl: authorizationUrl },
-  });
+  res.redirect(authorizationUrl);
 });
 
 export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
-  const { code } = req.body;
-  const data = await googleOAuthCallback(code);
+  const { code } = req.query;
 
-  res.cookie("token", data.accessToken, {
-    maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: ".abacuss.online",
-    path: "/",
-  });
+  const data = await googleOAuthCallback(code as string);
 
-  res.status(200).json({
-    status: "success",
-    message: "google authentication is Successfull",
-    data,
-  });
+  if (process.env.NODE_ENV === "development") {
+    res.cookie("token", data.accessToken, {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+  } else {
+    res.cookie("token", data.accessToken, {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".abacuss.online",
+      path: "/",
+    });
+  }
+
+  const redirectUrl = `${env.FRONT_END_URL}?name=${data.userData.user_name}`;
+  res.redirect(redirectUrl);
 });
 
 export const logoutUser = asyncErrorHandler(async (req, res) => {

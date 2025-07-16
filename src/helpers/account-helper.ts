@@ -1,16 +1,13 @@
 import { z } from "zod";
-import { Account } from "../models/mongodb/account-model";
 import CustomError from "../utils/Custom-error";
 import schema from "../schema/transaction-schema";
-import { User } from "../types";
-
-type UpdateAccountBalance = {
-  transaction_amount: number;
-  account_name: string;
-  user?: User;
-  transaction_type: string;
-  accountSource?: "manual" | "bank_integration" | "both";
-};
+import {
+  IAccount,
+  ICreateAccounts,
+  IUpdateAccountBalance,
+  User,
+} from "../types";
+import accountRepository from "../repositories/account-repository";
 
 async function updateAccountBalance({
   account_name,
@@ -18,10 +15,10 @@ async function updateAccountBalance({
   user,
   transaction_type,
   accountSource = "manual",
-}: UpdateAccountBalance) {
-  const currentAccount = await Account.findOne({
-    user_id: user?.sub,
+}: IUpdateAccountBalance) {
+  const currentAccount = await accountRepository.findOneByName({
     account_name,
+    user_id: user?.sub,
   });
 
   if (!currentAccount)
@@ -35,18 +32,33 @@ async function updateAccountBalance({
       ? Math.max(0, currentAccount?.account_balance - transaction_amount)
       : currentAccount?.account_balance + transaction_amount;
 
-  await Account.updateOne(
-    { user_id: user?.sub, account_name },
-    {
-      $set: {
-        account_balance: balance,
-        account_source:
-          currentAccount.account_source === "bank_integration"
-            ? "both"
-            : accountSource,
-      },
-    }
-  );
+  const account_source =
+    currentAccount.account_source === "bank_integration"
+      ? "both"
+      : accountSource;
+
+  const data: IAccount = {
+    account_balance: balance,
+    account_name,
+    account_source,
+    user_id: user.sub,
+    id: currentAccount.id,
+  };
+
+  await accountRepository.updateOneById(data);
+
+  // await Account.updateOne(
+  //   { user_id: user?.sub, account_name },
+  //   {
+  //     $set: {
+  //       account_balance: balance,
+  //       account_source:
+  //         currentAccount.account_source === "bank_integration"
+  //           ? "both"
+  //           : accountSource,
+  //     },
+  //   }
+  // );
 
   // if (currentAccount.account_source === "bank_integration") {
   //   await Account.updateOne(
@@ -60,26 +72,20 @@ async function updateAccountBalance({
   // }
 }
 
-type CreateAccounts = {
-  transactions: z.infer<typeof schema.add>[];
-  user: User | undefined;
-  accountSource?: "manual" | "bank_integration" | "both";
-};
-
 async function createAccounts({
   transactions,
   user,
   accountSource = "manual",
-}: CreateAccounts) {
+}: ICreateAccounts) {
   if (!user?.sub) return;
 
   for (const transaction of transactions) {
     const { account_name, transaction_amount, transaction_type } = transaction;
     const amount = Number(transaction_amount);
 
-    const existingAccount = await Account.findOne({
-      user_id: user.sub,
+    const existingAccount = await accountRepository.findOneByName({
       account_name,
+      user_id: user.sub,
     });
 
     if (existingAccount) {
@@ -89,7 +95,7 @@ async function createAccounts({
           : existingAccount.account_balance + amount;
 
       let source: "manual" | "bank_integration" | "both" =
-        existingAccount.account_source;
+        existingAccount.account_source!;
 
       if (
         existingAccount.account_source === "manual" &&
@@ -115,7 +121,7 @@ async function createAccounts({
     } else {
       const initialBalance = transaction_type === "expense" ? 0 : amount;
 
-      await Account.create({
+      await accountRepository.create({
         account_balance: initialBalance,
         account_name,
         user_id: user.sub,

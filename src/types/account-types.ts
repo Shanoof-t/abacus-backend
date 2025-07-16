@@ -1,3 +1,4 @@
+import { ITransaction } from "./transaction-types";
 import { User } from "./user-types";
 
 export interface IAccount {
@@ -12,4 +13,18 @@ export interface IEditAccount {
   body: IAccount;
   id: string;
   user?: User;
+}
+
+export interface IUpdateAccountBalance {
+  transaction_amount: number;
+  account_name: string;
+  user: User;
+  transaction_type: string;
+  accountSource?: "manual" | "bank_integration" | "both";
+}
+
+export interface ICreateAccounts {
+  transactions: ITransaction[];
+  user: User | undefined;
+  accountSource?: "manual" | "bank_integration" | "both";
 }

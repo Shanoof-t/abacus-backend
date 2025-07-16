@@ -74,12 +74,12 @@ export const createTransaction = async (
     });
   }
 
-  // await accountHelper.updateAccountBalance({
-  //   account_name,
-  //   transaction_amount: Number(transaction_amount),
-  //   transaction_type,
-  //   user,
-  // });
+  await accountHelper.updateAccountBalance({
+    account_name,
+    transaction_amount: Number(transaction_amount),
+    transaction_type,
+    user,
+  });
 
   // update budget
   if (transaction.transaction_type === "expense") {

@@ -20,5 +20,5 @@ jobs:
       - name: Pull Docker image
         run: sudo docker pull shanoof/abacus:latest
         
-      - name: Run docker container
+      - name: Run Docker container
         run: sudo docker run -d --env-file /home/ubuntu/envs/abacus.env -p 8080:8080 --name abacus-container shanoof/abacus:latest

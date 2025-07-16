@@ -5,7 +5,7 @@ import categoryHelper from "../helpers/category-helper";
 import transactionHelper from "../helpers/transaction-helper";
 import accountHelper from "../helpers/account-helper";
 import transactionRepository from "../repositories/transaction-repository";
-import { ITransaction, User } from "../types";
+import { ICreateTransactions, ITransaction, User } from "../types";
 
 export const createTransaction = async (
   body: z.infer<typeof schema.add>,
@@ -112,7 +112,7 @@ export const deleteTransactions = async (body: string[]) => {
 export const deleteTransactionById = async (id: string) => {
   const transaction = await transactionRepository.deleteOneById(id);
   if (!transaction) throw new CustomError("Can't delete transaction.", 400);
-  return transaction
+  return transaction;
 };
 
 export const fetchTransactionById = async (id: string) => {
@@ -148,15 +148,10 @@ export const editTransactionById = async (
   return transaction;
 };
 
-type CreateTransactions = {
-  body: z.infer<typeof schema.add>[];
-  user: User | undefined;
-};
-
 export const createTransactions = async ({
   body,
   user,
-}: CreateTransactions) => {
+}: ICreateTransactions) => {
   if (!user) throw new CustomError("user is not exist,", 400);
 
   const user_id = user.sub;
@@ -175,13 +170,13 @@ export const createTransactions = async ({
 
   // also create the account
 
-  // await accountHelper.createAccounts({
-  //   transactions: body,
-  //   user,
-  // });
+  await accountHelper.createAccounts({
+    transactions: body,
+    user,
+  });
 
-  // // check category
-  // await categoryHelper.createCategories({ transactions: body, user });
+  // check category
+  await categoryHelper.createCategories({ transactions: body, user });
 
   const transactions = await transactionRepository.insertMany(
     adjustedTransactions

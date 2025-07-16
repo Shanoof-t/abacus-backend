@@ -11,10 +11,13 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 export const addCategory = asyncErrorHandler(async (req, res) => {
   const { body, user } = req;
 
-  await createCategory(body, user);
-  res
-    .status(201)
-    .json({ status: "success", message: "Category created successfully" });
+  const data = await createCategory(body, user);
+
+  res.status(201).json({
+    status: "success",
+    message: "Category created successfully",
+    data,
+  });
 });
 
 export const getAllCategories = asyncErrorHandler(async (req, res) => {
@@ -30,18 +33,24 @@ export const getAllCategories = asyncErrorHandler(async (req, res) => {
 
 export const categoryBulkDelete = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-  await deleteCategories(body);
+  const data = await deleteCategories(body);
   res
     .status(200)
-    .json({ status: "success", message: "Categories delete successfull." });
+    .json({
+      status: "success",
+      message: "Categories delete successfull.",
+      data,
+    });
 });
 
 export const deleteCategory = asyncErrorHandler(async (req, res) => {
   const { id } = req.params;
-  await deleteCategoryById(id);
-  res
-    .status(200)
-    .json({ status: "success", message: "Category deleted successfully." });
+  const data = await deleteCategoryById(id);
+  res.status(200).json({
+    status: "success",
+    message: "Category deleted successfully.",
+    data,
+  });
 });
 
 export const getCategory = asyncErrorHandler(async (req, res) => {
@@ -55,11 +64,13 @@ export const getCategory = asyncErrorHandler(async (req, res) => {
 });
 
 export const editCategory = asyncErrorHandler(async (req, res) => {
+  const user = req.user;
   const { id } = req.params;
   const { body } = req;
-  await editCategoryById(body, id);
+  const data = await editCategoryById(body, id, user);
   res.status(200).json({
     status: "success",
     message: "Category edited successfully.",
+    data,
   });
 });

@@ -1,9 +1,6 @@
-import { User } from "./user-types";
-
-export interface ICreateCategory {
+export interface ICategory {
   id?: string;
   category_name: string;
-  isBankCategory?: boolean;
+  user_id?: string;
+  is_bank_category?: boolean;
 }
-
-

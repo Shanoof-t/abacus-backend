@@ -68,12 +68,10 @@ export type HandleBudgetUpdate = {
   transaction_amount: number;
 };
 
-// export interface HandleRecurring
-//   extends ICalculateNextRecurringDate,
-//     ScheduleRecurringNotification {
-//   transaction: ITransaction;
-//   is_recurring?: boolean;
-// }
+export type ICreateTransactions = {
+  body: ITransaction[];
+  user: User | undefined;
+};
 
 export interface IHandleRecurring {
   transaction: ITransaction;

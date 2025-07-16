@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { Category } from "../models/mongodb/category-model";
 import schema from "../schema/transaction-schema";
 import { User } from "../types";
+import categoryRepository from "../repositories/category-repository";
 
 type createCategories = {
   transactions: z.infer<typeof schema.add>[];
@@ -20,16 +20,16 @@ export default {
     for (const transaction of transactions) {
       const category = transaction.category_name.replace(/\W/g, "");
 
-      const existingCategory = await Category.findOne({
-        user_id,
+      const existingCategory = await categoryRepository.findOneByName({
         category_name: category,
+        user_id,
       });
 
       if (!existingCategory) {
-        await Category.create({
-          user_id,
+        await categoryRepository.create({
           category_name: category,
-          isBankCategory,
+          is_bank_category: isBankCategory,
+          user_id,
         });
       }
     }

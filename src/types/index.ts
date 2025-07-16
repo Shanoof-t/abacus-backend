@@ -4,4 +4,5 @@ export * from "./session-express";
 export * from "./socket-types";
 export * from "./transaction-types";
 export * from "./user-types";
-export * from "./account-types"
+export * from "./account-types";
+export * from "./category-types";

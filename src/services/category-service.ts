@@ -1,11 +1,9 @@
 import { Category } from "../models/mongodb/category-model";
-import { User } from "../types";
+import { ICreateCategory, User } from "../types";
 import CustomError from "../utils/Custom-error";
 import { ObjectId } from "mongodb";
 
-type CreateCategory = { category_name: string };
-
-export const createCategory = async (body: CreateCategory, user?: User) => {
+export const createCategory = async (body: ICreateCategory, user?: User) => {
   const existingCategory = await Category.findOne({
     user_id: user?.sub,
     category_name: body.category_name,
@@ -40,7 +38,7 @@ export const fetchCategoryById = async (id: string) => {
   return category;
 };
 
-export const editCategoryById = async (body: CreateCategory, id: string) => {
+export const editCategoryById = async (body: ICreateCategory, id: string) => {
   const existingCategory = await Category.findOne({
     category_name: body.category_name,
   });

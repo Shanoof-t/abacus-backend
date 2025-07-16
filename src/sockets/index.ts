@@ -10,6 +10,7 @@ function init(server: http.Server) {
         const allowedOrigins = [
           "https://abacuss.online",
           "https://www.abacuss.online",
+          "http://localhost:3000",
         ];
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);

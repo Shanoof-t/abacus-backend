@@ -90,31 +90,36 @@ export const googleOAuth = asyncErrorHandler(async (req, res) => {
 });
 
 export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
-  const { code } = req.query;
+  try {
+    const { code } = req.query;
 
-  const data = await googleOAuthCallback(code as string);
+    const data = await googleOAuthCallback(code as string);
 
-  if (process.env.NODE_ENV === "development") {
-    res.cookie("token", data.accessToken, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-    });
-  } else {
-    res.cookie("token", data.accessToken, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".abacuss.online",
-      path: "/",
-    });
+    if (process.env.NODE_ENV === "development") {
+      res.cookie("token", data.accessToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        path: "/",
+      });
+    } else {
+      res.cookie("token", data.accessToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        domain: ".abacuss.online",
+        path: "/",
+      });
+    }
+
+    const redirectUrl = `${env.FRONT_END_URL}?name=${data.userData.user_name}`;
+    res.redirect(redirectUrl);
+  } catch (error:any) {
+    const redirectUrl = `${env.FRONT_END_URL}/sign-in?error=${error.message}`;
+    res.redirect(redirectUrl);
   }
-
-  const redirectUrl = `${env.FRONT_END_URL}?name=${data.userData.user_name}`;
-  res.redirect(redirectUrl);
 });
 
 export const logoutUser = asyncErrorHandler(async (req, res) => {

@@ -21,6 +21,6 @@ authRouter.post("/verify-otp", validator(schema.verifyOTP), verifyOTP);
 authRouter.post("/resend-otp", validator(schema.resendOTP), resendOTP);
 
 authRouter.get("/google", googleOAuth);
-authRouter.post("/google/callback", googleOAuthcallback);
+authRouter.get("/google/callback", googleOAuthcallback);
 
 export default authRouter;

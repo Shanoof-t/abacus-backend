@@ -1,11 +1,5 @@
 import CustomError from "../utils/Custom-error";
-import schema from "../schema/transaction-schema";
-import {
-  IAccount,
-  ICreateAccounts,
-  IUpdateAccountBalance,
-  User,
-} from "../types";
+import { IAccount, ICreateAccounts, IUpdateAccountBalance } from "../types";
 import accountRepository from "../repositories/account-repository";
 
 async function updateAccountBalance({

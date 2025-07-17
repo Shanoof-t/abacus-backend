@@ -1,8 +1,7 @@
-import { Types } from "mongoose";
-import { Budget } from "../models/mongodb/budget-model";
+import budgetRepository from "../repositories/budget-repository";
 
 type BudgetWithCategory = {
-  user_id?: string;
+  user_id: string;
   category_name: string;
   transaction_amount?: string;
 };
@@ -12,10 +11,7 @@ export default {
     user_id,
     category_name,
   }: BudgetWithCategory) => {
-    return await Budget.findOne({
-      user_id,
-      category_name,
-    });
+    return await budgetRepository.findOneByName({ category_name, user_id });
   },
   updateBudgetAfterTransaction: async function ({
     user_id,
@@ -28,7 +24,6 @@ export default {
       category_name,
     });
 
-    
     // total spent calculation
 
     const totalSpent = exisingBudget?.total_spent || 0;
@@ -41,12 +36,11 @@ export default {
     );
 
     // finally update with budget
-    await Budget.updateOne(
-      {
-        user_id,
-        category_name,
-      },
-      { $set: { total_spent: totalSpentAmount, progress } }
-    );
+    await budgetRepository.updateProgress({
+      category_name,
+      progress,
+      total_spent: totalSpentAmount,
+      user_id,
+    });
   },
 };

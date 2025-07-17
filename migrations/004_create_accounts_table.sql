@@ -7,6 +7,6 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         user_id VARCHAR(255) NOT NULL,
         account_name VARCHAR(255) NOT NULL,
-        account_balance BIGINT NOT NULL DEFAULT 0,
+        account_balance NUMERIC(18, 2) NOT NULL DEFAULT 0,
         account_source account_source_enum DEFAULT 'manual'
     )

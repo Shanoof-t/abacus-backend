@@ -1,5 +1,6 @@
 import pg from "pg";
 import env from "../config/env_variables";
+import Decimal from "decimal.js";
 
 const poolConfig: pg.PoolConfig = {
   host: env.DB_HOST,
@@ -8,6 +9,11 @@ const poolConfig: pg.PoolConfig = {
   port: env.DB_PORT,
   database: env.DB_NAME,
 };
+
+// change types manually
+pg.types.setTypeParser(1700, (val: string) =>
+  new Decimal(val).toDecimalPlaces(2).toNumber()
+);
 
 const pool = new pg.Pool(poolConfig);
 
@@ -18,15 +24,15 @@ pool.on("connect", (client) => {
 export const query = async (queryText: string, params?: any[]) => {
   const startTime = Date.now();
   try {
-    
     const res = await pool.query(queryText, params);
     const duration = Date.now() - startTime;
 
-    console.log("QUERY EXICUTED:", {
+    console.log("QUERY EXECUTED:", {
       query: queryText,
       duration,
       rows: res.rowCount,
     });
+
     return res;
   } catch (error: any) {
     const err = {

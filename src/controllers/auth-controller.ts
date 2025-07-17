@@ -23,7 +23,7 @@ export const signUp = asyncErrorHandler(async (req: Request, res: Response) => {
 
   res.status(200).json({
     status: "pending",
-    message: "Verification otp email send",
+    message: "Verification OTP has been sent to your email.",
     data: {
       userId: id,
       email: email,

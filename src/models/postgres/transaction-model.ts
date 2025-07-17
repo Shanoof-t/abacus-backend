@@ -130,7 +130,7 @@ const findByCategoryAndType = async (details: {
   const { category_name, transaction_type, user_id } = details;
 
   const queryText =
-    "SELECT * FROM transactions WHERE user_id=$1,category_name=$2,transaction_type=$3";
+    "SELECT * FROM transactions WHERE user_id=$1 AND category_name=$2 AND transaction_type=$3";
   const params = [user_id, category_name, transaction_type];
   const res = await query(queryText, params);
   return res.rows;

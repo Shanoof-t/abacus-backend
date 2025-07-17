@@ -15,7 +15,7 @@ CREATE TABLE
         transaction_date TIMESTAMPTZ NOT NULL,
         account_name VARCHAR(255) NOT NULL,
         category_name VARCHAR(255) NOT NULL,
-        transaction_amount BIGINT NOT NULL,
+        transaction_amount NUMERIC(18, 2) NOT NULL,
         transaction_type transaction_type_enum NOT NULL,
         transaction_payee VARCHAR(255) NOT NULL,
         transaction_note TEXT,

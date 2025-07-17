@@ -42,10 +42,10 @@ export const getBudget = asyncErrorHandler(async (req, res) => {
 export const deleteBudget = asyncErrorHandler(async (req, res) => {
   const { user } = req;
   const { id } = req.params;
-  await deleteBudgetByName({ user, id });
+  const data = await deleteBudgetByName({ user, id });
   res
     .status(200)
-    .json({ status: "success", message: "Successfully deleted budget" });
+    .json({ status: "success", message: "Successfully deleted budget", data });
 });
 
 export const updateBudget = asyncErrorHandler(async (req, res) => {

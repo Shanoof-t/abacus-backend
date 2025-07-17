@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { number } from "zod";
 
 const budgetSchema = new mongoose.Schema({
   user_id: { type: String, required: [true, "userId is required."] },
@@ -48,4 +47,4 @@ const budgetSchema = new mongoose.Schema({
   },
 });
 
-export const Budget = mongoose.model("budgets", budgetSchema);
+// export const Budget = mongoose.model("budgets", budgetSchema);

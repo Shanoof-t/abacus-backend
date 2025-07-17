@@ -1,21 +1,15 @@
-import { z } from "zod";
-import schema from "../schema/budget-schema";
-
-import { Budget } from "../models/mongodb/budget-model";
-// import { Transaction } from "../models/mongodb/transaction-model";
 import CustomError from "../utils/Custom-error";
 import budgetHelper from "../helpers/budget-helper";
-import { User } from "../types";
+import { IBudget, User } from "../types";
 import transactionRepository from "../repositories/transaction-repository";
+import budgetRepository from "../repositories/budget-repository";
 
-type CreateBudget = z.infer<typeof schema.add>;
-
-export const createBudget = async (body: CreateBudget, user?: User) => {
+export const createBudget = async (body: IBudget, user?: User) => {
   if (!user) throw new CustomError("User is existing.", 404);
 
-  const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
-    user_id: user?.sub,
+  const exisingBudget = await budgetRepository.findOneByName({
     category_name: body.category_name,
+    user_id: user.sub,
   });
 
   if (exisingBudget)
@@ -41,11 +35,11 @@ export const createBudget = async (body: CreateBudget, user?: User) => {
 
   const progress = Math.max((total_spent / Number(budgetLimit)) * 100, 100);
 
-  const budget = await Budget.create({
+  const budgetData: IBudget = {
     user_id: user?.sub,
     budget_name: body.budget_name,
-    budget_start_date: new Date(body.budget_start_date),
-    budget_end_date: new Date(body.budget_end_date),
+    budget_start_date: body.budget_start_date,
+    budget_end_date: body.budget_end_date,
     category_name: body.category_name,
     amount_limit: Number(body.amount_limit),
     budget_note: body.budget_note,
@@ -53,12 +47,16 @@ export const createBudget = async (body: CreateBudget, user?: User) => {
     alert_threshold: body.alert_threshold,
     total_spent,
     progress: Math.round(Math.min(Math.max(progress, 100), 0)),
-  });
+  };
+
+  const budget = await budgetRepository.create(budgetData);
   return budget;
 };
 
 export const fetchAllBudgets = async (user?: User) => {
-  const budgets = await Budget.find({ user_id: user?.sub });
+  if (!user) throw new CustomError("user is not exist,", 400);
+
+  const budgets = await budgetRepository.findByUserId(user.sub);
   return budgets;
 };
 
@@ -66,10 +64,9 @@ type BudgetByCategoryName = {
   user?: User;
   id: string;
 };
+
 export const fetchBudgetById = async ({ user, id }: BudgetByCategoryName) => {
-  const budget = await Budget.findOne({
-    _id: id,
-  });
+  const budget = await budgetRepository.findOneById(id);
   if (!budget) throw new CustomError("Can't find budget with this id", 400);
   return budget;
 };
@@ -78,7 +75,15 @@ export const deleteBudgetByName = async ({
   user,
   id,
 }: BudgetByCategoryName) => {
-  await Budget.deleteOne({ _id: id });
+  const budget = await budgetRepository.deleteOneById(id);
+
+  if (!budget)
+    throw new CustomError(
+      "The budget you're trying to delete doesn't exist.",
+      400
+    );
+
+  return budget;
 };
 
 export const updateBudgetByName = async ({
@@ -86,13 +91,19 @@ export const updateBudgetByName = async ({
   user,
   id,
 }: {
-  body: CreateBudget;
+  body: IBudget;
   user?: User;
   id: string;
 }) => {
   if (!user) throw new CustomError("User is existing.", 404);
 
-  const currentBudget = await Budget.findById(id);
+  const currentBudget = await budgetRepository.findOneById(id);
+
+  if (!currentBudget)
+    throw new CustomError(
+      "The budget you're trying to update doesn't exist.",
+      400
+    );
 
   if (currentBudget?.category_name !== body.category_name) {
     const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
@@ -124,20 +135,20 @@ export const updateBudgetByName = async ({
 
   const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
 
-  const updatedData = {
+  const updatedData: IBudget = {
+    user_id: user.sub,
+    id,
     budget_name: body.budget_name,
     category_name: body.category_name,
     amount_limit: Number(body.amount_limit),
-    budget_start_date: new Date(body.budget_start_date),
-    budget_end_date: new Date(body.budget_end_date),
+    budget_start_date: body.budget_start_date,
+    budget_end_date: body.budget_end_date,
     budget_note: body.budget_note,
     total_spent,
     progress: Math.round(Math.max(progress, 100)),
   };
 
-  await Budget.updateOne({ user_id: user?.sub, _id: id }, updatedData);
-
-  return await Budget.findById(id);
+  return await budgetRepository.update(updatedData);
 };
 
 export const fetchBudgetByCategoryName = async ({
@@ -147,9 +158,18 @@ export const fetchBudgetByCategoryName = async ({
   user?: User;
   category: string;
 }) => {
-  const budget = await budgetHelper.findOneBudgetWithCategory({
-    user_id: user?.sub,
+  if (!user) throw new CustomError("User is existing.", 404);
+
+  const budget = await budgetRepository.findOneByName({
     category_name: category,
+    user_id: user.sub,
   });
+
+  if (!budget)
+    throw new CustomError(
+      `You dont have budget with this category ${category},Please create one.`,
+      400
+    );
+
   return budget;
 };

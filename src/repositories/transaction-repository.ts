@@ -1,5 +1,12 @@
 import transactionModel from "../models/postgres/transaction-model";
-import { ITransaction } from "../types/transaction-types";
+import {
+  IExpense,
+  IIncome,
+  IPeriodExpense,
+  IPeriodIncome,
+  ITransaction,
+  ITransactionSummary,
+} from "../types/transaction-types";
 
 const model = transactionModel;
 
@@ -30,8 +37,17 @@ const updateOneById = async (
   return await model.updateOneById(transaction, transactionId);
 };
 
-const insertMany = async (transactions: ITransaction[]): Promise<ITransaction[]> => {
+const insertMany = async (
+  transactions: ITransaction[]
+): Promise<ITransaction[]> => {
   return await model.insertMany(transactions);
+};
+
+const findByType = async (details: {
+  user_id: string;
+  transaction_type: "expense" | "income";
+}): Promise<ITransaction[]> => {
+  return await model.findByType(details);
 };
 
 const findByCategoryAndType = async (details: {
@@ -42,6 +58,26 @@ const findByCategoryAndType = async (details: {
   return await model.findByCategoryAndType(details);
 };
 
+const findIncome = async (matchData: IIncome) => {
+  return model.findIncome(matchData);
+};
+
+const findExpense = async (matchData: IExpense) => {
+  return model.findExpense(matchData);
+};
+
+const findPreviousPeriodIncome = async (matchData: IPeriodIncome) => {
+  return model.findPreviousPeriodIncome(matchData);
+};
+
+const findPreviousPeriodExpense = async (matchData: IPeriodExpense) => {
+  return model.findPreviousPeriodExpense(matchData);
+};
+
+const findTransactionSummary = async (matchData: ITransactionSummary) => {
+  return model.findTransactionSummary(matchData);
+};
+
 export default {
   create,
   findById,
@@ -50,5 +86,11 @@ export default {
   findOneById,
   updateOneById,
   insertMany,
+  findByType,
   findByCategoryAndType,
+  findIncome,
+  findExpense,
+  findPreviousPeriodIncome,
+  findPreviousPeriodExpense,
+  findTransactionSummary,
 };

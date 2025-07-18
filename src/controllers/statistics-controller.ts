@@ -10,7 +10,7 @@ export const financialSummary = asyncErrorHandler(async (req, res) => {
   const stati = await createSummary(body, user);
   res.status(200).json({
     status: "success",
-    message: "Successfully fetched money statistics",
+    message: "Successfully fetched transaction statistics",
     data: stati,
   });
 });
@@ -22,7 +22,7 @@ export const serialFinincialSummary = asyncErrorHandler(async (req, res) => {
 
   res.status(200).json({
     status: "success",
-    message: "history fetch success",
+    message: "Successfully fetched transaction history",
     data: history,
   });
 });

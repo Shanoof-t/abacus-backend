@@ -30,7 +30,8 @@ export const query = async (queryText: string, params?: any[]) => {
     console.log("QUERY EXECUTED:", {
       query: queryText,
       duration,
-      rows: res.rowCount,
+      rowCount: res.rowCount,
+      rows: res.rows,
     });
 
     return res;

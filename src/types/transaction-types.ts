@@ -34,24 +34,6 @@ export interface ICalculateNextRecurringDate {
   transaction_date?: string;
 }
 
-// export interface TransactionType {
-//   id: string;
-//   user_id: string | undefined;
-//   transaction_date: string | Date;
-//   account_name: string;
-//   transaction_amount: number;
-//   category_name: string;
-//   transaction_payee: string;
-//   transaction_type: string;
-//   transaction_note?: string | null;
-//   is_estimated: boolean;
-//   is_recurring?: boolean;
-//   recurring?: {
-//     recurring_frequency?: "daily" | "weekly" | "monthly" | "yearly" | null;
-//     next_date?: NativeDate | null;
-//   } | null;
-// }
-
 export interface ScheduleRecurringNotification {
   cronExpression?: string;
   transaction_type?: string;
@@ -76,4 +58,49 @@ export type ICreateTransactions = {
 export interface IHandleRecurring {
   transaction: ITransaction;
   user: User;
+}
+
+export interface IIncome {
+  user_id: string;
+  fromDate: string;
+  toDate: string;
+  transaction_type: "income";
+  account_name?: string;
+}
+
+export interface IExpense {
+  user_id: string;
+  fromDate: string;
+  toDate: string;
+  transaction_type: "expense";
+  account_name?: string;
+}
+
+export interface IPeriodIncome {
+  user_id: string;
+  previouseMonth: string;
+  currentMonth: string;
+  transaction_type: "income";
+  account_name?: string;
+}
+
+export interface IPeriodExpense {
+  user_id: string;
+  previouseMonth: string;
+  currentMonth: string;
+  transaction_type: "expense";
+  account_name?: string;
+}
+
+export interface ITransactionSummary {
+  user_id: string;
+  fromDate: string;
+  toDate: string;
+  account_name?: string;
+}
+
+export interface IMonthViseSummary {
+  _id: string;
+  income: number;
+  expense: number;
 }

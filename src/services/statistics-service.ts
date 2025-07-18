@@ -2,7 +2,6 @@ import { z } from "zod";
 import { schema } from "../schema/statistics-schema";
 import statisticsHelper from "../helpers/statistics-helper";
 import { subMonths } from "date-fns";
-import { Category } from "../models/mongodb/category-model";
 import { User } from "../types";
 import CustomError from "../utils/Custom-error";
 
@@ -13,6 +12,7 @@ export const createSummary = async (body: CreateSummary, user?: User) => {
 
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
+  
   const remaining = income - expense;
 
   const currentMonth = body.from;

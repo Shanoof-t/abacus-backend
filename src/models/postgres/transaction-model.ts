@@ -1,5 +1,12 @@
 import { query } from "../../loaders/db";
-import { ITransaction } from "../../types/transaction-types";
+import {
+  IExpense,
+  IIncome,
+  IPeriodExpense,
+  IPeriodIncome,
+  ITransaction,
+  ITransactionSummary,
+} from "../../types";
 
 const create = async (transaction: ITransaction): Promise<ITransaction> => {
   const {
@@ -95,7 +102,9 @@ const updateOneById = async (
   return res.rows[0];
 };
 
-const insertMany = async (transactions: ITransaction[]): Promise<ITransaction[]> => {
+const insertMany = async (
+  transactions: ITransaction[]
+): Promise<ITransaction[]> => {
   const placeHolders = transactions
     .map((_, index) => {
       let start = index * 8 + 1;
@@ -122,6 +131,19 @@ const insertMany = async (transactions: ITransaction[]): Promise<ITransaction[]>
   return res.rows;
 };
 
+const findByType = async (details: {
+  user_id: string;
+  transaction_type: "expense" | "income";
+}): Promise<ITransaction[]> => {
+  const { transaction_type, user_id } = details;
+
+  const queryText =
+    "SELECT * FROM transactions WHERE user_id=$1 AND transaction_type=$2";
+  const params = [user_id, transaction_type];
+  const res = await query(queryText, params);
+  return res.rows;
+};
+
 const findByCategoryAndType = async (details: {
   user_id: string;
   category_name: string;
@@ -136,6 +158,152 @@ const findByCategoryAndType = async (details: {
   return res.rows;
 };
 
+const findIncome = async (matchData: IIncome) => {
+  const { user_id, fromDate, toDate, transaction_type, account_name } =
+    matchData;
+
+  let queryText = `
+    SELECT COALESCE(SUM(transaction_amount), 0) AS income
+    FROM transactions
+    WHERE user_id = $1
+      AND transaction_type = $2
+      AND transaction_date BETWEEN $3 AND $4
+  `;
+
+  const params: any[] = [user_id, transaction_type, fromDate, toDate];
+
+  if (account_name) {
+    queryText += ` AND account_name = $5`;
+    params.push(account_name);
+  }
+
+  queryText += ` GROUP BY transaction_type`;
+
+  const res = await query(queryText, params);
+  return res.rows[0];
+};
+
+const findExpense = async (matchData: IExpense) => {
+  const { user_id, fromDate, toDate, transaction_type, account_name } =
+    matchData;
+
+  let queryText = `
+    SELECT COALESCE(SUM(transaction_amount), 0) AS expense
+    FROM transactions
+    WHERE user_id = $1
+      AND transaction_type = $2
+      AND transaction_date BETWEEN $3 AND $4
+  `;
+
+  const params: any[] = [user_id, transaction_type, fromDate, toDate];
+
+  if (account_name) {
+    queryText += ` AND account_name = $5`;
+    params.push(account_name);
+  }
+
+  queryText += ` GROUP BY transaction_type`;
+
+  const res = await query(queryText, params);
+  return res.rows[0];
+};
+
+const findPreviousPeriodIncome = async (matchData: IPeriodIncome) => {
+  const {
+    user_id,
+    transaction_type,
+    previouseMonth,
+    currentMonth,
+    account_name,
+  } = matchData;
+
+  let queryText = `
+    SELECT COALESCE(SUM(transaction_amount), 0) AS income
+    FROM transactions
+    WHERE user_id = $1
+      AND transaction_type = $2
+      AND transaction_date BETWEEN $3 AND $4
+  `;
+
+  const params: any[] = [
+    user_id,
+    transaction_type,
+    previouseMonth,
+    currentMonth,
+  ];
+
+  if (account_name) {
+    queryText += ` AND account_name = $5`;
+    params.push(account_name);
+  }
+
+  queryText += ` GROUP BY transaction_type`;
+
+  const res = await query(queryText, params);
+  return res.rows[0];
+};
+
+const findPreviousPeriodExpense = async (matchData: IPeriodExpense) => {
+  const {
+    user_id,
+    transaction_type,
+    previouseMonth,
+    currentMonth,
+    account_name,
+  } = matchData;
+
+  let queryText = `
+    SELECT COALESCE(SUM(transaction_amount), 0) AS expense
+    FROM transactions
+    WHERE user_id = $1
+      AND transaction_type = $2
+      AND transaction_date BETWEEN $3 AND $4
+  `;
+
+  const params: any[] = [
+    user_id,
+    transaction_type,
+    previouseMonth,
+    currentMonth,
+  ];
+
+  if (account_name) {
+    queryText += ` AND account_name = $5`;
+    params.push(account_name);
+  }
+
+  queryText += ` GROUP BY transaction_type`;
+
+  const res = await query(queryText, params);
+  return res.rows[0];
+};
+
+const findTransactionSummary = async (matchData: ITransactionSummary) => {
+  const { user_id, fromDate, toDate, account_name } = matchData;
+
+  let queryText = `
+    SELECT 
+      transaction_date,
+      SUM(CASE WHEN transaction_type = 'income' THEN transaction_amount ELSE 0 END) AS income,
+      SUM(CASE WHEN transaction_type = 'expense' THEN transaction_amount ELSE 0 END) AS expense
+    FROM transactions
+    WHERE user_id = $1
+      AND transaction_date BETWEEN $2 AND $3
+  `;
+
+  const params: any[] = [user_id, fromDate, toDate];
+
+  if (account_name) {
+    queryText += ` AND account_name = $4`;
+    params.push(account_name);
+  }
+
+  queryText += ` GROUP BY transaction_date ORDER BY transaction_date`;
+
+  const res = await query(queryText, params);
+  return res.rows;
+};
+
 export default {
   create,
   findById,
@@ -144,5 +312,11 @@ export default {
   findOneById,
   updateOneById,
   insertMany,
+  findByType,
   findByCategoryAndType,
+  findIncome,
+  findExpense,
+  findPreviousPeriodIncome,
+  findPreviousPeriodExpense,
+  findTransactionSummary,
 };

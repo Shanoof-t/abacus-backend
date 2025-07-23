@@ -42,7 +42,7 @@ export const authenticateUser = async (loginData: SignIn) => {
     password,
     existingPassword: user.password,
   });
-  
+
   if (!isPasswordCorrect)
     throw new CustomError("Check your password again", 401);
   const payload = { sub: user._id, email: user.email };
@@ -105,7 +105,7 @@ export const verifyUserOTP = async (body: OtpBody) => {
 
 export const userOTPReSend = async (body: { userId: string }) => {
   const { userId } = body;
-  const user = await userHelper.getUser({ _id: userId });
+  const user = await User.findOne({ _id: userId });
   if (!user) throw new CustomError("user not founded", 404);
   const { email, _id } = user;
   await createOTP({ email, _id });

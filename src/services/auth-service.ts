@@ -9,6 +9,7 @@ import { User } from "../models/user-model";
 import { googleOauth2Client } from "../config/google_oauth2";
 import sendOTPMail from "../utils/brevo";
 import { mailOption, transporter } from "../config/nodemailer";
+import mongoose from "mongoose";
 
 export const createUser = async (user: SignUp) => {
   const { email } = user;

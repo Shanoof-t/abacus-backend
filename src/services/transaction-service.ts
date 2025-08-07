@@ -6,6 +6,8 @@ import transactionHelper from "../helpers/transaction-helper";
 import accountHelper from "../helpers/account-helper";
 import transactionRepository from "../repositories/transaction-repository";
 import { ICreateTransactions, ITransaction, User } from "../types";
+import accountRepository from "../repositories/account-repository";
+import categoryRepository from "../repositories/category-repository";
 
 export const createTransaction = async (
   body: z.infer<typeof schema.add>,
@@ -27,17 +29,36 @@ export const createTransaction = async (
     transaction_type,
   } = body;
 
-  console.log("body:", body);
+  const currentAccount = await accountRepository.findOneByName({
+    account_name,
+    user_id: user?.sub,
+  });
+
+  if (!currentAccount)
+    throw new CustomError(
+      `Can't find Account with this name ${account_name}`,
+      404
+    );
+
+  const currentCategory = await categoryRepository.findOneByName({
+    user_id: user.sub,
+    category_name,
+  });
+
+  if (!currentCategory)
+    throw new CustomError(
+      `Can't find Category with this name ${category_name}`,
+      404
+    );
 
   let transaction;
 
   if (is_recurring) {
-    console.log("inside is_recurring");
     const next_date = transactionHelper.calculateNextRecurringDate({
       recurring_frequency,
       transaction_date,
     });
-    console.log("nect_date:", next_date);
+
     transaction = await transactionRepository.create({
       user_id: user.sub,
       transaction_date,
@@ -79,6 +100,7 @@ export const createTransaction = async (
     transaction_amount: Number(transaction_amount),
     transaction_type,
     user,
+    account: currentAccount,
   });
 
   // update budget
@@ -127,6 +149,33 @@ export const editTransactionById = async (
   user?: User
 ) => {
   if (!user) throw new CustomError("user is not exist,", 400);
+
+  const currentTransaction = await transactionRepository.findOneById(id);
+
+  if (!currentTransaction)
+    throw new CustomError("Can't find transaction.", 400);
+
+  const currentAccount = await accountRepository.findOneByName({
+    account_name: body.account_name,
+    user_id: user?.sub,
+  });
+
+  if (!currentAccount)
+    throw new CustomError(
+      `Can't find Account with this name ${body.account_name}`,
+      404
+    );
+
+  const currentCategory = await categoryRepository.findOneByName({
+    user_id: user.sub,
+    category_name: body.category_name,
+  });
+
+  if (!currentCategory)
+    throw new CustomError(
+      `Can't find Category with this name ${body.category_name}`,
+      404
+    );
 
   const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
 

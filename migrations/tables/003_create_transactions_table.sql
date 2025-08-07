@@ -1,4 +1,3 @@
--- DROP TABLE IF EXISTS transactions;
 
 CREATE TABLE
     IF NOT EXISTS transactions (

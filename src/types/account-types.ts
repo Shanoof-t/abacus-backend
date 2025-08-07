@@ -21,6 +21,7 @@ export interface IUpdateAccountBalance {
   user: User;
   transaction_type: string;
   accountSource?: "manual" | "bank_integration" | "both";
+  account:IAccount
 }
 
 export interface ICreateAccounts {

@@ -8,25 +8,15 @@ async function updateAccountBalance({
   user,
   transaction_type,
   accountSource = "manual",
+  account,
 }: IUpdateAccountBalance) {
-  const currentAccount = await accountRepository.findOneByName({
-    account_name,
-    user_id: user?.sub,
-  });
-
-  if (!currentAccount)
-    throw new CustomError(
-      `Can't find Account with this name ${account_name}`,
-      404
-    );
-
   const balance =
     transaction_type === "expense"
-      ? Math.max(0, currentAccount?.account_balance - transaction_amount)
-      : currentAccount?.account_balance + transaction_amount;
+      ? Math.max(0, account?.account_balance - transaction_amount)
+      : account?.account_balance + transaction_amount;
 
   const account_source =
-    currentAccount.account_source === "bank_integration"
+    account.account_source === "bank_integration"
       ? "both"
       : accountSource;
 
@@ -35,7 +25,7 @@ async function updateAccountBalance({
     account_name,
     account_source,
     user_id: user.sub,
-    id: currentAccount.id,
+    id: account.id,
   };
 
   await accountRepository.updateOneById(data);
@@ -86,6 +76,7 @@ async function createAccounts({
         transaction_type,
         user,
         accountSource: source,
+        account: existingAccount,
       });
     } else {
       const initialBalance = transaction_type === "expense" ? 0 : amount;

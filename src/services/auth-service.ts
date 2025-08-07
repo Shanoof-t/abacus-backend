@@ -94,6 +94,7 @@ export const verifyUserOTP = async (body: OtpBody) => {
   const { otp, userId } = body;
 
   const userOTPRecord = await otpRepository.findOne(userId);
+
   if (!userOTPRecord) {
     throw new CustomError(
       "Account record doesn't exist or has been verified already.Please sign up or sign in.",
@@ -101,24 +102,34 @@ export const verifyUserOTP = async (body: OtpBody) => {
     );
   } else {
     const { expires_at, otp: hashedOTP } = userOTPRecord;
+
     if (!expires_at) {
       throw new CustomError("expiresAt is not defined", 500);
     }
+
     const expires = new Date(expires_at.getTime());
     const now = new Date();
+
     if (expires < now) {
       await otpRepository.deleteOne(userId);
+
       throw new CustomError("OTP has expired.Please try again.", 400);
     } else {
       if (!hashedOTP) {
         throw new CustomError("Invalid OTP record. Please try again.", 500);
       }
+
       const validOTP = await securityHelper.verifyOTP({ otp, hashedOTP });
+
       if (!validOTP) {
         throw new CustomError("Invalid OTP.Please check again.", 400);
       } else {
-        await userRepository.update(userId);
+        const user = await userRepository.update(userId);
         await otpRepository.deleteOne(userId);
+
+        const payload = { sub: user.id, email: user.email };
+        const accessToken = tokenHelper.generateToken(payload);
+        return { user, accessToken };
       }
     }
   }

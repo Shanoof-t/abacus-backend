@@ -63,15 +63,20 @@ export const signIn = asyncErrorHandler(async (req: Request, res: Response) => {
     status: "success",
     message: "Successfully logged In.",
     data: { id, email, user_name },
+    token: accessToken,
   });
 });
 
 export const verifyOTP = asyncErrorHandler(async (req, res) => {
   const { body } = req;
-  await verifyUserOTP(body);
+  const { user, accessToken } = await verifyUserOTP(body);
+  const { email, user_name, id } = user;
+  
   res.status(200).json({
     status: "success",
     message: "OTP vefication is success",
+    data: { id, email, user_name },
+    token: accessToken,
   });
 });
 

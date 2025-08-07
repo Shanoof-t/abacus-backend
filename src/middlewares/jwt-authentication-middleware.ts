@@ -10,7 +10,7 @@ async function authenticateToken(
   res: Response,
   next: NextFunction
 ): Promise<any> {
-  const token = req.cookies.token;
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     const error = new CustomError("Access Denied", 400);

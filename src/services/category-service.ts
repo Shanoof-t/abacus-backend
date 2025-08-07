@@ -50,6 +50,9 @@ export const editCategoryById = async (
 ) => {
   if (!user) throw new CustomError("user is not exist,", 400);
 
+  const currentCategory = await categoryRepository.findOneById(id);
+  if (!currentCategory)
+    throw new CustomError("The Category is not existing.", 400);
   const existingCategory = await categoryRepository.findOneByName({
     category_name: body.category_name,
     user_id: user.sub,

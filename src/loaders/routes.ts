@@ -9,10 +9,10 @@ import notificationRouter from "../routes/v1/notification-routes";
 import bankRouter from "../routes/v1/bank-router";
 
 export default ({ app }: LoaderParams) => {
-  app.use("/api/v1/auth", authRouter);
-  app.use("/api/v1/transaction", transactionRoute);
-  app.use("/api/v1/account", accountRouter);
-  app.use("/api/v1/category", categoryRouter);
+  app.use("/api/v1/auth", authRouter); //done
+  app.use("/api/v1/transaction", transactionRoute);//done
+  app.use("/api/v1/account", accountRouter);//done
+  app.use("/api/v1/category", categoryRouter);//done
   app.use("/api/v1/budget", budgetRouter);
   app.use("/api/v1/statistics", statisticsRouter);
   app.use("/api/v1/notifications", notificationRouter);

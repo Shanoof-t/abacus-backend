@@ -3,6 +3,7 @@ import budgetHelper from "../helpers/budget-helper";
 import { IBudget, User } from "../types";
 import transactionRepository from "../repositories/transaction-repository";
 import budgetRepository from "../repositories/budget-repository";
+import categoryRepository from "../repositories/category-repository";
 
 export const createBudget = async (body: IBudget, user?: User) => {
   if (!user) throw new CustomError("User is existing.", 404);
@@ -16,6 +17,17 @@ export const createBudget = async (body: IBudget, user?: User) => {
     throw new CustomError(
       "This category with a budget is already existing",
       400
+    );
+
+  const currentCategory = await categoryRepository.findOneByName({
+    user_id: user.sub,
+    category_name: body.category_name,
+  });
+
+  if (!currentCategory)
+    throw new CustomError(
+      `Can't find Category with this name ${body.category_name}`,
+      404
     );
 
   const budgetLimit = body.amount_limit;
@@ -103,6 +115,17 @@ export const updateBudgetByName = async ({
     throw new CustomError(
       "The budget you're trying to update doesn't exist.",
       400
+    );
+
+  const currentCategory = await categoryRepository.findOneByName({
+    user_id: user.sub,
+    category_name: body.category_name,
+  });
+
+  if (!currentCategory)
+    throw new CustomError(
+      `Can't find Category with this name ${body.category_name}`,
+      404
     );
 
   if (currentBudget?.category_name !== body.category_name) {

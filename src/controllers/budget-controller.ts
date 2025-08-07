@@ -51,7 +51,7 @@ export const deleteBudget = asyncErrorHandler(async (req, res) => {
 export const updateBudget = asyncErrorHandler(async (req, res) => {
   const { user, body } = req;
   const { id } = req.params;
-  console.log("body in controller", body);
+  
   const existingBudget = await updateBudgetByName({ body, user, id });
   res.status(200).json({
     status: "success",

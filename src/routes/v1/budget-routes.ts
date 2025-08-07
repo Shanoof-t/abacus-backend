@@ -26,7 +26,7 @@ budgetRouter
   .route("/:id")
   .get(getBudget)
   .delete(deleteBudget)
-  .post(updateBudget);
+  .put(updateBudget);
 
 // budgetRouter.post("/bulk-delete", accountBulkDelete);
 

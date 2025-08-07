@@ -30,6 +30,10 @@ const updateOneById = async (data: ICategory): Promise<ICategory> => {
   return model.updateOneById(data);
 };
 
+const deleteManyByBank = async (userId: string): Promise<ICategory[]> => {
+  return model.deleteManyByBank(userId);
+};
+
 export default {
   findOneById,
   findOneByName,
@@ -38,4 +42,5 @@ export default {
   deleteMany,
   deleteOneById,
   updateOneById,
+  deleteManyByBank
 };

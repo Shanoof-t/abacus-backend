@@ -19,6 +19,18 @@ const findOneById = async (id: string): Promise<IAccount> => {
   return res.rows[0];
 };
 
+const findOneByUserAndSource = async (data: {
+  userId: string;
+  account_source: string;
+}): Promise<IAccount[]> => {
+  const { account_source, userId } = data;
+  const queryText =
+    "SELECT * FROM accounts WHERE user_id=$1 AND account_source=$2";
+  const params = [userId, account_source];
+  const res = await query(queryText, params);
+  return res.rows;
+};
+
 const findOneByName = async ({
   account_name,
   user_id,
@@ -47,6 +59,18 @@ const deleteMany = async (accountIds: string[]): Promise<IAccount[]> => {
   return res.rows;
 };
 
+const deleteManyBySource = async (data: {
+  user_id: string;
+  account_source: string;
+}): Promise<IAccount[]> => {
+  const { account_source, user_id } = data;
+
+  const queryText = `DELETE FROM accounts WHERE user_id=$1 AND account_source=$2 RETURNING *`;
+  const params = [user_id, account_source];
+  const res = await query(queryText, params);
+  return res.rows;
+};
+
 const deleteOneById = async (id: string): Promise<IAccount> => {
   const queryText = `DELETE FROM accounts WHERE id=$1 RETURNING *`;
   const params = [id];
@@ -64,6 +88,20 @@ const updateOneById = async (data: IAccount): Promise<IAccount> => {
   return res.rows[0];
 };
 
+const updateOneByUserId = async (data: {
+  account_balance: number;
+  user_id: string;
+  account_name: string;
+}): Promise<IAccount> => {
+  const { account_balance, account_name, user_id } = data;
+
+  const queryText = `UPDATE accounts SET account_balance=$3 WHERE user_id=$1 AND account_balance=$2 RETURNING *`;
+  const params = [user_id, account_balance, account_name];
+
+  const res = await query(queryText, params);
+  return res.rows[0];
+};
+
 export default {
   create,
   findOneByName,
@@ -72,4 +110,7 @@ export default {
   deleteOneById,
   findOneById,
   updateOneById,
+  findOneByUserAndSource,
+  updateOneByUserId,
+  deleteManyBySource,
 };

@@ -66,6 +66,12 @@ const deleteMany = async (userIds: string[]) => {
   return res.rows;
 };
 
+const deleteManyByBank = async (userId: string) => {
+  const queryText = `DELETE FROM transactions WHERE user_id=$1 AND is_bank_transaction=true  RETURNING *`;
+  const res = await query(queryText, [userId]);
+  return res.rows;
+};
+
 const deleteOneById = async (userId: string): Promise<ITransaction> => {
   const queryText = "DELETE FROM transactions WHERE id=$1 RETURNING *";
   const params = [userId];
@@ -140,6 +146,20 @@ const findByType = async (details: {
   const queryText =
     "SELECT * FROM transactions WHERE user_id=$1 AND transaction_type=$2";
   const params = [user_id, transaction_type];
+  const res = await query(queryText, params);
+  return res.rows;
+};
+
+const findBankTransactionsWithAccount = async (data: {
+  user_id: string;
+  account_name: string;
+  isBankTransaction: boolean;
+}): Promise<ITransaction[]> => {
+  const { account_name, isBankTransaction, user_id } = data;
+
+  const queryText =
+    "SELECT * FROM transactions WHERE user_id=$1 AND account_name=$2 AND is_bank_transaction=$3";
+  const params = [user_id, account_name, isBankTransaction];
   const res = await query(queryText, params);
   return res.rows;
 };
@@ -319,4 +339,6 @@ export default {
   findPreviousPeriodIncome,
   findPreviousPeriodExpense,
   findTransactionSummary,
+  findBankTransactionsWithAccount,
+  deleteManyByBank,
 };

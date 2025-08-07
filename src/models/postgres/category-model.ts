@@ -45,6 +45,12 @@ const deleteMany = async (categoryIds: string[]): Promise<ICategory[]> => {
   return res.rows;
 };
 
+const deleteManyByBank = async (userId:string): Promise<ICategory[]> => {
+  const queryText = `DELETE FROM categories WHERE user_id=$1 AND is_bank_category=true RETURNING *`;
+  const res = await query(queryText, [userId]);
+  return res.rows;
+};
+
 const deleteOneById = async (id: string): Promise<ICategory> => {
   const queryText = `DELETE FROM categories WHERE id=$1 RETURNING *`;
   const params = [id];
@@ -60,6 +66,7 @@ const updateOneById = async (data: ICategory): Promise<ICategory> => {
   return res.rows[0];
 };
 
+
 export default {
   findOneById,
   findOneByName,
@@ -68,4 +75,5 @@ export default {
   deleteMany,
   deleteOneById,
   updateOneById,
+  deleteManyByBank
 };

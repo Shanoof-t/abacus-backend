@@ -1,7 +1,3 @@
-// import {
-//   CustomeRequest,
-//   User,
-// } from "../middlewares/jwt-authentication-middleware";
 import {
   createConsentUrl,
   disConnectBankAccountByConsentId,
@@ -16,7 +12,7 @@ export const createSetuConsent = asyncErrorHandler(
   async (req, res: Response) => {
     const { mobileNo } = req.params;
     const setuToken = req.setuToken as string;
-    const user = req.user
+    const user = req.user;
     const response = await createConsentUrl(mobileNo, setuToken, user);
 
     res.status(200).json({
@@ -49,24 +45,20 @@ export const setuNotifications = asyncErrorHandler(async (req, res) => {
     .json({ status: "success", message: "got notification successfully" });
 });
 
-export const getUserConsent = asyncErrorHandler(
-  async (req, res) => {
-    const { user } = req;
-    const data = await getConsentByUserId(user);
+export const getUserConsent = asyncErrorHandler(async (req, res) => {
+  const { user } = req;
+  const data = await getConsentByUserId(user);
 
-    res
-      .status(200)
-      .json({ status: "success", message: "consent fetch successfull", data });
-  }
-);
+  res
+    .status(200)
+    .json({ status: "success", message: "consent fetch successfull", data });
+});
 
-export const disConnectBankAccount = asyncErrorHandler(
-  async (req, res) => {
-    const { consentId } = req.params;
-    const { user } = req;
-    await disConnectBankAccountByConsentId(consentId, user);
-    res
-      .status(203)
-      .json({ status: "success", message: "Successfully disconnected" });
-  }
-);
+export const disConnectBankAccount = asyncErrorHandler(async (req, res) => {
+  const { consentId } = req.params;
+  const { user } = req;
+  await disConnectBankAccountByConsentId(consentId, user);
+  res
+    .status(203)
+    .json({ status: "success", message: "Successfully disconnected" });
+});

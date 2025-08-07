@@ -14,4 +14,4 @@ const consentSchema = new mongoose.Schema({
   },
 });
 
-export const Consent = mongoose.model("consent", consentSchema);
+// export const Consent = mongoose.model("consent", consentSchema);

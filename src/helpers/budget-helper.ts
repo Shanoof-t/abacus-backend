@@ -3,7 +3,7 @@ import budgetRepository from "../repositories/budget-repository";
 type BudgetWithCategory = {
   user_id: string;
   category_name: string;
-  transaction_amount?: string;
+  transaction_amount?: number;
 };
 
 export default {
@@ -27,7 +27,7 @@ export default {
     // total spent calculation
 
     const totalSpent = exisingBudget?.total_spent || 0;
-    const totalSpentAmount = totalSpent + Number(transaction_amount);
+    const totalSpentAmount = totalSpent + transaction_amount!
 
     // mesure the progress percentage
     const progress = Math.min(

@@ -30,6 +30,10 @@ const deleteMany = async (userIds: string[]): Promise<ITransaction[]> => {
   return await model.deleteMany(userIds);
 };
 
+const deleteManyByBank = async (userId: string): Promise<ITransaction[]> => {
+  return await model.deleteManyByBank(userId);
+};
+
 const updateOneById = async (
   transactionId: string,
   transaction: ITransaction
@@ -78,6 +82,14 @@ const findTransactionSummary = async (matchData: ITransactionSummary) => {
   return model.findTransactionSummary(matchData);
 };
 
+const findBankTransactionsWithAccount = async (data: {
+  user_id: string;
+  account_name: string;
+  isBankTransaction: boolean;
+}) => {
+  return model.findBankTransactionsWithAccount(data);
+};
+
 export default {
   create,
   findById,
@@ -93,4 +105,6 @@ export default {
   findPreviousPeriodIncome,
   findPreviousPeriodExpense,
   findTransactionSummary,
+  findBankTransactionsWithAccount,
+  deleteManyByBank,
 };

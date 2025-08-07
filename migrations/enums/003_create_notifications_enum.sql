@@ -1,0 +1,3 @@
+DROP TYPE IF EXISTS status_enum CASCADE;
+
+CREATE TYPE status_enum AS ENUM ('PENDING', 'SENT', 'FAILED');

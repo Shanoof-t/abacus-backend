@@ -1,7 +1,5 @@
 import { addDays, addMonths, addWeeks, addYears, format } from "date-fns";
 import cron from "node-cron";
-import { Notification } from "../models/mongodb/notification-model";
-import budgetHelper from "./budget-helper";
 import notificationEvents from "../sockets/events/notification.events";
 import {
   HandleBudgetUpdate,
@@ -9,6 +7,8 @@ import {
   IHandleRecurring,
   ScheduleRecurringNotification,
 } from "../types";
+import notificationRepository from "../repositories/notification-repository";
+import budgetHelper from "./budget-helper";
 
 export default {
   // set date
@@ -70,12 +70,15 @@ export default {
 
           const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${transaction_amount}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
               It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
-          const notification = await Notification.create({
-            user_id: user?.sub,
+
+          const notification = await notificationRepository.create({
+            user_id: user.sub,
             message,
             title,
             is_server_notification: true,
             future_payload: transaction_id,
+            is_read: false,
+            status: "PENDING",
           });
 
           notificationEvents.sendRecurringNotification({
@@ -94,38 +97,37 @@ export default {
     transaction_amount,
     user,
   }: HandleBudgetUpdate) => {
-    // const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
-    //   user_id: user?.sub,
-    //   category_name,
-    // });
+    const exisingBudget = await budgetHelper.findOneBudgetWithCategory({
+      user_id: user?.sub,
+      category_name,
+    });
 
-    // if (!exisingBudget) return;
+    if (!exisingBudget) return;
 
-    // await budgetHelper.updateBudgetAfterTransaction({
-    //   user_id: user?.sub,
-    //   category_name,
-    //   transaction_amount,
-    // });
+    await budgetHelper.updateBudgetAfterTransaction({
+      user_id: user?.sub,
+      category_name,
+      transaction_amount,
+    });
 
-    // const updatedBudget = await budgetHelper.findOneBudgetWithCategory({
-    //   user_id: user?.sub,
-    //   category_name,
-    // });
+    const updatedBudget = await budgetHelper.findOneBudgetWithCategory({
+      user_id: user?.sub,
+      category_name,
+    });
 
-    // if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
-    //   const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
-    //   return alertMessage;
-    // }
+    if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
+      const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
+      return alertMessage;
+    }
 
-    // if (
-    //   updatedBudget?.alert_threshold &&
-    //   updatedBudget?.progress &&
-    //   updatedBudget.progress >= updatedBudget.alert_threshold
-    // ) {
-    //   const alertMessage = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}.`;
-    //   return alertMessage;
-    // }
-    return ""
+    if (
+      updatedBudget?.alert_threshold &&
+      updatedBudget?.progress &&
+      updatedBudget.progress >= updatedBudget.alert_threshold
+    ) {
+      const alertMessage = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}.`;
+      return alertMessage;
+    }
   },
   handleRecurring: async function ({ transaction, user }: IHandleRecurring) {
     const {

@@ -9,4 +9,4 @@ const categorySchema = new Schema({
   isBankCategory: { type: Boolean, default: false },
 });
 
-// export const Category = mongoose.model("category", categorySchema);
+export const Category = mongoose.model("category", categorySchema);

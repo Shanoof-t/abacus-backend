@@ -13,8 +13,8 @@ export default ({ app }: LoaderParams) => {
   app.use("/api/v1/transaction", transactionRoute);//done
   app.use("/api/v1/account", accountRouter);//done
   app.use("/api/v1/category", categoryRouter);//done
-  app.use("/api/v1/budget", budgetRouter);
-  app.use("/api/v1/statistics", statisticsRouter);
+  app.use("/api/v1/budget", budgetRouter);//done
+  app.use("/api/v1/statistics", statisticsRouter);//done
   app.use("/api/v1/notifications", notificationRouter);
   app.use("/api/v1/bank", bankRouter);
 };

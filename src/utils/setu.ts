@@ -25,6 +25,10 @@ export const createConsentData = (mobileNumber: string) => {
       unit: "YEAR",
       value: "100",
     },
+    dataLife: {
+      unit: "YEAR",
+      value: 100,
+    },
     purpose: {
       code: "101",
       text: "To get transaction history for calculation",
@@ -72,8 +76,8 @@ export const createConsentRequest = async ({
   try {
     const response = await axios.request(requestConfig);
     return response.data;
-  } catch (error) {
-    console.log("error in consent creation", error);
+  } catch (error: any) {
+    console.log("error in consent creation", error.response.data);
     throw new CustomError(
       "Something wrong happened,Please try again later.",
       500

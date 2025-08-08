@@ -13,6 +13,7 @@ const bankRouter = express.Router();
 bankRouter.route("/consent").get(authenticateToken, getUserConsent);
 
 bankRouter.use(authenticateSetuToken);
+
 bankRouter
   .route("/consent/create/:mobileNo")
   .get(authenticateToken, createSetuConsent);

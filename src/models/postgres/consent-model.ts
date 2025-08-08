@@ -46,7 +46,7 @@ const findOneAndDelete = async (id: string): Promise<IConsent> => {
 };
 
 const deleteManyByUserId = async (userId: string): Promise<IConsent[]> => {
-  const queryText = "DELETE FROM TABLE consent WHERE user_id=$1 RETURNING *";
+  const queryText = "DELETE FROM consent WHERE user_id=$1 RETURNING *";
   const params = [userId];
   const res = await query(queryText, params);
   return res.rows;

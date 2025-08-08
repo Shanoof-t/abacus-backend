@@ -24,7 +24,6 @@ export const createConsentUrl = async (
   //   );
 
   if (!user) throw new CustomError("User is not found!", 404);
-
   let body = setu.createConsentData(mobileNumber);
   const consent = await setu.createConsentRequest({ token: setuToken, body });
 

@@ -15,6 +15,7 @@ export const createSetuConsent = asyncErrorHandler(
     const user = req.user;
     const response = await createConsentUrl(mobileNo, setuToken, user);
 
+    // return res.redirect(response.url)
     res.status(200).json({
       status: "success",
       message: "Consent created Successfully.",

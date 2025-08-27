@@ -14,10 +14,12 @@ const account_service_1 = require("../services/account-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.addAccount = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body, user } = req;
-    yield (0, account_service_1.createAccount)(body, user);
-    res
-        .status(201)
-        .json({ status: "success", message: "Account created successfully" });
+    const account = yield (0, account_service_1.createAccount)(body, user);
+    res.status(201).json({
+        status: "success",
+        message: "Account created successfully",
+        data: account,
+    });
 }));
 exports.getAllAccounts = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req;
@@ -28,26 +30,34 @@ exports.getAllAccounts = (0, error_handlers_1.asyncErrorHandler)((req, res) => _
 }));
 exports.accountBulkDelete = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    yield (0, account_service_1.deleteAccounts)(body);
+    const accounts = yield (0, account_service_1.deleteAccounts)(body);
     res
         .status(200)
-        .json({ status: "success", message: "Accounts delete successfull." });
+        .json({
+        status: "success",
+        message: "Accounts delete successfull.",
+        data: accounts,
+    });
 }));
 exports.deleteAccount = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    yield (0, account_service_1.deleteAccountById)(id);
-    res
-        .status(200)
-        .json({ status: "success", message: "Account deleted successfully." });
+    const account = yield (0, account_service_1.deleteAccountById)(id);
+    res.status(200).json({
+        status: "success",
+        message: "Account deleted successfully.",
+        data: account,
+    });
 }));
 exports.editAccount = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
     const { id } = req.params;
     const { user } = req;
-    yield (0, account_service_1.editAccountById)({ body, id, user });
-    res
-        .status(200)
-        .json({ status: "success", message: "Account successfully edited." });
+    const account = yield (0, account_service_1.editAccountById)({ body, id, user });
+    res.status(200).json({
+        status: "success",
+        message: "Account successfully edited.",
+        data: account,
+    });
 }));
 exports.getAccount = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;

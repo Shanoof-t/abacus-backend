@@ -9,26 +9,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchTransactions = exports.createSetuConsent = void 0;
+exports.disConnectBankAccount = exports.getUserConsent = exports.setuNotifications = exports.createSetuConsent = void 0;
 const bank_service_1 = require("../services/bank-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.createSetuConsent = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNo } = req.params;
     const setuToken = req.setuToken;
-    const response = yield (0, bank_service_1.createConsentUrl)(mobileNo, setuToken);
+    const user = req.user;
+    const response = yield (0, bank_service_1.createConsentUrl)(mobileNo, setuToken, user);
+    // return res.redirect(response.url)
     res.status(200).json({
         status: "success",
         message: "Consent created Successfully.",
         data: response,
     });
 }));
-exports.fetchTransactions = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const setuToken = req.setuToken;
-    const data = yield (0, bank_service_1.fetchTransactionsByConsentId)(id, setuToken);
-    res.status(200).json({
-        status: "success",
-        message: "consent get success",
-        data,
-    });
+exports.setuNotifications = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { body } = req;
+    console.log("bank notification:", body);
+    switch (body.type) {
+        case "CONSENT_STATUS_UPDATE":
+            yield (0, bank_service_1.updateUserConsent)(body);
+            break;
+        case "FI_DATA_READY":
+            yield (0, bank_service_1.storeBankTransactions)(body);
+            break;
+        default:
+            console.log("Some thing happed in the setu notification");
+            console.log("set notification:", body);
+            break;
+    }
+    res
+        .status(200)
+        .json({ status: "success", message: "got notification successfully" });
+}));
+exports.getUserConsent = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user } = req;
+    const data = yield (0, bank_service_1.getConsentByUserId)(user);
+    res
+        .status(200)
+        .json({ status: "success", message: "consent fetch successfull", data });
+}));
+exports.disConnectBankAccount = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { consentId } = req.params;
+    const { user } = req;
+    yield (0, bank_service_1.disConnectBankAccountByConsentId)(consentId, user);
+    res
+        .status(203)
+        .json({ status: "success", message: "Successfully disconnected" });
 }));

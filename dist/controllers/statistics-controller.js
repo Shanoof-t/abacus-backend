@@ -14,10 +14,10 @@ const statistics_service_1 = require("../services/statistics-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.financialSummary = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, body } = req;
-    const stati = yield (0, statistics_service_1.createSummary)(user, body);
+    const stati = yield (0, statistics_service_1.createSummary)(body, user);
     res.status(200).json({
         status: "success",
-        message: "Successfully fetched money statistics",
+        message: "Successfully fetched transaction statistics",
         data: stati,
     });
 }));
@@ -26,7 +26,7 @@ exports.serialFinincialSummary = (0, error_handlers_1.asyncErrorHandler)((req, r
     const history = yield (0, statistics_service_1.fetchFinancialHistory)({ user, body });
     res.status(200).json({
         status: "success",
-        message: "history fetch success",
+        message: "Successfully fetched transaction history",
         data: history,
     });
 }));

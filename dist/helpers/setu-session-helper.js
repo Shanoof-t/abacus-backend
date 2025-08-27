@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const format_cron_expression_1 = __importDefault(require("../utils/format-cron-expression"));
 const node_cron_1 = __importDefault(require("node-cron"));
-const bank_helper_1 = __importDefault(require("./bank-helper"));
 exports.default = {
     handleCompletedOrPartialSession: (_a) => __awaiter(void 0, [_a], void 0, function* ({ accessToken, consent, fi, }) {
         // store transactions
@@ -34,11 +33,11 @@ exports.default = {
                     from: from.toISOString(),
                     to: now.toISOString(),
                 };
-                yield bank_helper_1.default.handleActiveConsent({
-                    accessToken,
-                    consent,
-                    dataRange: nextDataRange,
-                });
+                // await bankHelper.handleActiveConsent({
+                //   accessToken,
+                //   consent,
+                //   dataRange: nextDataRange,
+                // });
             });
         }
         // async function scheduleNextSession() {

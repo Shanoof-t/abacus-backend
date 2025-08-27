@@ -11,5 +11,6 @@ CREATE TABLE
         budget_note VARCHAR(255),
         alert_threshold INTEGER,
         total_spent NUMERIC(18, 2) NOT NULL DEFAULT 0,
-        progress INTEGER NOT NULL
+        progress INTEGER NOT NULL,
+        isArchived BOOLEAN DEFAULT false
     )

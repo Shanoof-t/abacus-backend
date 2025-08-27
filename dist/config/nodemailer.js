@@ -14,6 +14,14 @@ exports.transporter = nodemailer_1.default.createTransport({
     },
 });
 const mailOption = ({ email, otp }) => {
+    exports.transporter.verify(function (error, success) {
+        if (error) {
+            console.log("❌ Error:", error);
+        }
+        else {
+            console.log("✅ Server is ready to take messages");
+        }
+    });
     return {
         from: env_variables_1.default.MAIL_EMAIL,
         to: email,

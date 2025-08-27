@@ -12,12 +12,12 @@ const statistics_routes_1 = __importDefault(require("../routes/v1/statistics-rou
 const notification_routes_1 = __importDefault(require("../routes/v1/notification-routes"));
 const bank_router_1 = __importDefault(require("../routes/v1/bank-router"));
 exports.default = ({ app }) => {
-    app.use("/api/v1/auth", auth_routes_1.default);
-    app.use("/api/v1/transaction", transaction_routes_1.default);
-    app.use("/api/v1/account", account_routes_1.default);
-    app.use("/api/v1/category", category_routes_1.default);
-    app.use("/api/v1/budget", budget_routes_1.default);
-    app.use("/api/v1/statistics", statistics_routes_1.default);
+    app.use("/api/v1/auth", auth_routes_1.default); //done
+    app.use("/api/v1/transaction", transaction_routes_1.default); //done
+    app.use("/api/v1/account", account_routes_1.default); //done
+    app.use("/api/v1/category", category_routes_1.default); //done
+    app.use("/api/v1/budget", budget_routes_1.default); //done
+    app.use("/api/v1/statistics", statistics_routes_1.default); //done
     app.use("/api/v1/notifications", notification_routes_1.default);
     app.use("/api/v1/bank", bank_router_1.default);
 };

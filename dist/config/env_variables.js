@@ -9,8 +9,6 @@ const requiredEnvVar = [
     "MONGO_URL",
     "ACCESS_TOKEN_SECRET",
     "REFRESH_TOKEN_SECRET",
-    "MAIL_EMAIL",
-    "MAIL_PASS",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_REDIRECT_URL",
@@ -19,13 +17,23 @@ const requiredEnvVar = [
     "SETU_PRODUCT_ID",
     "SETU_CLIENT_ID",
     "SETU_CLIENT_SECRET",
+    "BREVO_USER",
+    "BREVO_PASS",
+    "FRONT_END_URL",
+    "MAIL_EMAIL",
+    "MAIL_PASS",
 ];
 requiredEnvVar.forEach((key) => {
     if (!process.env[key])
         throw new Error(`Enviorment variable ${key} is missing`);
 });
 const env = {
-    MONGO_URL: process.env.MONGO_URL,
+    DB_URL: process.env.DB_URL,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_PORT: Number(process.env.DB_PORT),
+    DB_NAME: process.env.DB_NAME,
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     MAIL_EMAIL: process.env.MAIL_EMAIL,
@@ -38,5 +46,10 @@ const env = {
     SETU_PRODUCT_ID: process.env.SETU_PRODUCT_ID,
     SETU_CLIENT_ID: process.env.SETU_CLIENT_ID,
     SETU_CLIENT_SECRET: process.env.SETU_CLIENT_SECRET,
+    BREVO_HOST: process.env.BREVO_HOST,
+    BREVO_PORT: process.env.BREVO_PORT,
+    BREVO_USER: process.env.BREVO_USER,
+    BREVO_PASS: process.env.BREVO_PASS,
+    FRONT_END_URL: process.env.FRONT_END_URL,
 };
 exports.default = env;

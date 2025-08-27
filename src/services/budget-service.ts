@@ -4,6 +4,7 @@ import { IBudget, User } from "../types";
 import transactionRepository from "../repositories/transaction-repository";
 import budgetRepository from "../repositories/budget-repository";
 import categoryRepository from "../repositories/category-repository";
+import { calculateBudgetProgress } from "../utils/utils";
 
 export const createBudget = async (body: IBudget, user?: User) => {
   if (!user) throw new CustomError("User is existing.", 404);
@@ -43,10 +44,6 @@ export const createBudget = async (body: IBudget, user?: User) => {
     0
   );
 
-  const total_spent = Math.abs(totalSpentAmount);
-
-  const progress = Math.max((total_spent / Number(budgetLimit)) * 100, 100);
-
   const budgetData: IBudget = {
     user_id: user?.sub,
     budget_name: body.budget_name,
@@ -57,8 +54,8 @@ export const createBudget = async (body: IBudget, user?: User) => {
     budget_note: body.budget_note,
     notification_status: body.notification_status,
     alert_threshold: body.alert_threshold,
-    total_spent,
-    progress: Math.round(Math.min(Math.max(progress, 100), 0)),
+    total_spent: totalSpentAmount,
+    progress: calculateBudgetProgress({ budgetLimit, totalSpentAmount }),
   };
 
   const budget = await budgetRepository.create(budgetData);
@@ -156,8 +153,6 @@ export const updateBudgetByName = async ({
 
   const total_spent = Math.abs(totalSpentAmount);
 
-  const progress = Math.min((total_spent / Number(budgetLimit)) * 100, 100);
-
   const updatedData: IBudget = {
     user_id: user.sub,
     id,
@@ -168,7 +163,7 @@ export const updateBudgetByName = async ({
     budget_end_date: body.budget_end_date,
     budget_note: body.budget_note,
     total_spent,
-    progress: Math.round(Math.max(progress, 100)),
+    progress: calculateBudgetProgress({ budgetLimit, totalSpentAmount }),
   };
 
   return await budgetRepository.update(updatedData);
@@ -188,11 +183,11 @@ export const fetchBudgetByCategoryName = async ({
     user_id: user.sub,
   });
 
-  if (!budget)
-    throw new CustomError(
-      `You dont have budget with this category ${category},Please create one.`,
-      400
-    );
+  // if (!budget)
+  //   throw new CustomError(
+  //     `You dont have budget with this category ${category},Please create one.`,
+  //     400
+  //   );
 
   return budget;
 };

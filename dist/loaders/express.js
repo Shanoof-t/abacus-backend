@@ -34,19 +34,6 @@ exports.default = (_a) => __awaiter(void 0, [_a], void 0, function* ({ app, expr
         credentials: true,
     }));
     app.use((0, cookie_parser_1.default)());
-    // app.use(
-    //   session({
-    //     secret:
-    //       "v0HmmKJbHq21Ycq7i3PBlsP4G+lic+2PMwnwZrbnrP0CB/cf/mq2akZutY56+Mc2jn7TCVr8Nsw17SXmv41xow==",
-    //     resave: false,
-    //     saveUninitialized: false,
-    //     cookie: { secure: false },
-    //   })
-    // );
-    // app.use((req, res, next) => {
-    //   req.session.state = req.session.state || "defaultState";
-    //   next();
-    // });
     (0, routes_1.default)({ app, express });
     app.use(global_error_hanlder_1.default);
 });

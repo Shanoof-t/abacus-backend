@@ -15,7 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchFinancialHistory = exports.createSummary = void 0;
 const statistics_helper_1 = __importDefault(require("../helpers/statistics-helper"));
 const date_fns_1 = require("date-fns");
-const createSummary = (user, body) => __awaiter(void 0, void 0, void 0, function* () {
+const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
+const createSummary = (body, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
     const income = yield statistics_helper_1.default.getIncome(body, user);
     const expense = yield statistics_helper_1.default.getExpense(body, user);
     const remaining = income - expense;
@@ -52,6 +55,8 @@ const createSummary = (user, body) => __awaiter(void 0, void 0, void 0, function
 });
 exports.createSummary = createSummary;
 const fetchFinancialHistory = (_a) => __awaiter(void 0, [_a], void 0, function* ({ user, body, }) {
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
     const transactionSummary = yield statistics_helper_1.default.getTransactionSummary({
         user,
         body,

@@ -8,7 +8,7 @@ const add = zod_1.z.object({
         message: "Invalid transaction date.",
     }),
     transaction_payee: zod_1.z.string().min(1, { message: "Payee name is required" }),
-    transaction_amount: zod_1.z.string({ message: "The amount is required." }),
+    transaction_amount: zod_1.z.number({ message: "The amount is required." }),
     transaction_note: zod_1.z.string().optional(),
     is_recurring: zod_1.z.boolean().optional(),
     recurring_frequency: zod_1.z

@@ -45,94 +45,154 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchTransactionsByConsentId = exports.createConsentUrl = void 0;
+exports.disConnectBankAccountByConsentId = exports.getConsentByUserId = exports.updateUserConsent = exports.storeBankTransactions = exports.createConsentUrl = void 0;
 const setu = __importStar(require("../utils/setu"));
 const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
-const bank_helper_1 = __importDefault(require("../helpers/bank-helper"));
-const createConsentUrl = (mobileNumber, setuToken) => __awaiter(void 0, void 0, void 0, function* () {
+const category_helper_1 = __importDefault(require("../helpers/category-helper"));
+const bank_events_1 = __importDefault(require("../sockets/events/bank.events"));
+const account_helper_1 = __importDefault(require("../helpers/account-helper"));
+const consent_repository_1 = __importDefault(require("../repositories/consent-repository"));
+const transaction_repository_1 = __importDefault(require("../repositories/transaction-repository"));
+const account_repository_1 = __importDefault(require("../repositories/account-repository"));
+const category_repository_1 = __importDefault(require("../repositories/category-repository"));
+const createConsentUrl = (mobileNumber, setuToken, user) => __awaiter(void 0, void 0, void 0, function* () {
+    // fallback for off time
+    // const currentTime = new Date().getHours();
+    // if (currentTime > 2 && currentTime < 6)
+    //   throw new CustomError(
+    //     "Consent cannot be created between 2 AM and 6 AM. Please try again later.",
+    //     403
+    //   );
+    if (!user)
+        throw new Custom_error_1.default("User is not found!", 404);
     let body = setu.createConsentData(mobileNumber);
-    return yield setu.createConsentRequest({ token: setuToken, body });
+    const consent = yield setu.createConsentRequest({ token: setuToken, body });
+    yield consent_repository_1.default.deleteManyByUserId(user.sub);
+    yield consent_repository_1.default.create({
+        consent_id: consent.id,
+        user_email: user.email,
+        user_id: user.sub,
+        is_approved: false,
+        connected_accounts: [],
+    });
+    return consent;
 });
 exports.createConsentUrl = createConsentUrl;
-const fetchTransactionsByConsentId = (id, accessToken) => __awaiter(void 0, void 0, void 0, function* () {
-    const consent = yield setu.getConsentById({ id, accessToken });
+const storeBankTransactions = (body) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fiData, consentId } = body;
+    const finalTransactions = [];
+    const consent = yield consent_repository_1.default.findOneById(consentId);
     if (!consent)
-        throw new Custom_error_1.default("Can't find consent", 400);
-    // may be i want to store this for future use
-    const dataRange = {
-        from: "1900-01-01T00:00:00Z",
-        to: new Date().toISOString(),
-    };
-    switch (consent.status) {
-        case "ACTIVE":
-            return yield bank_helper_1.default.handleActiveConsent({
-                accessToken,
-                consent,
-                dataRange,
-            });
-        case "PENDING":
-            return yield bank_helper_1.default.handlePendingConsent({ accessToken, consent });
-        case "REJECTED":
-            return yield bank_helper_1.default.handleRejectedConsent({ accessToken, consent });
-        case "REVOKED":
-            return yield bank_helper_1.default.handleRevokedConsent({ accessToken, consent });
-        case "PAUSED":
-            return yield bank_helper_1.default.handlePausedConsent({ accessToken, consent });
-        case "EXPIRED":
-            return yield bank_helper_1.default.handleExpiredConsent({ accessToken, consent });
-        default:
-            throw new Custom_error_1.default("Something wrong happened", 500);
+        throw new Custom_error_1.default("Can'find the user in setu transaction service", 500);
+    for (let account of fiData) {
+        for (let accDetails of account.data) {
+            // here i want to store the transations into db
+            const accountNumber = accDetails.maskedAccNumber;
+            const transactions = accDetails.decryptedFI.account.transactions.transaction;
+            for (let transaction of transactions) {
+                const parts = transaction.narration.split("/");
+                const payee = parts[3];
+                const category = parts[4];
+                const tData = {
+                    user_id: consent.user_id,
+                    transaction_payee: payee,
+                    category_name: category,
+                    account_name: accountNumber,
+                    transaction_amount: transaction.amount,
+                    transaction_date: transaction.valueDate,
+                    transaction_type: transaction.type === "CREDIT" ? "income" : "expense",
+                    isBankTransaction: true,
+                };
+                finalTransactions.push(tData);
+            }
+        }
+    }
+    // also do the account
+    yield account_helper_1.default.createAccounts({
+        transactions: finalTransactions,
+        user: {
+            sub: consent.user_id,
+            email: consent.user_email,
+        },
+        accountSource: "bank_integration",
+    });
+    yield category_helper_1.default.createCategories({
+        transactions: finalTransactions,
+        user: {
+            sub: consent.user_id,
+            email: consent.user_email,
+        },
+        isBankCategory: true,
+    });
+    yield transaction_repository_1.default.insertMany(finalTransactions);
+});
+exports.storeBankTransactions = storeBankTransactions;
+const updateUserConsent = (body) => __awaiter(void 0, void 0, void 0, function* () {
+    if (body.success) {
+        const connectedAccounts = body.data.detail.accounts.map((acc) => acc.maskedAccNumber);
+        const updatedConsent = yield consent_repository_1.default.findOneAndUpdateAfterConnected({
+            consent_id: body.consentId,
+            connectedAccounts,
+            isApproved: body.success,
+        });
+        // connected
+        const userId = updatedConsent === null || updatedConsent === void 0 ? void 0 : updatedConsent.user_id;
+        bank_events_1.default.bankAccountConnectedEvent({
+            userId,
+            data: updatedConsent,
+        });
+    }
+    else if (body.error) {
+        // consent have error
+        console.log("consent create got a problem:", body.error);
+    }
+    else {
+        yield consent_repository_1.default.findOneAndDelete(body.consentId);
+        // consent not approved if want to give notification use socket event here
+        console.log("user consent not approved");
     }
 });
-exports.fetchTransactionsByConsentId = fetchTransactionsByConsentId;
-// async function handleActiveConsent() {
-//   /**
-//    * create session for fi
-//    */
-//   const dataRange = {
-//     from: "1900-01-01T00:00:00Z",
-//     to: new Date().toISOString(),
-//   };
-//   const sessionRes = await setu.createSession({
-//     accessToken,
-//     consentId: response.id,
-//     dataRange,
-//   });
-//   /**
-//    * make get req for session, and wait for the req until it tores status as "COMPLETED" or "PARTIAL"
-//    */
-//   const fi = await setu.pollSessionStatus({
-//     accessToken,
-//     sessionId: sessionRes.id,
-//   });
-//   if (!fi) throw new CustomError("Can't find completed session", 500);
-//   if (fi.status === "COMPLETED" || fi.status === "PARTIAL") {
-//     const now = new Date();
-//     const nextDate = new Date(now);
-//     nextDate.setDate(now.getDate() + 1);
-//     const cronExp = formatCronExpression({ nextDate });
-//     console.log("cronExp", cronExp);
-//     cron.schedule(cronExp, scheduleNextSession);
-//     async function scheduleNextSession() {
-//       const now = new Date();
-//       const from = new Date(now);
-//       from.setDate(now.getDate() - 1);
-//       const nextDataRange = {
-//         from: from.toISOString(),
-//         to: now.toISOString(),
-//       };
-//       const sessionRes = await setu.createSession({
-//         accessToken,
-//         consentId: response.id,
-//         dataRange: nextDataRange,
-//       });
-//     }
-//     return { fi, consentStatus: response.status };
-//   } else {
-//     /**
-//      * handle error if the session didt completed
-//      * it will retry after 1 day
-//      */
-//     throw new CustomError("Can't find completed session", 500);
-//   }
-// }
+exports.updateUserConsent = updateUserConsent;
+const getConsentByUserId = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user)
+        throw new Custom_error_1.default("User id is missing", 404);
+    return yield consent_repository_1.default.findOneByUserId(user.sub);
+});
+exports.getConsentByUserId = getConsentByUserId;
+const disConnectBankAccountByConsentId = (consentId, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user)
+        throw new Custom_error_1.default("User is missing", 404);
+    yield consent_repository_1.default.findOneAndDelete(consentId);
+    const existingBothAccounts = yield account_repository_1.default.findOneByUserAndSource({
+        userId: user.sub,
+        account_source: "both",
+    });
+    if (existingBothAccounts.length) {
+        existingBothAccounts.forEach((account) => __awaiter(void 0, void 0, void 0, function* () {
+            const bankTransactions = yield transaction_repository_1.default.findBankTransactionsWithAccount({
+                user_id: user.sub,
+                account_name: account.account_name,
+                isBankTransaction: true,
+            });
+            const updatedBalance = bankTransactions.reduce((amount, transaction) => {
+                return transaction.transaction_type === "expense"
+                    ? amount - transaction.transaction_amount
+                    : amount + transaction.transaction_amount;
+            }, 0);
+            yield account_repository_1.default.updateOneByUserId({
+                user_id: user.sub,
+                account_name: account.account_name,
+                account_balance: Math.max(0, updatedBalance),
+            });
+        }));
+    }
+    else {
+        yield account_repository_1.default.deleteManyBySource({
+            user_id: user.sub,
+            account_source: "bank_integration",
+        });
+    }
+    yield transaction_repository_1.default.deleteManyByBank(user.sub);
+    yield category_repository_1.default.deleteManyByBank(user.sub);
+});
+exports.disConnectBankAccountByConsentId = disConnectBankAccountByConsentId;

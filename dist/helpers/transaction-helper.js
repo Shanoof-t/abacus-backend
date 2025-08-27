@@ -14,7 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const date_fns_1 = require("date-fns");
 const node_cron_1 = __importDefault(require("node-cron"));
-const notification_model_1 = require("../models/notification-model");
+const notification_events_1 = __importDefault(require("../sockets/events/notification.events"));
+const notification_repository_1 = __importDefault(require("../repositories/notification-repository"));
 const budget_helper_1 = __importDefault(require("./budget-helper"));
 exports.default = {
     // set date
@@ -44,13 +45,7 @@ exports.default = {
         // format this one tomorrow
         const scheduledTime = `${hour}:${minute} on ${day}-${month}-${new Date(next_date).getFullYear()}`;
         console.log(`Scheduled time: ${scheduledTime}`);
-        // const currMin = format(new Date(), "m");
-        // const currHou = format(new Date(), "H");
-        // const parsed = Number(currMin) + 1;
-        // const mock = `${parsed.toString()} ${currHou} 29 1 *`;
-        // console.log("mock date", mock);
-        // return mock;
-        // // return "58 21 28 1 *";
+        // return "47 20 19 5 *"; // this is only for testing
         return `${minute} ${hour} ${day} ${month} *`;
     },
     //   make recurring task
@@ -60,17 +55,24 @@ exports.default = {
             // notification service
             function scheduleNotification() {
                 return __awaiter(this, void 0, void 0, function* () {
+                    var _a;
                     if (transaction_amount) {
                         console.log("notification scheduler triggered");
                         const title = "Recurring Transaction Scheduled";
-                        const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${Math.abs(parseFloat(transaction_amount))}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
+                        const message = `Your recurring <strong>${transaction_type}</strong> transaction of <strong>$${transaction_amount}</strong> for category <strong>"${category_name}"</strong> is scheduled. 
               It is marked as an *estimated transaction* and will occur <strong>${recurring_frequency}</strong>.`;
-                        yield notification_model_1.Notification.create({
-                            user_id: user === null || user === void 0 ? void 0 : user.sub,
+                        const notification = yield notification_repository_1.default.create({
+                            user_id: user.sub,
                             message,
                             title,
                             is_server_notification: true,
                             future_payload: transaction_id,
+                            is_read: false,
+                            status: "PENDING",
+                        });
+                        notification_events_1.default.sendRecurringNotification({
+                            userId: (_a = user === null || user === void 0 ? void 0 : user.sub) === null || _a === void 0 ? void 0 : _a.toString(),
+                            notification,
                         });
                         scheduledTask.stop();
                     }
@@ -107,16 +109,8 @@ exports.default = {
         }
     }),
     handleRecurring: function (_a) {
-        return __awaiter(this, arguments, void 0, function* ({ recurring_frequency, transaction_date, transaction, is_recurring, category_name, transaction_amount, transaction_type, user, }) {
-            // set next date
-            const next_date = this.calculateNextRecurringDate({
-                recurring_frequency,
-                transaction_date,
-            });
-            transaction.is_estimated = true;
-            transaction.is_recurring = is_recurring;
-            transaction.recurring = { recurring_frequency, next_date };
-            yield transaction.save();
+        return __awaiter(this, arguments, void 0, function* ({ transaction, user }) {
+            const { next_date, category_name, recurring_frequency, transaction_amount, transaction_type, } = transaction;
             if (next_date) {
                 const cronExpression = this.formatCornExpression({
                     next_date,
@@ -128,7 +122,7 @@ exports.default = {
                     transaction_amount,
                     transaction_type,
                     user,
-                    transaction_id: transaction._id,
+                    transaction_id: transaction.id,
                 });
             }
         });

@@ -112,6 +112,7 @@ const updateProgress = async (data: {
   total_spent: number;
   progress: number;
 }): Promise<IBudget> => {
+  console.log("data in model:",data)
   const { category_name, progress, total_spent, user_id } = data;
   const queryText =
     "UPDATE budgets SET total_spent=$3,progress=$4 WHERE user_id=$1 AND category_name=$2 RETURNING *";

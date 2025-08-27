@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const otp_generator_1 = __importDefault(require("otp-generator"));
-const otp_verification_model_1 = require("../models/otp-verification-model");
+const otp_repository_1 = __importDefault(require("../repositories/otp-repository"));
 exports.default = {
     generateOTP: () => {
         return otp_generator_1.default.generate(6, {
@@ -23,13 +23,8 @@ exports.default = {
             specialChars: false,
         });
     },
-    createOneTimePassword: (_a) => __awaiter(void 0, [_a], void 0, function* ({ _id, hashedOTP }) {
-        return yield otp_verification_model_1.OneTimePassword.create({
-            userId: _id,
-            otp: hashedOTP,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 60 * 1000,
-        });
+    createOneTimePassword: (data) => __awaiter(void 0, void 0, void 0, function* () {
+        return yield otp_repository_1.default.create(data);
     }),
     getUserDataFromGoogle: (access_token) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);

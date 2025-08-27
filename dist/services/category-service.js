@@ -13,48 +13,62 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.editCategoryById = exports.fetchCategoryById = exports.deleteCategoryById = exports.deleteCategories = exports.fetchAllCategoriesByUserId = exports.createCategory = void 0;
-const category_model_1 = require("../models/category-model");
+const category_repository_1 = __importDefault(require("../repositories/category-repository"));
 const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
-const mongodb_1 = require("mongodb");
 const createCategory = (body, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const existingCategory = yield category_model_1.Category.findOne({
-        user_id: user === null || user === void 0 ? void 0 : user.sub,
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    const existingCategory = yield category_repository_1.default.findOneByName({
+        user_id: user.sub,
         category_name: body.category_name,
     });
     if (existingCategory)
         throw new Custom_error_1.default("This name with category is already created.", 400);
-    yield category_model_1.Category.create({
-        user_id: user === null || user === void 0 ? void 0 : user.sub,
+    return yield category_repository_1.default.create({
         category_name: body.category_name.replace(/\W/g, ""),
+        user_id: user.sub,
     });
 });
 exports.createCategory = createCategory;
 const fetchAllCategoriesByUserId = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield category_model_1.Category.find({ user_id: user === null || user === void 0 ? void 0 : user.sub });
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    return yield category_repository_1.default.findByUserId(user === null || user === void 0 ? void 0 : user.sub);
 });
 exports.fetchAllCategoriesByUserId = fetchAllCategoriesByUserId;
 const deleteCategories = (categoryIds) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = categoryIds.map((id) => new mongodb_1.ObjectId(id));
-    yield category_model_1.Category.deleteMany({ _id: { $in: ids } });
+    return yield category_repository_1.default.deleteMany(categoryIds);
 });
 exports.deleteCategories = deleteCategories;
 const deleteCategoryById = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    yield category_model_1.Category.deleteOne({ _id: id });
+    const category = yield category_repository_1.default.findOneById(id);
+    if (!category)
+        throw new Custom_error_1.default(`Can't find category with this id ${id}`, 400);
+    return yield category_repository_1.default.deleteOneById(id);
 });
 exports.deleteCategoryById = deleteCategoryById;
 const fetchCategoryById = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const category = yield category_model_1.Category.findOne({ _id: id });
+    const category = yield category_repository_1.default.findOneById(id);
     if (!category)
         throw new Custom_error_1.default(`Can't find category with this id ${id}`, 400);
     return category;
 });
 exports.fetchCategoryById = fetchCategoryById;
-const editCategoryById = (body, id) => __awaiter(void 0, void 0, void 0, function* () {
-    const existingCategory = yield category_model_1.Category.findOne({
+const editCategoryById = (body, id, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    const currentCategory = yield category_repository_1.default.findOneById(id);
+    if (!currentCategory)
+        throw new Custom_error_1.default("The Category is not existing.", 400);
+    const existingCategory = yield category_repository_1.default.findOneByName({
         category_name: body.category_name,
+        user_id: user.sub,
     });
     if (existingCategory)
         throw new Custom_error_1.default(`Already an category existin with this name ${body.category_name}`, 400);
-    yield category_model_1.Category.updateOne({ _id: id }, { $set: { category_name: body.category_name } });
+    return yield category_repository_1.default.updateOneById({
+        category_name: body.category_name,
+        id,
+    });
 });
 exports.editCategoryById = editCategoryById;

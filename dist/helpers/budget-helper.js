@@ -8,14 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const budget_model_1 = require("../models/budget-model");
+const budget_repository_1 = __importDefault(require("../repositories/budget-repository"));
 exports.default = {
     findOneBudgetWithCategory: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user_id, category_name, }) {
-        return yield budget_model_1.Budget.findOne({
-            user_id,
-            category_name,
-        });
+        return yield budget_repository_1.default.findOneByName({ category_name, user_id });
     }),
     updateBudgetAfterTransaction: function (_a) {
         return __awaiter(this, arguments, void 0, function* ({ user_id, category_name, transaction_amount, }) {
@@ -26,14 +26,16 @@ exports.default = {
             });
             // total spent calculation
             const totalSpent = (exisingBudget === null || exisingBudget === void 0 ? void 0 : exisingBudget.total_spent) || 0;
-            const totalSpentAmount = totalSpent + Number(transaction_amount);
+            const totalSpentAmount = totalSpent + transaction_amount;
             // mesure the progress percentage
-            const progress = Math.min((totalSpentAmount / Number(exisingBudget === null || exisingBudget === void 0 ? void 0 : exisingBudget.amount_limit)) * 100, 100);
+            const progress = Math.round(Math.min((totalSpentAmount / Number(exisingBudget === null || exisingBudget === void 0 ? void 0 : exisingBudget.amount_limit)) * 100, 100));
             // finally update with budget
-            yield budget_model_1.Budget.updateOne({
-                user_id,
+            yield budget_repository_1.default.updateProgress({
                 category_name,
-            }, { $set: { total_spent: totalSpentAmount, progress } });
+                progress,
+                total_spent: totalSpentAmount,
+                user_id,
+            });
         });
     },
 };

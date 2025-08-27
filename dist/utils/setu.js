@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createSession = exports.getConsentById = exports.createConsentRequest = exports.createConsentData = exports.fetchSetuToken = void 0;
-exports.pollSessionStatus = pollSessionStatus;
+exports.createConsentRequest = exports.createConsentData = exports.fetchSetuToken = void 0;
 const axios_1 = __importDefault(require("axios"));
 const env_variables_1 = __importDefault(require("../config/env_variables"));
+const Custom_error_1 = __importDefault(require("./Custom-error"));
 const fetchSetuToken = () => __awaiter(void 0, void 0, void 0, function* () {
     const tokenReqConfig = {
         method: "post",
@@ -34,37 +34,14 @@ const fetchSetuToken = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.fetchSetuToken = fetchSetuToken;
 const createConsentData = (mobileNumber) => {
-    // const consentData = JSON.stringify({
-    //   consentDateRange: {
-    //     startDate: "1900-01-01T00:00:00Z",
-    //     endDate: new Date().toISOString(),
-    //   },
-    //   purpose: {
-    //     code: "101",
-    //     text: "To get transaction history for calculation",
-    //     refUri: "https://api.rebit.org.in/aa/purpose/101.xml",
-    //     category: {
-    //       type: "Wealth management service",
-    //     },
-    //   },
-    //   vua: `${mobileNumber}@onemoney`,
-    //   dataRange: {
-    //     from: "1900-01-01T00:00:00Z",
-    //     to: new Date().toISOString(),
-    //   },
-    //   consentMode: "STORE",
-    //   consentTypes: ["TRANSACTIONS"],
-    //   fetchType: "PERIODIC",
-    //   context: [],
-    //   redirectUrl: "http://localhost:3000/settings",
-    // });
-    const now = new Date();
-    const consentEndDate = new Date(now);
-    consentEndDate.setFullYear(now.getFullYear() + 1);
     const consentData = JSON.stringify({
         consentDuration: {
             unit: "YEAR",
-            value: "1",
+            value: "100",
+        },
+        dataLife: {
+            unit: "YEAR",
+            value: 100,
         },
         purpose: {
             code: "101",
@@ -77,17 +54,17 @@ const createConsentData = (mobileNumber) => {
         vua: `${mobileNumber}@onemoney`,
         dataRange: {
             from: "1900-01-01T00:00:00Z",
-            to: consentEndDate.toISOString(),
+            to: new Date().toISOString(),
         },
         consentMode: "STORE",
         fetchType: "PERIODIC",
         frequency: {
             unit: "DAY",
-            value: "1",
+            value: "10",
         },
         consentTypes: ["TRANSACTIONS", "PROFILE", "SUMMARY"],
         context: [],
-        redirectUrl: "http://localhost:3000/settings",
+        redirectUrl: `${env_variables_1.default.FRONT_END_URL}/settings`,
     });
     return consentData;
 };
@@ -103,62 +80,13 @@ const createConsentRequest = (_a) => __awaiter(void 0, [_a], void 0, function* (
         },
         data: body,
     };
-    const response = yield axios_1.default.request(requestConfig);
-    return response.data;
+    try {
+        const response = yield axios_1.default.request(requestConfig);
+        return response.data;
+    }
+    catch (error) {
+        console.log("error in consent creation", error.response.data);
+        throw new Custom_error_1.default("Something wrong happened,Please try again later.", 500);
+    }
 });
 exports.createConsentRequest = createConsentRequest;
-const getConsentById = (_a) => __awaiter(void 0, [_a], void 0, function* ({ id, accessToken, }) {
-    const config = {
-        method: "get",
-        url: `${env_variables_1.default.SETU_BASE_URL}/consents/${id}`,
-        headers: {
-            "x-product-instance-id": env_variables_1.default.SETU_PRODUCT_ID,
-            Authorization: `Bearer ${accessToken}`,
-        },
-    };
-    const response = yield axios_1.default.request(config);
-    return response.data;
-});
-exports.getConsentById = getConsentById;
-const createSession = (_a) => __awaiter(void 0, [_a], void 0, function* ({ consentId, accessToken, dataRange, }) {
-    const body = {
-        consentId,
-        dataRange,
-        format: "json",
-    };
-    console.log("body", body);
-    const config = {
-        method: "post",
-        url: env_variables_1.default.SETU_BASE_URL + "/sessions",
-        headers: {
-            "x-product-instance-id": env_variables_1.default.SETU_PRODUCT_ID,
-            Authorization: `Bearer ${accessToken}`,
-        },
-        data: body,
-    };
-    // create session
-    const response = yield axios_1.default.request(config);
-    console.log("session", response.data);
-    return response.data;
-});
-exports.createSession = createSession;
-function pollSessionStatus(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ accessToken, sessionId, }) {
-        for (let i = 1; i <= 10; i++) {
-            const sessionConfig = {
-                method: "get",
-                url: `${env_variables_1.default.SETU_BASE_URL}/sessions/${sessionId}`,
-                headers: {
-                    "x-product-instance-id": env_variables_1.default.SETU_PRODUCT_ID,
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            };
-            const summary = yield axios_1.default.request(sessionConfig);
-            console.log("summary", summary.data);
-            if (summary.data.status === "PARTIAL" ||
-                summary.data.status === "COMPLETED") {
-                return summary.data;
-            }
-        }
-    });
-}

@@ -8,169 +8,107 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const transaction_model_1 = require("../models/transaction-model");
-const category_model_1 = require("../models/category-model");
+const transaction_repository_1 = __importDefault(require("../repositories/transaction-repository"));
 exports.default = {
     getIncome: (body, user) => __awaiter(void 0, void 0, void 0, function* () {
-        const matchStage = {
-            user_id: user === null || user === void 0 ? void 0 : user.sub,
-            transaction_date: {
-                $gte: new Date(body.from),
-                $lte: new Date(body.to),
-            },
+        const matchData = {
+            user_id: user.sub,
+            fromDate: body.from,
+            toDate: body.to,
             transaction_type: "income",
         };
         if (body.account) {
-            matchStage.account_name = body.account;
+            matchData.account_name = body.account;
         }
-        const income = yield transaction_model_1.Transaction.aggregate([
-            {
-                $match: matchStage,
-            },
-            {
-                $group: {
-                    _id: "$transaction_type",
-                    income: { $sum: "$transaction_amount" },
-                },
-            },
-        ]);
+        const income = yield transaction_repository_1.default.findIncome(matchData);
         if (income) {
-            return income[0] && income[0].income;
+            return income.income;
         }
         else {
             return 0;
         }
     }),
     getExpense: (body, user) => __awaiter(void 0, void 0, void 0, function* () {
-        const matchStage = {
-            user_id: user === null || user === void 0 ? void 0 : user.sub,
-            transaction_date: {
-                $gte: new Date(body.from),
-                $lte: new Date(body.to),
-            },
+        const matchData = {
+            user_id: user.sub,
+            fromDate: body.from,
+            toDate: body.to,
             transaction_type: "expense",
         };
         if (body.account) {
-            matchStage.account_name = body.account;
+            matchData.account_name = body.account;
         }
-        const expense = yield transaction_model_1.Transaction.aggregate([
-            {
-                $match: matchStage,
-            },
-            {
-                $group: {
-                    _id: "$transaction_type",
-                    expense: { $sum: "$transaction_amount" },
-                },
-            },
-        ]);
+        const expense = yield transaction_repository_1.default.findExpense(matchData);
         if (expense) {
-            return expense[0] && Math.abs(expense[0].expense);
+            return expense.expense;
         }
         else {
             return 0;
         }
     }),
     getPastMonthIncome: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user, previouseMonth, currentMonth, accountName, }) {
-        const matchStage = {
+        const matchData = {
             user_id: user === null || user === void 0 ? void 0 : user.sub,
-            transaction_date: {
-                $gte: new Date(previouseMonth),
-                $lte: new Date(currentMonth),
-            },
+            currentMonth,
+            previouseMonth,
             transaction_type: "income",
         };
         if (accountName) {
-            matchStage.account_name = accountName;
+            matchData.account_name = accountName;
         }
-        const pastMonthIncome = yield transaction_model_1.Transaction.aggregate([
-            {
-                $match: matchStage,
-            },
-            {
-                $group: {
-                    _id: "$transaction_type",
-                    income: { $sum: "$transaction_amount" },
-                },
-            },
-        ]);
-        if (pastMonthIncome.length > 0) {
-            return pastMonthIncome[0] && pastMonthIncome[0].income;
-        }
-        else {
-            return 0;
-        }
+        const pastMonthIncome = yield transaction_repository_1.default.findPreviousPeriodIncome(matchData);
+        return pastMonthIncome ? pastMonthIncome.income : 0;
     }),
     getPastMonthExpense: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user, previouseMonth, currentMonth, accountName, }) {
-        const matchStage = {
+        const matchData = {
             user_id: user === null || user === void 0 ? void 0 : user.sub,
-            transaction_date: {
-                $gte: new Date(previouseMonth),
-                $lte: new Date(currentMonth),
-            },
+            currentMonth,
+            previouseMonth,
             transaction_type: "expense",
         };
         if (accountName) {
-            matchStage.account_name = accountName;
+            matchData.account_name = accountName;
         }
-        const pastMonthExpense = yield transaction_model_1.Transaction.aggregate([
-            {
-                $match: matchStage,
-            },
-            {
-                $group: {
-                    _id: "$transaction_type",
-                    expense: { $sum: "$transaction_amount" },
-                },
-            },
-        ]);
-        if (pastMonthExpense.length > 0) {
-            return pastMonthExpense[0] && Math.abs(pastMonthExpense[0].expense);
-        }
-        else {
-            return 0;
-        }
+        const pastMonthExpense = yield transaction_repository_1.default.findPreviousPeriodExpense(matchData);
+        return pastMonthExpense ? pastMonthExpense.expense : 0;
     }),
     getTransactionSummary: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user, body, }) {
-        const matchStage = {
-            user_id: user === null || user === void 0 ? void 0 : user.sub,
-            transaction_date: {
-                $gte: new Date(body.from),
-                $lte: new Date(body.to),
-            },
+        const matchData = {
+            user_id: user.sub,
+            fromDate: body.from,
+            toDate: body.to,
         };
         if (body.account) {
-            matchStage.account_name = body.account;
+            matchData.account_name = body.account;
         }
-        return yield transaction_model_1.Transaction.aggregate([
-            { $match: matchStage },
-            {
-                $group: {
-                    _id: "$transaction_date",
-                    income: {
-                        $sum: {
-                            $cond: {
-                                if: { $eq: ["$transaction_type", "income"] },
-                                then: "$transaction_amount",
-                                else: 0,
-                            },
-                        },
-                    },
-                    expense: {
-                        $sum: {
-                            $cond: {
-                                if: { $eq: ["$transaction_type", "expense"] },
-                                then: "$transaction_amount",
-                                else: 0,
-                            },
-                        },
-                    },
-                },
-            },
-        ]);
+        return yield transaction_repository_1.default.findTransactionSummary(matchData);
     }),
     getCategory: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user }) {
-        return yield category_model_1.Category.find({ user_id: user === null || user === void 0 ? void 0 : user.sub });
+        const transactions = yield transaction_repository_1.default.findByType({
+            user_id: user.sub,
+            transaction_type: "expense",
+        });
+        const categoriesMap = new Map();
+        transactions.forEach(({ category_name, transaction_amount }, index) => {
+            if (categoriesMap.has(category_name)) {
+                const currentCategory = categoriesMap.get(category_name);
+                const updatedCategory = Object.assign(Object.assign({}, currentCategory), { category_amount: currentCategory.category_amount + transaction_amount });
+                categoriesMap.set(category_name, updatedCategory);
+            }
+            else {
+                const obj = {
+                    id: index + 1,
+                    category_name,
+                    category_amount: transaction_amount,
+                };
+                categoriesMap.set(category_name, obj);
+            }
+        });
+        const categories = Array.from(categoriesMap.values());
+        return categories;
     }),
 };

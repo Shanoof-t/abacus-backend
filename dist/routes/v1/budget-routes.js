@@ -10,6 +10,10 @@ const validator_middleware_1 = __importDefault(require("../../middlewares/valida
 const budget_schema_1 = __importDefault(require("../../schema/budget-schema"));
 const budgetRouter = express_1.default.Router();
 budgetRouter.use(jwt_authentication_middleware_1.default);
+budgetRouter.use((req, res, next) => {
+    console.log("req url:", req.originalUrl);
+    next();
+});
 budgetRouter
     .route("/")
     .post((0, validator_middleware_1.default)(budget_schema_1.default.add), budget_controller_1.addBudget)
@@ -19,6 +23,6 @@ budgetRouter
     .route("/:id")
     .get(budget_controller_1.getBudget)
     .delete(budget_controller_1.deleteBudget)
-    .post(budget_controller_1.updateBudget);
+    .put(budget_controller_1.updateBudget);
 // budgetRouter.post("/bulk-delete", accountBulkDelete);
 exports.default = budgetRouter;

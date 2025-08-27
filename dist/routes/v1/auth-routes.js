@@ -13,6 +13,6 @@ authRouter.post("/sign-in", (0, validator_middleware_1.default)(auth_schema_1.de
 authRouter.post("/logout", auth_controller_1.logoutUser);
 authRouter.post("/verify-otp", (0, validator_middleware_1.default)(auth_schema_1.default.verifyOTP), auth_controller_1.verifyOTP);
 authRouter.post("/resend-otp", (0, validator_middleware_1.default)(auth_schema_1.default.resendOTP), auth_controller_1.resendOTP);
-authRouter.get("/google-auth", auth_controller_1.googleOAuth);
-authRouter.post("/oauth2-callback", auth_controller_1.googleOAuthcallback);
+authRouter.get("/google", auth_controller_1.googleOAuth);
+authRouter.get("/google/callback", auth_controller_1.googleOAuthcallback);
 exports.default = authRouter;

@@ -2,9 +2,10 @@ import { query } from "../../loaders/db";
 import { IAccount } from "../../types";
 
 const create = async (data: IAccount): Promise<IAccount> => {
-  const { account_name, account_balance, user_id } = data;
+  const { account_name, user_id } = data;
   const account_source = data.account_source ?? "manual";
-
+  const account_balance = data.account_balance ?? 0;
+  
   const queryText = `INSERT INTO accounts(user_id,account_name,account_balance,account_source) VALUES ($1,$2,$3,$4) RETURNING *`;
   const params = [user_id, account_name, account_balance, account_source];
 

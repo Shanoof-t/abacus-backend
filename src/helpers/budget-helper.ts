@@ -27,14 +27,16 @@ export default {
     // total spent calculation
 
     const totalSpent = exisingBudget?.total_spent || 0;
-    const totalSpentAmount = totalSpent + transaction_amount!
+    const totalSpentAmount = totalSpent + transaction_amount!;
 
     // mesure the progress percentage
-    const progress = Math.min(
-      (totalSpentAmount / Number(exisingBudget?.amount_limit)) * 100,
-      100
+    const progress = Math.round(
+      Math.min(
+        (totalSpentAmount / Number(exisingBudget?.amount_limit)) * 100,
+        100
+      )
     );
-
+    
     // finally update with budget
     await budgetRepository.updateProgress({
       category_name,

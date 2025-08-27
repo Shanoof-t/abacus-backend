@@ -14,10 +14,12 @@ const category_service_1 = require("../services/category-service");
 const error_handlers_1 = require("../utils/error-handlers");
 exports.addCategory = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body, user } = req;
-    yield (0, category_service_1.createCategory)(body, user);
-    res
-        .status(201)
-        .json({ status: "success", message: "Category created successfully" });
+    const data = yield (0, category_service_1.createCategory)(body, user);
+    res.status(201).json({
+        status: "success",
+        message: "Category created successfully",
+        data,
+    });
 }));
 exports.getAllCategories = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req;
@@ -30,17 +32,23 @@ exports.getAllCategories = (0, error_handlers_1.asyncErrorHandler)((req, res) =>
 }));
 exports.categoryBulkDelete = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    yield (0, category_service_1.deleteCategories)(body);
+    const data = yield (0, category_service_1.deleteCategories)(body);
     res
         .status(200)
-        .json({ status: "success", message: "Categories delete successfull." });
+        .json({
+        status: "success",
+        message: "Categories delete successfull.",
+        data,
+    });
 }));
 exports.deleteCategory = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    yield (0, category_service_1.deleteCategoryById)(id);
-    res
-        .status(200)
-        .json({ status: "success", message: "Category deleted successfully." });
+    const data = yield (0, category_service_1.deleteCategoryById)(id);
+    res.status(200).json({
+        status: "success",
+        message: "Category deleted successfully.",
+        data,
+    });
 }));
 exports.getCategory = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -52,11 +60,13 @@ exports.getCategory = (0, error_handlers_1.asyncErrorHandler)((req, res) => __aw
     });
 }));
 exports.editCategory = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
     const { id } = req.params;
     const { body } = req;
-    yield (0, category_service_1.editCategoryById)(body, id);
+    const data = yield (0, category_service_1.editCategoryById)(body, id, user);
     res.status(200).json({
         status: "success",
         message: "Category edited successfully.",
+        data,
     });
 }));

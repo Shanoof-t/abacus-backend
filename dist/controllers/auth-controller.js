@@ -8,19 +8,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logoutUser = exports.googleOAuthcallback = exports.googleOAuth = exports.resendOTP = exports.verifyOTP = exports.signIn = exports.signUp = void 0;
 const auth_service_1 = require("../services/auth-service");
 const error_handlers_1 = require("../utils/error-handlers");
+const env_variables_1 = __importDefault(require("../config/env_variables"));
 exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    const { email, _id, user_name } = yield (0, auth_service_1.createUser)(body);
-    const otpInfo = yield (0, auth_service_1.createOTP)({ email, _id });
+    const { email, id, user_name } = yield (0, auth_service_1.createUser)(body);
+    const otpInfo = yield (0, auth_service_1.createOTP)({
+        email,
+        id,
+        user_name,
+    });
     res.status(200).json({
         status: "pending",
-        message: "Verification otp email send",
+        message: "Verification OTP has been sent to your email.",
         data: {
-            userId: _id,
+            userId: id,
             email: email,
             userName: user_name,
             otpInfo,
@@ -29,27 +37,42 @@ exports.signUp = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter
 }));
 exports.signIn = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    const { accessToken, user: { _id, email, user_name }, } = yield (0, auth_service_1.authenticateUser)(body);
-    res.cookie("token", accessToken, {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain: ".abacuss.online",
-        path: "/",
-    });
+    const { accessToken, user: { id, email, user_name }, } = yield (0, auth_service_1.authenticateUser)(body);
+    if (process.env.NODE_ENV === "development") {
+        res.cookie("token", accessToken, {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+        });
+    }
+    else {
+        res.cookie("token", accessToken, {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain: ".abacuss.online",
+            path: "/",
+        });
+    }
     res.status(200).json({
         status: "success",
         message: "Successfully logged In.",
-        data: { _id, email, user_name },
+        data: { id, email, user_name },
+        token: accessToken,
     });
 }));
 exports.verifyOTP = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    yield (0, auth_service_1.verifyUserOTP)(body);
+    const { user, accessToken } = yield (0, auth_service_1.verifyUserOTP)(body);
+    const { email, user_name, id } = user;
     res.status(200).json({
         status: "success",
         message: "OTP vefication is success",
+        data: { id, email, user_name },
+        token: accessToken,
     });
 }));
 exports.resendOTP = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -62,37 +85,51 @@ exports.resendOTP = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awai
 }));
 exports.googleOAuth = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const authorizationUrl = yield (0, auth_service_1.googleOAuthRequest)();
-    res.status(200).json({
-        status: "success",
-        message: "google auth request is successfull",
-        data: { redirectUrl: authorizationUrl },
-    });
+    res.redirect(authorizationUrl);
 }));
 exports.googleOAuthcallback = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { code } = req.body;
+    const { code } = req.query;
     const data = yield (0, auth_service_1.googleOAuthCallback)(code);
-    res.cookie("token", data.accessToken, {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain: ".abacuss.online",
-        path: "/",
-    });
-    res.status(200).json({
-        status: "success",
-        message: "google authentication is Successfull",
-        data,
-    });
+    if (process.env.NODE_ENV === "development") {
+        res.cookie("token", data.accessToken, {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+        });
+    }
+    else {
+        res.cookie("token", data.accessToken, {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain: ".abacuss.online",
+            path: "/",
+        });
+    }
+    const redirectUrl = `${env_variables_1.default.FRONT_END_URL}?name=${data.userData.user_name}`;
+    res.redirect(redirectUrl);
 }));
 exports.logoutUser = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain: ".abacuss.online",
-        path: "/",
-    });
+    if (process.env.NODE_ENV === "development") {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+        });
+    }
+    else {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain: ".abacuss.online",
+            path: "/",
+        });
+    }
     res
         .status(200)
         .json({ status: "success", message: "Logged out successfully" });

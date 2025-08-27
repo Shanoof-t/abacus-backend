@@ -15,6 +15,10 @@ const budgetRouter = express.Router();
 
 budgetRouter.use(authenticateToken);
 
+budgetRouter.use((req, res, next) => {
+  console.log("req url:", req.originalUrl);
+  next();
+});
 budgetRouter
   .route("/")
   .post(validator(schema.add), addBudget)

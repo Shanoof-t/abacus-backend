@@ -18,13 +18,14 @@ const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
 const { ACCESS_TOKEN_SECRET } = env_variables_1.default;
 function authenticateToken(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const token = req.cookies.token;
+        var _a;
+        const token = req.cookies.token || ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]);
         if (!token) {
             const error = new Custom_error_1.default("Access Denied", 400);
             next(error);
         }
         try {
-            const user = (yield jsonwebtoken_1.default.verify(token, ACCESS_TOKEN_SECRET));
+            const user = jsonwebtoken_1.default.verify(token, ACCESS_TOKEN_SECRET);
             if (!user) {
                 const error = new Custom_error_1.default("Access Denied", 400);
                 next(error);

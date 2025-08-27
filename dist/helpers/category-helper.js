@@ -8,31 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const category_model_1 = require("../models/category-model");
+const category_repository_1 = __importDefault(require("../repositories/category-repository"));
 exports.default = {
-    createCategories: (_a) => __awaiter(void 0, [_a], void 0, function* ({ transactions, user }) {
+    createCategories: (_a) => __awaiter(void 0, [_a], void 0, function* ({ transactions, user, isBankCategory = false, }) {
         const user_id = user === null || user === void 0 ? void 0 : user.sub;
         for (const transaction of transactions) {
             const category = transaction.category_name.replace(/\W/g, "");
-            const amount = Math.abs(parseFloat(transaction.transaction_amount));
-            const existingCategory = yield category_model_1.Category.findOne({
+            const existingCategory = yield category_repository_1.default.findOneByName({
                 category_name: category,
+                user_id,
             });
-            if (existingCategory) {
-                yield category_model_1.Category.updateOne({ category_name: category }, {
-                    $inc: {
-                        category_amount: amount,
-                    },
-                });
-            }
             if (!existingCategory) {
-                yield category_model_1.Category.create({
-                    user_id,
+                yield category_repository_1.default.create({
                     category_name: category,
-                    category_amount: amount,
+                    is_bank_category: isBankCategory,
+                    user_id,
                 });
             }
         }
     }),
+    updateCategories: (_a) => __awaiter(void 0, [_a], void 0, function* ({ transactions, user }) { }),
 };

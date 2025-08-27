@@ -8,7 +8,8 @@
     "dev": "NODE_ENV=development nodemon ./src/index.ts",
     "db:create": "ts-node ./scripts/database.ts --create",
     "db:drop": "ts-node ./scripts/database.ts --drop",
-    "migrate": "ts-node ./migrations/migration.ts"
+    "migrate": "ts-node ./migrations/migration.ts",
+    "test": "npm run build && node --test dist/**/*.test.js"
   },
   "keywords": [],
   "author": "",
@@ -51,6 +52,7 @@
     "@types/otp-generator": "^4.0.2",
     "@types/pg": "^8.15.4",
     "colors": "^1.4.0",
+    "jest": "^30.1.1",
     "node-pg-migrate": "^8.0.3",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",

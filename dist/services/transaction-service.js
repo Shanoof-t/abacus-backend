@@ -13,38 +13,78 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createTransactions = exports.editTransactionById = exports.fetchTransactionById = exports.deleteTransactionById = exports.deleteTransactions = exports.fetchAllTransactions = exports.createTransaction = void 0;
-const transaction_model_1 = require("../models/transaction-model");
-const mongodb_1 = require("mongodb");
 const Custom_error_1 = __importDefault(require("../utils/Custom-error"));
-const category_model_1 = require("../models/category-model");
 const category_helper_1 = __importDefault(require("../helpers/category-helper"));
 const transaction_helper_1 = __importDefault(require("../helpers/transaction-helper"));
+const account_helper_1 = __importDefault(require("../helpers/account-helper"));
+const transaction_repository_1 = __importDefault(require("../repositories/transaction-repository"));
+const account_repository_1 = __importDefault(require("../repositories/account-repository"));
+const category_repository_1 = __importDefault(require("../repositories/category-repository"));
 const createTransaction = (body, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user) {
+        throw new Custom_error_1.default("user is not exist,", 400);
+    }
     const { account_name, category_name, transaction_amount, transaction_date, transaction_payee, transaction_note, is_recurring, recurring_frequency, transaction_type, } = body;
-    const transaction = yield transaction_model_1.Transaction.create({
-        user_id: user === null || user === void 0 ? void 0 : user.sub,
-        transaction_date,
+    const currentAccount = yield account_repository_1.default.findOneByName({
         account_name,
-        transaction_amount: parseFloat(transaction_amount),
-        category_name,
-        transaction_payee,
-        transaction_type,
-        transaction_note,
+        user_id: user === null || user === void 0 ? void 0 : user.sub,
     });
+    if (!currentAccount)
+        throw new Custom_error_1.default(`Can't find Account with this name ${account_name}`, 404);
+    const currentCategory = yield category_repository_1.default.findOneByName({
+        user_id: user.sub,
+        category_name,
+    });
+    if (!currentCategory)
+        throw new Custom_error_1.default(`Can't find Category with this name ${category_name}`, 404);
+    let transaction;
     if (is_recurring) {
-        yield transaction_helper_1.default.handleRecurring({
-            category_name,
-            is_recurring,
-            transaction,
-            transaction_amount,
-            transaction_type,
-            user,
+        const next_date = transaction_helper_1.default.calculateNextRecurringDate({
             recurring_frequency,
             transaction_date,
         });
+        transaction = yield transaction_repository_1.default.create({
+            user_id: user.sub,
+            transaction_date,
+            account_name,
+            transaction_amount,
+            category_name,
+            transaction_payee,
+            transaction_type,
+            transaction_note,
+            is_bank_transaction: false,
+            is_estimated: true,
+            is_recurring,
+            next_date,
+            recurring_frequency,
+        });
+        yield transaction_helper_1.default.handleRecurring({
+            transaction,
+            user,
+        });
     }
-    // update category amount based on transaction
-    yield category_model_1.Category.updateOne({ category_name }, { $inc: { category_amount: Math.abs(parseFloat(transaction_amount)) } });
+    else {
+        transaction = yield transaction_repository_1.default.create({
+            user_id: user.sub,
+            transaction_date,
+            account_name,
+            transaction_amount,
+            category_name,
+            transaction_payee,
+            transaction_type,
+            transaction_note,
+            is_bank_transaction: false,
+            is_estimated: true,
+            is_recurring,
+        });
+    }
+    yield account_helper_1.default.updateAccountBalance({
+        account_name,
+        transaction_amount: Number(transaction_amount),
+        transaction_type,
+        user,
+        account: currentAccount,
+    });
     // update budget
     if (transaction.transaction_type === "expense") {
         const alert = yield transaction_helper_1.default.handleBudgetUpdateAndCreateAlerts({
@@ -60,52 +100,83 @@ const createTransaction = (body, user) => __awaiter(void 0, void 0, void 0, func
 });
 exports.createTransaction = createTransaction;
 const fetchAllTransactions = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const transactions = yield transaction_model_1.Transaction.find({ user_id: user === null || user === void 0 ? void 0 : user.sub });
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    const transactions = yield transaction_repository_1.default.findById(user.sub);
     return transactions;
 });
 exports.fetchAllTransactions = fetchAllTransactions;
 const deleteTransactions = (body) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = body.map((id) => new mongodb_1.ObjectId(id));
-    yield transaction_model_1.Transaction.deleteMany({ _id: { $in: ids } });
+    const transactions = yield transaction_repository_1.default.deleteMany(body);
+    return transactions;
 });
 exports.deleteTransactions = deleteTransactions;
 const deleteTransactionById = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const deletedResult = yield transaction_model_1.Transaction.deleteOne({ _id: id });
-    if (deletedResult.deletedCount === 0)
-        throw new Custom_error_1.default("Can't delete transaction,", 400);
+    const transaction = yield transaction_repository_1.default.deleteOneById(id);
+    if (!transaction)
+        throw new Custom_error_1.default("Can't delete transaction.", 400);
+    return transaction;
 });
 exports.deleteTransactionById = deleteTransactionById;
 const fetchTransactionById = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const transaction = yield transaction_model_1.Transaction.findOne({ _id: id });
+    const transaction = yield transaction_repository_1.default.findOneById(id);
     if (!transaction)
         throw new Custom_error_1.default("Can't find transaction.", 400);
     return transaction;
 });
 exports.fetchTransactionById = fetchTransactionById;
-const editTransactionById = (body, user, id) => __awaiter(void 0, void 0, void 0, function* () {
-    const transaction_type = parseFloat(body.transaction_amount) > 0 ? "income" : "expense";
-    yield transaction_model_1.Transaction.updateOne({ _id: id }, {
-        $set: {
-            account_name: body.account_name,
-            category_name: body.category_name,
-            transaction_amount: parseFloat(body.transaction_amount),
-            transaction_date: body.transaction_date,
-            transaction_payee: body.transaction_payee,
-            transaction_note: body.transaction_note,
-            transaction_type,
-        },
+const editTransactionById = (body, id, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    const currentTransaction = yield transaction_repository_1.default.findOneById(id);
+    if (!currentTransaction)
+        throw new Custom_error_1.default("Can't find transaction.", 400);
+    const currentAccount = yield account_repository_1.default.findOneByName({
+        account_name: body.account_name,
+        user_id: user === null || user === void 0 ? void 0 : user.sub,
     });
+    if (!currentAccount)
+        throw new Custom_error_1.default(`Can't find Account with this name ${body.account_name}`, 404);
+    const currentCategory = yield category_repository_1.default.findOneByName({
+        user_id: user.sub,
+        category_name: body.category_name,
+    });
+    if (!currentCategory)
+        throw new Custom_error_1.default(`Can't find Category with this name ${body.category_name}`, 404);
+    const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
+    const updatedTransaction = {
+        account_name: body.account_name,
+        category_name: body.category_name,
+        transaction_amount: body.transaction_amount,
+        transaction_date: body.transaction_date,
+        transaction_payee: body.transaction_payee,
+        transaction_type,
+        user_id: user.sub,
+        transaction_note: body.transaction_note,
+        recurring_frequency: body.recurring_frequency,
+        is_recurring: body.is_recurring,
+    };
+    const transaction = yield transaction_repository_1.default.updateOneById(id, updatedTransaction);
+    return transaction;
 });
 exports.editTransactionById = editTransactionById;
 const createTransactions = (_a) => __awaiter(void 0, [_a], void 0, function* ({ body, user, }) {
-    const user_id = user === null || user === void 0 ? void 0 : user.sub;
+    if (!user)
+        throw new Custom_error_1.default("user is not exist,", 400);
+    const user_id = user.sub;
     const adjustedTransactions = body.map((transaction) => {
-        const transaction_type = parseFloat(transaction.transaction_amount) > 0 ? "income" : "expense";
+        const transaction_type = transaction.transaction_amount > 0 ? "income" : "expense";
         return Object.assign(Object.assign({}, transaction), { user_id,
-            transaction_type, transaction_amount: parseFloat(transaction.transaction_amount) });
+            transaction_type, transaction_amount: transaction.transaction_amount });
+    });
+    // also create the account
+    yield account_helper_1.default.createAccounts({
+        transactions: body,
+        user,
     });
     // check category
     yield category_helper_1.default.createCategories({ transactions: body, user });
-    yield transaction_model_1.Transaction.insertMany(adjustedTransactions);
+    const transactions = yield transaction_repository_1.default.insertMany(adjustedTransactions);
+    return transactions;
 });
 exports.createTransactions = createTransactions;

@@ -13,12 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const http_1 = require("http");
 const loaders_1 = __importDefault(require("./loaders"));
+const sockets_1 = __importDefault(require("./sockets"));
 const app = (0, express_1.default)();
+const server = (0, http_1.createServer)(app);
+const PORT = process.env.PORT || 8080;
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, loaders_1.default)({ app, express: express_1.default });
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => {
+    sockets_1.default.init(server);
+    server.listen(PORT, () => {
         console.log(`Abacus Running On Port:${PORT}`);
     });
 });

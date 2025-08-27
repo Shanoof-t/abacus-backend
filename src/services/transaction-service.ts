@@ -187,6 +187,9 @@ export const editTransactionById = async (
     transaction_payee: body.transaction_payee,
     transaction_type,
     user_id: user.sub,
+    transaction_note: body.transaction_note,
+    recurring_frequency: body.recurring_frequency,
+    is_recurring: body.is_recurring,
   };
 
   const transaction = await transactionRepository.updateOneById(

@@ -15,9 +15,7 @@ const error_handlers_1 = require("../utils/error-handlers");
 exports.addBudget = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body, user } = req;
     const budget = yield (0, budget_service_1.createBudget)(body, user);
-    res
-        .status(200)
-        .json({
+    res.status(200).json({
         status: "success",
         message: "Successfully created budget.",
         data: budget,
@@ -43,15 +41,14 @@ exports.getBudget = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awai
 exports.deleteBudget = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req;
     const { id } = req.params;
-    yield (0, budget_service_1.deleteBudgetByName)({ user, id });
+    const data = yield (0, budget_service_1.deleteBudgetByName)({ user, id });
     res
         .status(200)
-        .json({ status: "success", message: "Successfully deleted budget" });
+        .json({ status: "success", message: "Successfully deleted budget", data });
 }));
 exports.updateBudget = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, body } = req;
     const { id } = req.params;
-    console.log("body in controller", body);
     const existingBudget = yield (0, budget_service_1.updateBudgetByName)({ body, user, id });
     res.status(200).json({
         status: "success",

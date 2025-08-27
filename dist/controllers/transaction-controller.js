@@ -31,17 +31,22 @@ exports.getAllTransactions = (0, error_handlers_1.asyncErrorHandler)((req, res) 
 }));
 exports.deleteBulkTransactions = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    yield (0, transaction_service_1.deleteTransactions)(body);
-    res
-        .status(200)
-        .json({ status: "success", message: "Transactions deletion successfull." });
+    console.log("body:", body);
+    const data = yield (0, transaction_service_1.deleteTransactions)(body);
+    res.status(200).json({
+        status: "success",
+        message: "Transactions deletion successfull.",
+        data,
+    });
 }));
 exports.deleteTransaction = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    yield (0, transaction_service_1.deleteTransactionById)(id);
-    res
-        .status(200)
-        .json({ status: "success", message: "Transaction deleted successfully." });
+    const data = yield (0, transaction_service_1.deleteTransactionById)(id);
+    res.status(200).json({
+        status: "success",
+        message: "Transaction deleted successfully.",
+        data,
+    });
 }));
 exports.getTransaction = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -55,16 +60,19 @@ exports.getTransaction = (0, error_handlers_1.asyncErrorHandler)((req, res) => _
 exports.editTransaction = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body, user } = req;
     const { id } = req.params;
-    yield (0, transaction_service_1.editTransactionById)(body, user, id);
-    res
-        .status(200)
-        .json({ status: "success", message: "Transaction updated." });
+    const transaction = yield (0, transaction_service_1.editTransactionById)(body, id, user);
+    res.status(200).json({
+        status: "success",
+        message: "Transaction updated.",
+        data: transaction,
+    });
 }));
 exports.createBulkTransactions = (0, error_handlers_1.asyncErrorHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, body } = req;
-    yield (0, transaction_service_1.createTransactions)({ body, user });
+    const data = yield (0, transaction_service_1.createTransactions)({ body, user });
     res.status(200).json({
         status: "success",
         message: "transactions created successfully",
+        data,
     });
 }));

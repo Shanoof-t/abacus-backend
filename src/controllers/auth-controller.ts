@@ -71,7 +71,7 @@ export const verifyOTP = asyncErrorHandler(async (req, res) => {
   const { body } = req;
   const { user, accessToken } = await verifyUserOTP(body);
   const { email, user_name, id } = user;
-  
+
   res.status(200).json({
     status: "success",
     message: "OTP vefication is success",
@@ -118,7 +118,10 @@ export const googleOAuthcallback = asyncErrorHandler(async (req, res) => {
     });
   }
 
-  const redirectUrl = `${env.FRONT_END_URL}?name=${data.userData.user_name}`;
+  const redirectUrl = `${env.FRONT_END_URL}?name=${encodeURIComponent(
+    data.userData.user_name
+  )}&picture=${encodeURIComponent(data.userData.picture!)}`;
+
   res.redirect(redirectUrl);
 });
 

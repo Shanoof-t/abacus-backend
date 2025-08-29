@@ -12,7 +12,7 @@ export const createSummary = async (body: CreateSummary, user?: User) => {
 
   const income = await statisticsHelper.getIncome(body, user);
   const expense = await statisticsHelper.getExpense(body, user);
-  
+
   const remaining = income - expense;
 
   const currentMonth = body.from;
@@ -49,9 +49,8 @@ export const createSummary = async (body: CreateSummary, user?: User) => {
     remaining,
     pastMonthIncomePercentage: Math.round(clamp(pastMonthIncomePercentage)),
     pastMonthExpensePercentage: Math.round(clamp(pastMonthExpensePercentage)),
-    pastMonthRemainingPercentage: Math.round(
-      clamp(pastMonthRemainingPercentage)
-    ),
+    pastMonthRemainingPercentage:
+      remaining < 0 ? 0 : Math.round(clamp(pastMonthRemainingPercentage)),
   };
 };
 

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const budget_repository_1 = __importDefault(require("../repositories/budget-repository"));
+const utils_1 = require("../utils/utils");
 exports.default = {
     findOneBudgetWithCategory: (_a) => __awaiter(void 0, [_a], void 0, function* ({ user_id, category_name, }) {
         return yield budget_repository_1.default.findOneByName({ category_name, user_id });
@@ -28,7 +29,10 @@ exports.default = {
             const totalSpent = (exisingBudget === null || exisingBudget === void 0 ? void 0 : exisingBudget.total_spent) || 0;
             const totalSpentAmount = totalSpent + transaction_amount;
             // mesure the progress percentage
-            const progress = Math.round(Math.min((totalSpentAmount / Number(exisingBudget === null || exisingBudget === void 0 ? void 0 : exisingBudget.amount_limit)) * 100, 100));
+            const progress = (0, utils_1.calculateBudgetProgress)({
+                budgetLimit: exisingBudget.amount_limit,
+                totalSpentAmount,
+            });
             // finally update with budget
             yield budget_repository_1.default.updateProgress({
                 category_name,

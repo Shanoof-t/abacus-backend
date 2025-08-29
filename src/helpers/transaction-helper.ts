@@ -9,6 +9,7 @@ import {
 } from "../types";
 import notificationRepository from "../repositories/notification-repository";
 import budgetHelper from "./budget-helper";
+import { INotification } from "../types/notification-type";
 
 export default {
   // set date
@@ -45,8 +46,9 @@ export default {
     ).getFullYear()}`;
     console.log(`Scheduled time: ${scheduledTime}`);
 
-    // return "47 20 19 5 *"; // this is only for testing
-    return `${minute} ${hour} ${day} ${month} *`;
+    return process.env.NODE_ENV === "development"
+      ? "39 03 29 8 *"
+      : `${minute} ${hour} ${day} ${month} *`;
   },
   //   make recurring task
   scheduleRecurringNotification: async ({
@@ -79,6 +81,7 @@ export default {
             future_payload: transaction_id,
             is_read: false,
             status: "PENDING",
+            notification_type: "reccuring-alert",
           });
 
           notificationEvents.sendRecurringNotification({
@@ -115,9 +118,20 @@ export default {
       category_name,
     });
 
+    let notificationDetails: INotification = {
+      user_id: user.sub,
+      is_server_notification: true,
+      future_payload: category_name,
+      is_read: false,
+      status: "PENDING",
+      notification_type: "budget-alert",
+      message: "",
+      title: "",
+    };
+
     if (updatedBudget?.progress && updatedBudget?.progress >= 100) {
-      const alertMessage = `Your exceeded ${category_name} by ${updatedBudget.total_spent}`;
-      return alertMessage;
+      notificationDetails.title = `Budget Limit Exceeded for ${category_name}`;
+      notificationDetails.message = `You have exceeded your ${category_name} budget by ${updatedBudget.total_spent}.`;
     }
 
     if (
@@ -125,9 +139,18 @@ export default {
       updatedBudget?.progress &&
       updatedBudget.progress >= updatedBudget.alert_threshold
     ) {
-      const alertMessage = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}.`;
-      return alertMessage;
+      notificationDetails.title = `Budget Alert: ${category_name} Nearing Limit`;
+      notificationDetails.message = `Your ${category_name} budget is nearing its limit. You’ve spent ${updatedBudget.total_spent}, which is close to the alert threshold of ${updatedBudget.alert_threshold}%.`;
     }
+
+    const notification = await notificationRepository.create(
+      notificationDetails
+    );
+
+    notificationEvents.sendBudgetAlertNotification({
+      userId: user?.sub,
+      notification,
+    });
   },
   handleRecurring: async function ({ transaction, user }: IHandleRecurring) {
     const {

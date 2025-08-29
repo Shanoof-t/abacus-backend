@@ -105,15 +105,11 @@ export const createTransaction = async (
 
   // update budget
   if (transaction.transaction_type === "expense") {
-    const alert = await transactionHelper.handleBudgetUpdateAndCreateAlerts({
+    await transactionHelper.handleBudgetUpdateAndCreateAlerts({
       category_name,
       transaction_amount,
       user,
     });
-
-    if (alert) {
-      return { alert, transaction };
-    }
   }
 
   return { transaction };
@@ -177,7 +173,7 @@ export const editTransactionById = async (
       404
     );
 
-  const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
+  // const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
 
   const updatedTransaction: ITransaction = {
     account_name: body.account_name,
@@ -185,7 +181,7 @@ export const editTransactionById = async (
     transaction_amount: body.transaction_amount,
     transaction_date: body.transaction_date,
     transaction_payee: body.transaction_payee,
-    transaction_type,
+    transaction_type: body.transaction_type,
     user_id: user.sub,
     transaction_note: body.transaction_note,
     recurring_frequency: body.recurring_frequency,

@@ -91,6 +91,8 @@ export const updateNotificationById = async ({
   } else if (action === "CANCEL_RECURRING") {
     await notificationRepository.deleteById(id);
     return { message: "The reccuring transaction is cancled" };
+  } else if (action === "READED_BUDGET_ALERT") {
+    await notificationRepository.deleteById(id);
   } else {
     throw new CustomError(`This action ${action} is incurrect`, 400);
   }

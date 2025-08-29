@@ -50,7 +50,7 @@ const createSummary = (body, user) => __awaiter(void 0, void 0, void 0, function
         remaining,
         pastMonthIncomePercentage: Math.round(clamp(pastMonthIncomePercentage)),
         pastMonthExpensePercentage: Math.round(clamp(pastMonthExpensePercentage)),
-        pastMonthRemainingPercentage: Math.round(clamp(pastMonthRemainingPercentage)),
+        pastMonthRemainingPercentage: remaining < 0 ? 0 : Math.round(clamp(pastMonthRemainingPercentage)),
     };
 });
 exports.createSummary = createSummary;

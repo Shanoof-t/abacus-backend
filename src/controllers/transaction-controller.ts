@@ -12,13 +12,12 @@ import { asyncErrorHandler } from "../utils/error-handlers";
 export const addTransaction = asyncErrorHandler(async (req, res) => {
   const { body, user } = req;
 
-  const { alert, transaction } = await createTransaction(body, user);
+  const { transaction } = await createTransaction(body, user);
 
   res.status(200).json({
     status: "success",
     message: "Transaction is successful.",
     data: transaction,
-    alert,
   });
 });
 

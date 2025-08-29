@@ -153,4 +153,16 @@ export default {
     const categories = Array.from(categoriesMap.values());
     return categories;
   },
+  createPastMonthIncomePercentage: ({
+    income,
+    pastMonthIncome,
+  }: {
+    pastMonthIncome: number;
+    income: number;
+  }) => {
+    const pastMonthIncomePercentage =
+      ((pastMonthIncome - income) / income) * -100;
+
+    return Math.round(pastMonthIncomePercentage);
+  },
 };

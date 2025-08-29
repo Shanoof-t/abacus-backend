@@ -7,4 +7,5 @@ export interface INotification {
   is_read: boolean;
   is_server_notification: boolean;
   future_payload?: string;
+  notification_type: "budget-alert" | "reccuring-alert";
 }

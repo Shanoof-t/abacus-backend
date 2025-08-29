@@ -143,14 +143,14 @@ const editTransactionById = (body, id, user) => __awaiter(void 0, void 0, void 0
     });
     if (!currentCategory)
         throw new Custom_error_1.default(`Can't find Category with this name ${body.category_name}`, 404);
-    const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
+    // const transaction_type = body.transaction_amount > 0 ? "income" : "expense";
     const updatedTransaction = {
         account_name: body.account_name,
         category_name: body.category_name,
         transaction_amount: body.transaction_amount,
         transaction_date: body.transaction_date,
         transaction_payee: body.transaction_payee,
-        transaction_type,
+        transaction_type: body.transaction_type,
         user_id: user.sub,
         transaction_note: body.transaction_note,
         recurring_frequency: body.recurring_frequency,

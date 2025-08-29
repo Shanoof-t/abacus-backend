@@ -111,4 +111,8 @@ exports.default = {
         const categories = Array.from(categoriesMap.values());
         return categories;
     }),
+    createPastMonthIncomePercentage: ({ income, pastMonthIncome, }) => {
+        const pastMonthIncomePercentage = ((pastMonthIncome - income) / income) * -100;
+        return pastMonthIncomePercentage;
+    },
 };

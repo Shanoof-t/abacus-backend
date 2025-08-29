@@ -1,4 +1,3 @@
-
 CREATE TABLE
     IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
@@ -8,5 +7,6 @@ CREATE TABLE
         status status_enum DEFAULT 'PENDING',
         is_read BOOLEAN NOT NULL DEFAULT false,
         is_server_notification BOOLEAN NOT NULL DEFAULT false,
-        future_payload VARCHAR(255)
+        future_payload VARCHAR(255),
+        notification_type notification_type_enum
     )

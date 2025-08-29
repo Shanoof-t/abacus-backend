@@ -2,16 +2,23 @@ import { query } from "../../loaders/db";
 import { INotification } from "../../types/notification-type";
 
 const create = async (data: INotification): Promise<INotification> => {
-  const { user_id, message, title, is_server_notification, future_payload } =
-    data;
+  const {
+    user_id,
+    message,
+    title,
+    is_server_notification,
+    future_payload,
+    notification_type,
+  } = data;
   const queryText =
-    "INSERT INTO notifications (user_id,message,title,is_server_notification,future_payload) VALUES ($1,$2,$3,$4,$5) RETURNING *";
+    "INSERT INTO notifications (user_id,message,title,is_server_notification,future_payload,notification_type) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *";
   const params = [
     user_id,
     message,
     title,
     is_server_notification,
     future_payload,
+    notification_type
   ];
   const res = await query(queryText, params);
   return res.rows[0];

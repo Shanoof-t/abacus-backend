@@ -21,6 +21,18 @@ function sendRecurringNotification({
   io.to(userId).emit("notification:send", notification);
 }
 
+function sendBudgetAlertNotification({
+  userId,
+  notification,
+}: {
+  userId: string;
+  notification: INotification;
+}) {
+  const io = sockets.getIO();
+  io.to(userId).emit("notification:send", notification);
+}
+
 export default {
   sendRecurringNotification,
+  sendBudgetAlertNotification,
 };

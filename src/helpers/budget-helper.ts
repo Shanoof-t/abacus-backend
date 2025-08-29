@@ -1,4 +1,5 @@
 import budgetRepository from "../repositories/budget-repository";
+import { calculateBudgetProgress } from "../utils/utils";
 
 type BudgetWithCategory = {
   user_id: string;
@@ -30,13 +31,11 @@ export default {
     const totalSpentAmount = totalSpent + transaction_amount!;
 
     // mesure the progress percentage
-    const progress = Math.round(
-      Math.min(
-        (totalSpentAmount / Number(exisingBudget?.amount_limit)) * 100,
-        100
-      )
-    );
-    
+    const progress = calculateBudgetProgress({
+      budgetLimit: exisingBudget.amount_limit,
+      totalSpentAmount,
+    });
+
     // finally update with budget
     await budgetRepository.updateProgress({
       category_name,

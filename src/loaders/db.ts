@@ -27,12 +27,12 @@ export const query = async (queryText: string, params?: any[]) => {
     const res = await pool.query(queryText, params);
     const duration = Date.now() - startTime;
 
-    console.log("QUERY EXECUTED:", {
-      query: queryText,
-      duration,
-      rowCount: res.rowCount,
-      rows: res.rows,
-    });
+    // console.log("QUERY EXECUTED:", {
+    //   query: queryText,
+    //   duration,
+    //   rowCount: res.rowCount,
+    //   rows: res.rows,
+    // });
 
     return res;
   } catch (error: any) {

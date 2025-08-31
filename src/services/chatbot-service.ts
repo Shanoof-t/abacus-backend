@@ -18,7 +18,7 @@ export const createChatbotAnswer = async ({
     message: data.prompt,
     sender: user.sub,
   });
-  console.log("ai response:", response);
+
   return {
     id: Math.random(),
     prompt: data.prompt,

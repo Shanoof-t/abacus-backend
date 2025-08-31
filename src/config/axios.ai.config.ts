@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const aiApiClient = axios.create({
   baseURL: process.env.ABACUS_AI_URL,
@@ -12,9 +12,9 @@ aiApiClient.interceptors.response.use(
     // console.log("SUCCESS-RESPONSE>>>>>", res);
     return res;
   },
-  (err) => {
-    console.error("ERROR-RESPONSE>>>>>", err.response.data.message);
-    return Promise.reject(err.response.data);
+  (err: AxiosError) => {
+    console.error("ERROR-RESPONSE>>>>>", err.cause ?? "error happened");
+    return Promise.reject(err.cause || "something wrong happened!");
   }
 );
 

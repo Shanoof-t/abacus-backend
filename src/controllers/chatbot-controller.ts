@@ -13,7 +13,9 @@ export const createChatbotAnswer = asyncErrorHandler(async (req, res) => {
 });
 
 export const getChats = asyncErrorHandler(async (req, res) => {
-  const response = await chatbotService.getChats();
+  const user = req.user;
+
+  const response = await chatbotService.getChats({user});
   res
     .status(200)
     .json({ status: "success", messages: "Successfull", data: response });
